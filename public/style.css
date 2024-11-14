@@ -1,60 +1,58 @@
-body{
-    background-color: #121212;
-    color: white;
-    font-style: inherit;
-    font-family: Arial, Helvetica, sans-serif;
-    color: white;
+body {
+	background-color: #121212;
+	color: white;
+	font-style: inherit;
+	font-family: Arial, Helvetica, sans-serif;
+	color: white;
 }
-#game{
-    top: 1%;
-    left: 30%;
-    position: fixed;
-    display: none;
-    align-items: center;
-    text-align: center;
+#game {
+	top: 1%;
+	left: 30%;
+	position: fixed;
+	display: none;
+	align-items: center;
+	text-align: center;
 }
-#joinLobby{
-    left: 45%;
-    top: 20%;
-    position: fixed;
+#joinLobby {
+	left: 45%;
+	top: 20%;
+	position: fixed;
 }
 #wynik {
-    font-size: 34px;
+	font-size: 34px;
 }
 canvas {
-    border: 1px solid white;
+	border: 1px solid white;
 }
 #chat {
-    word-wrap: break-word;
-    border-radius: 6px;
-    padding: 4px;
-    background-color: rgb(34, 34, 34, 0.4);
-    width: 300px;
-    height: 200px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    text-align: justify;
-
+	word-wrap: break-word;
+	border-radius: 6px;
+	padding: 4px;
+	background-color: rgb(34, 34, 34, 0.4);
+	width: 300px;
+	height: 200px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	text-align: justify;
 }
 #ranking {
-    right: 71%;
-    top: 33%;
-    position: absolute;
-    word-wrap: break-word;
-    border-radius: 6px;
-    padding: 4px;
-    background-color: rgb(34, 34, 34, 0.4);
-    width: 300px;
-    height: 200px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    text-align: justify;
-
+	right: 71%;
+	top: 33%;
+	position: absolute;
+	word-wrap: break-word;
+	border-radius: 6px;
+	padding: 4px;
+	background-color: rgb(34, 34, 34, 0.4);
+	width: 300px;
+	height: 200px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	text-align: justify;
 }
-#wiadomosci{
-    left: 78%;
-    top: 33%;
-    position: absolute;
+#wiadomosci {
+	left: 78%;
+	top: 33%;
+	position: absolute;
 }
 
 /*html,body {

@@ -1,25 +1,29 @@
 <!doctype html>
 <html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <title>Snake multiplayer</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div id="joinLobby">
-        <input type="text" placeholder="Nickname" id="nickname"><br>
-<!--        <input type="text" id="ip" placeholder="ws://0.0.0.0:0000">-->
-        <button id="connect">Connect</button>
-    </div>
-    <div id="game">
-        <span id="wynik">Wynik: </span><br>
-        <canvas id="plansza"></canvas>
-    </div>
-    <div id="ranking"></div>
-    <div id="wiadomosci">
-    <div id="chat"></div><br>
-        <input type="text" placeholder="Message" id="msg"><button id="sendMsg">send</button>
-    </div>
-    <button onclick="location.reload()" id="restart">RESTART</button>
-    <script src="snake2.js"></script>
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Snake multiplayer</title>
+		<link rel="stylesheet" href="style.css" />
+	</head>
+	<body>
+		<div id="joinLobby">
+			<input type="text" placeholder="Nickname" id="nickname" /><br />
+			<!--        <input type="text" id="ip" placeholder="ws://0.0.0.0:0000">-->
+			<button id="connect">Connect</button>
+		</div>
+		<div id="game">
+			<span id="wynik">Wynik: </span><br />
+			<canvas id="plansza"></canvas>
+		</div>
+		<div id="ranking"></div>
+		<div id="wiadomosci">
+			<div id="chat"></div>
+			<br />
+			<input type="text" placeholder="Message" id="msg" /><button id="sendMsg">
+				send
+			</button>
+		</div>
+		<button onclick="location.reload()" id="restart">RESTART</button>
+		<script src="snake2.js"></script>
+	</body>
+</html>
