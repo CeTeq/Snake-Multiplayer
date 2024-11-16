@@ -141,7 +141,8 @@ function loop() {
 		document.getElementById('wynik').innerHTML = 'Wynik: ' + wynik;
 	} //Koniec gry
 	else {
-		document.getElementById('wynik').innerHTML = 'Koniec gry Wynik: ' + wynik;
+		document.getElementById('wynik').innerHTML =
+			'Koniec gry Wynik: ' + wynik;
 		//clearInterval(klatka);
 	}
 
