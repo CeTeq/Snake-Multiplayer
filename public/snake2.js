@@ -8,7 +8,7 @@ let jablko;
 let wynik = 0;
 let gameover = false; //gdy jest rowny true - koniec gry
 let socket;
-let klawisz;
+let ruch;
 let i = 0;
 let napisy = [];
 let ipAddr;
@@ -114,15 +114,42 @@ function loop() {
 
     window.addEventListener('keydown', (e) => {
         //Obłsuga klawiszy
-        if (e.code != klawisz) {
+
+        let klawisz = e.code;
+        let nruch;
+
+        if (klawisz == 'KeyD' || klawisz == "ArrowRight") 
+        {
+            nruch = "p";
+        } 
+        else if (klawisz == 'KeyA' || klawisz == "ArrowLeft")
+        {
+            nruch = "l";
+        } 
+        else if (klawisz == 'KeyW' || klawisz == "ArrowUp") 
+        {
+            nruch = "g";
+        }
+        else if (klawisz == 'KeyS' || klawisz == "ArrowDown") 
+        {
+            nruch = "d";
+        }
+
+        if(nruch != ruch)
+        {
             socket.send(
                 JSON.stringify({
-                    klawisz: e.code,
+                    ruch: nruch,
                 }),
             );
-            if (wiadomosc) wiadomosc = undefined;
         }
-        klawisz = e.code;
+
+        ruch = nruch;
+
+        if (wiadomosc)
+        {
+            wiadomosc = undefined;
+        }
     });
     ranking.innerHTML = '';
     napisy.sort((a, b) => b.wynik - a.wynik);
