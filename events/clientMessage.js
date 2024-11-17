@@ -4,41 +4,37 @@ export function clientMessage(wia, ws) {
     wia = JSON.parse(wia);
     let sn = gracze.get(ws);
 
-    if (sn != undefined && sn.czy_pierwszy) {
+    if (sn.czy_pierwszy) {
         sn.nick = wia.nick;
         sn.czy_pierwszy = false;
         gracze.set(ws, sn);
-        chat.push('Gracz ' + sn.nick + ' dołączył do gry');
-        sn.cells.forEach((c) => {
-            c.nick = sn.nick;
-        });
-    } else {
+        chat.push('<span style="color: green;">Gracz ' + sn.nick + ' dołączył do gry</span>');
+    } 
+    else {
         let klawisz = wia.klawisz;
         let wiadomosc = wia.wiadomosc;
         if (wiadomosc != undefined) {
             if (wiadomosc != null) {
                 chat.push(wiadomosc);
             }
-        } else if (sn != undefined) {
-            console.log('Klient wcisnal:', klawisz);
-            if (gracze.get(ws) != undefined) {
-                let waz = gracze.get(ws);
+        } 
+        else {
+            let waz = gracze.get(ws);
 
-                if (klawisz == 'KeyD' && waz.dx >= 0) {
-                    waz.dx = grid;
-                    waz.dy = 0;
-                } else if (klawisz == 'KeyA' && waz.dx <= 0) {
-                    waz.dx = -grid;
-                    waz.dy = 0;
-                } else if (klawisz == 'KeyW' && waz.dy <= 0) {
-                    waz.dy = -grid;
-                    waz.dx = 0;
-                } else if (klawisz == 'KeyS' && waz.dy >= 0) {
-                    waz.dy = grid;
-                    waz.dx = 0;
-                }
-                gracze.set(ws, waz);
+            if ((klawisz == 'KeyD' || klawisz == "ArrowRight") && waz.dx >= 0) {
+                waz.dx = grid;
+                waz.dy = 0;
+            } else if ((klawisz == 'KeyA' || klawisz == "ArrowLeft") && waz.dx <= 0) {
+                waz.dx = -grid;
+                waz.dy = 0;
+            } else if ((klawisz == 'KeyW' || klawisz == "ArrowUp") && waz.dy <= 0) {
+                waz.dy = -grid;
+                waz.dx = 0;
+            } else if ((klawisz == 'KeyS' || klawisz == "ArrowDown") && waz.dy >= 0) {
+                waz.dy = grid;
+                waz.dx = 0;
             }
+            gracze.set(ws, waz);
         }
     }
 }

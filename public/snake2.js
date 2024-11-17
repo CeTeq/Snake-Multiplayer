@@ -114,7 +114,6 @@ function loop() {
 
     window.addEventListener('keydown', (e) => {
         //Obłsuga klawiszy
-
         if (e.code != klawisz) {
             socket.send(
                 JSON.stringify({
@@ -148,7 +147,7 @@ function loop() {
 
     //wyświetlanie nicków
     context.fillStyle = 'white';
-    context.font = '10px serif';
+    context.font = '12px serif';
 
     napisy.forEach((nap) => {
         context.fillText(nap.n, nap.x, nap.y);
@@ -162,8 +161,3 @@ function restart_game() {
     klatka = setInterval(loop, 10); //10fps
 }
 
-function restart_game() {
-    init();
-    clearInterval(klatka);
-    klatka = setInterval(loop, 10); //10fps
-}
