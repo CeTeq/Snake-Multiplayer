@@ -3,6 +3,10 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path';
+import { clientMessage } from './events/clientMessage.js';
+import { colisions } from './checks/colisions.js';
+import { isInGrid } from './checks/isInGrid.js';
+import { gameUpdateMsg } from './messages/gameUpdate.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -12,19 +16,21 @@ const wss = new WebSocketServer({ port: 8080, host: '0.0.0.0' });
 const app = express();
 const port = 8000;
 
+export let grid = 16;
+export const gracze = new Map();
+export let chat = [];
+export let kolizje = [];
+export let plan = new Map();
+export let wysokosc_planszy = grid * 40;
+export let szerokosc_planszy = grid * 40;
+
 let fl = false;
-const gracze = new Map();
 const klienci = new Map();
 let liczba_graczy = 0;
 let pol = 0;
-let grid = 16;
-let wysokosc_planszy = 640;
-let szerokosc_planszy = 640;
-let plan = new Map();
+
 let liczba_jablek = 4;
-let chat = [];
 let czy_gra;
-let kolizje = [];
 const kolory = ['green', 'red', 'blue', 'orange', 'purple', 'yellow'];
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -36,7 +42,7 @@ app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
 
-function getRandomInt(min, max) {
+export function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
@@ -82,63 +88,7 @@ wss.on('connection', (ws) => {
         plan.set(c, c);
     });
 
-    ws.on('message', (wia) => {
-        let wiad = JSON.parse(wia);
-        let sn = gracze.get(ws);
-
-        if (sn != undefined && sn.czy_pierwszy) {
-            sn.nick = wiad.nick;
-            sn.czy_pierwszy = false;
-            gracze.set(ws, sn);
-            chat.push('Gracz ' + sn.nick + ' dołączył do gry');
-            sn.cells.forEach((c) => {
-                c.nick = sn.nick;
-            });
-        } else {
-            let klawisz = wiad.klawisz;
-            let wiadomosc = wiad.wiadomosc;
-            if (wiadomosc != undefined) {
-                if (wiadomosc != null) {
-                    chat.push(wiadomosc);
-                }
-            } else if (sn != undefined) {
-                console.log('Klient wcisnal:', klawisz);
-                if (gracze.get(ws) != undefined) {
-                    let waz = gracze.get(ws);
-
-                    if (klawisz == 'KeyD' && waz.dx >= 0) {
-                        waz.dx = grid;
-                        waz.dy = 0;
-                    } else if (klawisz == 'KeyA' && waz.dx <= 0) {
-                        waz.dx = -grid;
-                        waz.dy = 0;
-                    } else if (klawisz == 'KeyW' && waz.dy <= 0) {
-                        waz.dy = -grid;
-                        waz.dx = 0;
-                    } else if (klawisz == 'KeyS' && waz.dy >= 0) {
-                        waz.dy = grid;
-                        waz.dx = 0;
-                    }
-                    gracze.set(ws, waz);
-                }
-            }
-        }
-    });
-
-    // Obsługa wiadomości otrzymanych od klienta
-    /*ws.on('message', (wia) => {
-    let gracz = JSON.parse(wia);
-    console.log('Otrzymano wiadomość od klienta:', gracz.message);
-    
-    
-    ws.send(JSON.stringify({
-        type: 'welcome',
-        message: 'Witaj, nowy kliencie!',
-        serverTime: new Date()
-    }));
-    //wyslij();
-    //console.log("wysłano");
-    })*/
+    ws.on('message', (wia) => clientMessage(wia, ws)); // Obsługa wiadomości otrzymanych od klienta
 
     ws.on('close', () => {
         console.log('skasowano');
@@ -180,41 +130,12 @@ function loop() {
 
     klienci.forEach((klient) => {
         let snake = gracze.get(klient);
-        //console.log("p");
-        /* klienci.forEach((wys) => {
-            let sn = gracze.get(wys);
-            if(sn != undefined)
-            {
-                sn.cells.forEach((kw) => {
-                plan.push(kw);
-                })
-            }
-        });*/
+
         kolizje.forEach((element) => {
             chat.push(element);
         });
         kolizje = [];
-        if (snake) {
-            klient.send(
-                JSON.stringify({
-                    typ: 'plansza',
-                    plansza: plansz,
-                    chat: chat,
-                    napisy: napisy,
-                    wynik: snake.wynik,
-                }),
-            );
-        } else {
-            klient.send(
-                JSON.stringify({
-                    typ: 'plansza',
-                    plansza: plansz,
-                    chat: chat,
-                    napisy: napisy,
-                    wynik: false,
-                }),
-            );
-        }
+        gameUpdateMsg(klient, plansz, napisy);
 
         //Czyszczenie chatu
 
@@ -230,15 +151,7 @@ function loop() {
         snake.y += snake.dy;
 
         //Sprawdzamy czy wąż nie wyleciał poza plansze
-        if (snake.x < 0) {
-            snake.x = szerokosc_planszy - grid;
-        } else if (snake.x >= szerokosc_planszy) {
-            snake.x = 0;
-        } else if (snake.y < 0) {
-            snake.y = wysokosc_planszy - grid;
-        } else if (snake.y >= wysokosc_planszy) {
-            snake.y = 0;
-        }
+        isInGrid(klient);
 
         //Aktualizujemy głowę węża
         snake.cells.unshift({
@@ -257,39 +170,11 @@ function loop() {
         }
 
         //Sprawdzamy czy kolizje dla danego węża
-        plan.forEach(function (obiekt) {
-            if (
-                snake.cells[0].x === obiekt.x &&
-                snake.cells[0].y === obiekt.y &&
-                snake.cells[0] != obiekt
-            ) {
-                //Zderzyliśmy sie z jakimś obiektem
-                if (obiekt.typ == 'snake') {
-                    kolizje.push(
-                        'Gracz ' + snake.nick + ' uderzył w: ' + obiekt.nick,
-                    );
-                    console.log(
-                        'Gracz ' + snake.nick + ' uderzył w: ',
-                        obiekt.nick,
-                    );
-                    snake.gameover = true;
-                } else if (obiekt.typ == 'jablko') {
-                    //Wąż zjadł jabłko
-                    snake.maxCells++;
-                    snake.wynik++;
-
-                    //Losujemy nowe jabłko
-                    obiekt.x = getRandomInt(0, 40) * grid;
-                    obiekt.y = getRandomInt(0, 40) * grid;
-                    console.log('Wąż zjadł jabłko');
-                }
-            }
-        });
+        plan.forEach((obiekt) => colisions(obiekt, klient));
 
         gracze.set(klient, snake);
-    }); // forEach
+    });
     chat = [];
-    kolizje;
 
     klienci.forEach((kl) => {
         if (gracze.get(kl) != undefined) {
