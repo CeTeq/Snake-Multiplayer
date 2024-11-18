@@ -7,6 +7,7 @@ import { clientMessage } from './events/clientMessage.js';
 import { colisions } from './checks/colisions.js';
 import { isInGrid } from './checks/isInGrid.js';
 import { gameUpdateMsg } from './messages/gameUpdate.js';
+import { apples } from './items/apples.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -29,7 +30,6 @@ const klienci = new Map();
 let liczba_graczy = 0;
 let pol = 0;
 
-let liczba_jablek = 4;
 let czy_gra;
 const kolory = ['green', 'red', 'blue', 'orange', 'purple', 'yellow'];
 app.use(express.static(path.join(__dirname, 'public')));
@@ -46,15 +46,8 @@ export function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
-for (let i = 0; i < liczba_jablek; i++) {
-    let jablko = {
-        typ: 'jablko',
-        kolor: 'red',
-        x: getRandomInt(0, 25) * grid,
-        y: getRandomInt(0, 25) * grid,
-    };
-    plan.set(jablko, jablko);
-}
+apples()
+
 function randColor() {
     return '#' + Math.floor(Math.random() * 16777215).toString(16);
 }
