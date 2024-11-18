@@ -56,17 +56,19 @@ setInterval(loop, fps);
 wss.on('connection', (ws) => {
     console.log('Nowe połączenie WebSocket');
     let nowykol = randColor();
+    let rx = getRandomInt(0,szerokosc_planszy-2*grid);
+    let ry = getRandomInt(0,wysokosc_planszy-grid);
     let snake = {
         nick: 'nick',
         typ: 'snake',
         kolor: nowykol,
-        x: 160,
-        y: 160,
+        x: rx,
+        y: ry,
         dx: grid,
         dy: 0,
         cells: [
-            { x: 160, y: 160, typ: 'elsnake', snake:undefined},
-            { x: 144, y: 160, typ: 'elsnake', snake:undefined},
+            { x: rx, y: ry, typ: 'elsnake', snake:undefined},
+            { x: rx-grid, y: ry, typ: 'elsnake', snake:undefined},
         ], //cialo węża
         maxCells: 2, //bierząca długość węża
         wynik: 0,
