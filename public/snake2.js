@@ -75,8 +75,12 @@ document.getElementById('connect').addEventListener('click', () => {
                     document.getElementById('chat').innerHTML += n + '<br>';
                     chat.scrollTop = chat.scrollHeight;
                 });
-                if (wiad.wynik) wynik = wiad.wynik;
+                wynik = wiad.wynik;
                 napisy = wiad.napisy;
+                document.getElementById('tarcze').innerHTML = 'Tarcze: ' + wiad.tarcze;
+                document.getElementById('przyspieszenia').innerHTML = 'Przyśpieszenia: ' + wiad.przysp;
+                document.getElementById('naboje').innerHTML = 'Naboje: ' + wiad.naboje;
+
             } else if (wiad.typ === 'gameover') {
                 //Wiadomośc specjalna, informacja o przegranej
                 gameover = true;
@@ -135,6 +139,21 @@ function loop() {
             nruch = "d";
         }
 
+        else if (klawisz == 'ShiftLeft' || klawisz == 'ShiftRight')
+            nruch = 'tarcza';
+        }
+
+        else if (klawisz == 'ControlLeft' || klawisz == 'ControlRight')
+        {
+            nruch = 'przysp';
+        }
+        else if (klawisz == 'Space')
+        {
+            nruch = 'strzal';
+        }
+
+        console.log(klawisz);
+
         if(nruch != ruch)
         {
             socket.send(
@@ -168,7 +187,17 @@ function loop() {
         {
             context.lineWidth = 1;
             context.strokeStyle = kwadrat.kolor;
+            context.shadowColor = kwadrat.kolor2;
+            context.shadowBlur = 15;
             context.strokeRect(kwadrat.x, kwadrat.y, grid, grid);
+            context.shadowBlur = 0;
+        }
+        else if(kwadrat.rodzaj == "arc")
+        {
+            context.beginPath();
+            context.arc(kwadrat.x+grid/2, kwadrat.y+grid/2, grid/2, 0, 2 * Math.PI);
+            context.fillStyle = kwadrat.kolor;
+            context.fill();
         }
     });
 

@@ -38,5 +38,29 @@ export function colisions(obiekt, klient) {
         } else if (obiekt.typ === 'zloteJablko') {
             ateApple(klient, obiekt, true)
         }
+        else if(obiekt.typ === 'tarcza')
+        {
+            snake.tarcze++;
+            plan.delete(obiekt);
+        }
+        else if(obiekt.typ === 'przysp')
+        {
+            snake.przysp++;
+            plan.delete(obiekt);
+        }
+        else if(obiekt.typ === 'naboje')
+        {
+            snake.naboje++;
+            plan.delete(obiekt);
+        }
+        else if(obiekt.typ == 'pocisk' && obiekt.snake != snake)
+        {
+            kolizje.push('<span style="color: yellow;">Gracz ' + obiekt.snake.nick + ' zastrzelił gracza: ' + snake.nick + '</span>');
+            obiekt.snake.wynik += snake.wynik+2;
+            obiekt.snake.maxCells += snake.wynik+2;
+            snake.gameover = true;
+
+            plan.delete(obiekt);
+        }
     }
 }

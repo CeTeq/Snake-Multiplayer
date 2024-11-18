@@ -1,4 +1,4 @@
-import { chat, gracze, grid } from '../serwer-snake.js';
+import { chat, gracze, grid, plan } from '../serwer-snake.js';
 
 export function clientMessage(wia, ws) {
     wia = JSON.parse(wia);
@@ -36,6 +36,31 @@ export function clientMessage(wia, ws) {
             } else if (ruch == 'd' && waz.dy >= 0) {
                 waz.dy = grid;
                 waz.dx = 0;
+            }
+            else if(ruch == 'tarcza' && waz.tarcze > 0)
+            {
+                waz.tarcze--;
+                waz.ochrona = 250;
+            }
+            else if(ruch == 'przysp' && waz.przysp > 0)
+            {
+                waz.przysp--;
+                waz.tprzysp = 250;
+            }
+            else if(ruch == 'strzal' && waz.naboje > 0)
+            {
+                waz.naboje--;
+                let pocisk = {
+                    typ: 'pocisk',
+                    kolor: 'grey',
+                    x: waz.x,
+                    y: waz.y,
+                    dx: waz.dx,
+                    dy: waz.dy,
+                    snake: waz,
+                    zasieg: 30,
+                };
+                plan.set(pocisk, pocisk);
             }
             gracze.set(ws, waz);
         }

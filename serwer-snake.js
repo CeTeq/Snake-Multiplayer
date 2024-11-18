@@ -22,14 +22,16 @@ export const gracze = new Map();
 export let chat = [];
 export let kolizje = [];
 export let plan = new Map();
-export let wysokosc_planszy = grid * 40;
-export let szerokosc_planszy = grid * 40;
+export let wysokosc_planszy = 40;
+export let szerokosc_planszy = 40;
+
 
 let fl = false;
 const klienci = new Map();
 let liczba_graczy = 0;
 let pol = 0;
 const fps = 10;
+const predkosc_ruchu = 8;
 
 let czy_gra;
 const kolory = ['green', 'red', 'blue', 'orange', 'purple', 'yellow'];
@@ -56,8 +58,8 @@ setInterval(loop, fps);
 wss.on('connection', (ws) => {
     console.log('Nowe połączenie WebSocket');
     let nowykol = randColor();
-    let rx = getRandomInt(0,szerokosc_planszy-2*grid);
-    let ry = getRandomInt(0,wysokosc_planszy-grid);
+    let rx = getRandomInt(0, szerokosc_planszy) * grid;
+    let ry = getRandomInt(0, wysokosc_planszy) * grid;
     let snake = {
         nick: 'nick',
         typ: 'snake',
@@ -73,6 +75,10 @@ wss.on('connection', (ws) => {
         maxCells: 2, //bierząca długość węża
         wynik: 0,
         ochrona: 20 * fps, 
+        tarcze: 0,
+        przysp: 0,
+        tprzysp: 0,
+        naboje: 0,
         gameover: false,
         czy_pierwszy: true,
     };
@@ -108,6 +114,41 @@ function loop() {
     i++;
     let plansz = [];
     let napisy = [];
+
+
+    if(getRandomInt(0,2000) == 1) //Generowanie tarcz
+    {
+        let tarcza = {
+            typ: 'tarcza',
+            kolor: 'cyan',
+            x: getRandomInt(0, szerokosc_planszy) * grid,
+            y: getRandomInt(0, wysokosc_planszy) * grid,
+        };
+        plan.set(tarcza, tarcza);
+    }
+
+    if(getRandomInt(0,300) == 1) //Generowanie przyśpieszeń
+    {
+        let przy = {
+            typ: 'przysp',
+            kolor: 'green',
+            x: getRandomInt(0, szerokosc_planszy) * grid,
+            y: getRandomInt(0, wysokosc_planszy) * grid,
+        };
+        plan.set(przy, przy);
+    }
+
+    if(getRandomInt(0,100) == 1) //Generowanie naboji
+    {
+        let nab = {
+            typ: 'naboje',
+            kolor: '#6c3c0c',
+            x: getRandomInt(0, szerokosc_planszy) * grid,
+            y: getRandomInt(0, wysokosc_planszy) * grid,
+        };
+        plan.set(nab, nab);
+    }
+
     plan.forEach(function (el) {
         if(el.typ == "elsnake")
         {
@@ -115,8 +156,30 @@ function loop() {
             plansz.push(t);
             if(el.snake.ochrona > 0)
             {
-                let t2 = {x:el.x, y:el.y, kolor:"white", rodzaj:"strokeRect"};
+                let t2 = {x:el.x, y:el.y, kolor:"white", rodzaj:"strokeRect", kolor2:"cyan"};
                 plansz.push(t2);
+            }
+            if(el.snake.tprzysp > 0)
+            {
+                let t2 = {x:el.x, y:el.y, kolor:"green", rodzaj:"strokeRect", kolor2:"green"};
+                plansz.push(t2);
+            }
+        }
+        else if(el.typ == "pocisk")
+        {
+            let t = {x:el.x, y:el.y, kolor:"black", rodzaj:"arc"};
+            plansz.push(t);
+
+            
+            if(i%2 == 0)
+            {
+                el.x += el.dx;
+                el.y += el.dy;
+                el.zasieg--;
+            }
+            if(el.zasieg == 0)
+            {
+                plan.delete(el);
             }
         }
         else
@@ -150,18 +213,26 @@ function loop() {
         {
             snake.ochrona--;
         }
+        if(snake.tprzysp > 0)
+        {
+            snake.tprzysp--;
+        }
 
         gameUpdateMsg(klient, plansz, napisy);
 
         //Czyszczenie chatu
 
-        if (i < 8) {
-            return;
-        }
-
         if (snake.gameover) {
             return;
         }
+
+        //Sprawdzamy czy kolizje dla danego węża
+        plan.forEach((obiekt) => colisions(obiekt, klient));
+
+        if (i < predkosc_ruchu && (snake.tprzysp == 0 || i%4!=0)) {
+            return;
+        }
+
         //Przesuwamy węża
         snake.x += snake.dx;
         snake.y += snake.dy;
@@ -183,9 +254,6 @@ function loop() {
             plan.delete(snake.cells[snake.cells.length - 1]);
             snake.cells.pop();
         }
-
-        //Sprawdzamy czy kolizje dla danego węża
-        plan.forEach((obiekt) => colisions(obiekt, klient));
 
         gracze.set(klient, snake);
     });
@@ -209,7 +277,7 @@ function loop() {
         }
         });
 
-    if (i == 8) {
+    if (i == predkosc_ruchu) {
         //tempo poruszania sie
         i = 0;
     }
