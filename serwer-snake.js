@@ -57,15 +57,15 @@ wss.on('connection', (ws) => {
     let nowykol = randColor();
     let snake = {
         nick: 'nick',
-        typ: 'csnake',
+        typ: 'snake',
         kolor: nowykol,
         x: 160,
         y: 160,
         dx: grid,
         dy: 0,
         cells: [
-            { x: 160, y: 160, kolor: nowykol, typ: 'snake', nick: '' },
-            { x: 144, y: 160, kolor: nowykol, typ: 'snake', nick: '' },
+            { x: 160, y: 160, typ: 'elsnake', snake:undefined},
+            { x: 144, y: 160, typ: 'elsnake', snake:undefined},
         ], //cialo węża
         maxCells: 2, //bierząca długość węża
         wynik: 0,
@@ -78,6 +78,7 @@ wss.on('connection', (ws) => {
     liczba_graczy++;
 
     snake.cells.forEach((c) => {
+        c.snake = snake;
         plan.set(c, c);
     });
 
@@ -85,49 +86,56 @@ wss.on('connection', (ws) => {
 
     ws.on('close', () => {
         console.log('skasowano');
-        chat.push('Gracz się rozłączył');
-        if (gracze.get(ws) != undefined) {
-            chat.push('Gracz ' + gracze.get(ws).nick + ' się rozłączył');
-            liczba_graczy--;
-            gracze.get(ws).cells.forEach(function (el) {
-                // Usuwanie wszystkich części gracza
-                plan.delete(el);
-            });
-        }
+        chat.push('<span style="color: red;">Gracz ' + gracze.get(ws).nick + ' się rozłączył</span>');
+        liczba_graczy--;
+        gracze.get(ws).cells.forEach(function (el) {
+            // Usuwanie wszystkich części gracza
+            plan.delete(el);
+        });
+
         gracze.delete(ws);
         klienci.delete(ws);
     });
 });
 
-var i = 0;
+let i = 0;
 function loop() {
-    gracze.forEach((element) => {
-        if (element.kolor === false) element.kolor = randColor();
-    });
 
     i++;
     let plansz = [];
     let napisy = [];
     plan.forEach(function (el) {
-        plansz.push(el);
+        if(el.typ == "elsnake")
+        {
+            let t = {x:el.x, y:el.y, kolor:el.snake.kolor};
+            plansz.push(t);
+        }
+        else
+        {
+            plansz.push(el);
+        }
     });
 
     gracze.forEach(function (el) {
-        napisy.push({
-            n: el.nick,
-            x: el.x,
-            y: el.y,
-            wynik: el.wynik,
-        });
+        if(el.gameover == false)
+        {
+            napisy.push({
+                n: el.nick,
+                x: el.x,
+                y: el.y,
+                wynik: el.wynik,
+            });
+        }
     });
+
+    kolizje.forEach((element) => {
+        chat.push(element);
+    });
+    kolizje = [];
 
     klienci.forEach((klient) => {
         let snake = gracze.get(klient);
 
-        kolizje.forEach((element) => {
-            chat.push(element);
-        });
-        kolizje = [];
         gameUpdateMsg(klient, plansz, napisy);
 
         //Czyszczenie chatu
@@ -136,7 +144,7 @@ function loop() {
             return;
         }
 
-        if (snake == undefined) {
+        if (snake.gameover) {
             return;
         }
         //Przesuwamy węża
@@ -150,9 +158,8 @@ function loop() {
         snake.cells.unshift({
             x: snake.x,
             y: snake.y,
-            kolor: snake.kolor,
-            typ: 'snake',
-            nick: snake.nick,
+            typ: "elsnake",
+            snake: snake,
         });
         plan.set(snake.cells[0], snake.cells[0]);
 
@@ -170,25 +177,22 @@ function loop() {
     chat = [];
 
     klienci.forEach((kl) => {
-        if (gracze.get(kl) != undefined) {
-            let sn = gracze.get(kl);
-            if (sn.gameover) {
-                kl.send(
-                    JSON.stringify({
-                        typ: 'gameover',
-                        wynik: sn.wynik,
-                    }),
-                );
+        let sn = gracze.get(kl);
+        if (sn.gameover) {
+            kl.send(
+                JSON.stringify({
+                    typ: 'gameover',
+                    wynik: sn.wynik,
+                }),
+            );
 
-                sn.cells.forEach(function (el) {
-                    // Usuwanie wszystkich części gracza
-                    plan.delete(el);
-                });
-                gracze.delete(kl);
-                liczba_graczy--;
-            }
+            sn.cells.forEach(function (el) {
+                // Usuwanie wszystkich części gracza
+                plan.delete(el);
+            });
+            liczba_graczy--;
         }
-    });
+        });
 
     if (i == 8) {
         //tempo poruszania sie
