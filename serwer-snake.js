@@ -29,6 +29,7 @@ let fl = false;
 const klienci = new Map();
 let liczba_graczy = 0;
 let pol = 0;
+const fps = 10;
 
 let czy_gra;
 const kolory = ['green', 'red', 'blue', 'orange', 'purple', 'yellow'];
@@ -51,7 +52,7 @@ apples()
 function randColor() {
     return '#' + Math.floor(Math.random() * 16777215).toString(16);
 }
-setInterval(loop, 10);
+setInterval(loop, fps);
 wss.on('connection', (ws) => {
     console.log('Nowe połączenie WebSocket');
     let nowykol = randColor();
@@ -69,6 +70,7 @@ wss.on('connection', (ws) => {
         ], //cialo węża
         maxCells: 2, //bierząca długość węża
         wynik: 0,
+        ochrona: 20 * fps, 
         gameover: false,
         czy_pierwszy: true,
     };
@@ -109,6 +111,11 @@ function loop() {
         {
             let t = {x:el.x, y:el.y, kolor:el.snake.kolor};
             plansz.push(t);
+            if(el.snake.ochrona > 0)
+            {
+                let t2 = {x:el.x, y:el.y, kolor:"white", rodzaj:"strokeRect"};
+                plansz.push(t2);
+            }
         }
         else
         {
@@ -135,6 +142,12 @@ function loop() {
 
     klienci.forEach((klient) => {
         let snake = gracze.get(klient);
+
+
+        if(snake.ochrona > 0)
+        {
+            snake.ochrona--;
+        }
 
         gameUpdateMsg(klient, plansz, napisy);
 

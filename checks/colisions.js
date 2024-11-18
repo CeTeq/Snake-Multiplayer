@@ -11,7 +11,7 @@ export function colisions(obiekt, klient) {
     ) {
         //Zderzyliśmy sie z jakimś obiektem
 
-        if (obiekt.typ == 'elsnake') {
+        if (obiekt.typ == 'elsnake' && snake.ochrona == 0 && obiekt.snake.ochrona == 0) {
 
             if(obiekt.snake == snake)
             {

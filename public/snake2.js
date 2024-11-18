@@ -159,8 +159,17 @@ function loop() {
 
     plansza.forEach(function (kwadrat) {
         //Rysowanie całej gry: wszystko składa sie z róznokolorowych kwadratów
-        context.fillStyle = kwadrat.kolor;
-        context.fillRect(kwadrat.x, kwadrat.y, grid - 1, grid - 1);
+        if(kwadrat.rodzaj == undefined || kwadrat.rodzaj == "fillRect")
+        {
+            context.fillStyle = kwadrat.kolor;
+            context.fillRect(kwadrat.x, kwadrat.y, grid - 1, grid - 1);
+        }
+        else if(kwadrat.rodzaj == "strokeRect")
+        {
+            context.lineWidth = 1;
+            context.strokeStyle = kwadrat.kolor;
+            context.strokeRect(kwadrat.x, kwadrat.y, grid, grid);
+        }
     });
 
     if (!gameover) {
@@ -178,7 +187,6 @@ function loop() {
 
     napisy.forEach((nap) => {
         context.fillText(nap.n, nap.x, nap.y);
-        console.log(nap.n);
     });
 }
 
