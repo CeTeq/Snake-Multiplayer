@@ -207,13 +207,13 @@ function loop() {
     });
 
     plansza.forEach(function (kwadrat) {
-        //Rysowanie całej gry: wszystko składa sie z róznokolorowych kwadratów
-        if(kwadrat.rodzaj == undefined || kwadrat.rodzaj == "fillRect")
+        //Rysowanie całej gry: wszystko składa sie z róznokolorowych kszałtów
+        if(kwadrat.rodzaj == undefined || kwadrat.rodzaj == "fillRect") //Rysujemy kwadrat
         {
             context.fillStyle = kwadrat.kolor;
             context.fillRect(kwadrat.x, kwadrat.y, grid - 1, grid - 1);
         }
-        else if(kwadrat.rodzaj == "strokeRect")
+        else if(kwadrat.rodzaj == "strokeRect") //Rysujemy kwadrat pusty w środku
         {
             context.lineWidth = 1;
             context.strokeStyle = kwadrat.kolor;
@@ -221,8 +221,8 @@ function loop() {
             context.shadowBlur = 15;
             context.strokeRect(kwadrat.x, kwadrat.y, grid, grid);
             context.shadowBlur = 0;
-        }
-        else if(kwadrat.rodzaj == "arc")
+        } 
+        else if(kwadrat.rodzaj == "arc") //Rysujemy koło
         {
             context.beginPath();
             context.arc(kwadrat.x+grid/2, kwadrat.y+grid/2, grid/3, 0, 2 * Math.PI);

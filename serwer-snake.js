@@ -58,7 +58,7 @@ setInterval(loop, fps);
 wss.on('connection', (ws) => {
     console.log('Nowe połączenie WebSocket');
     let nowykol = randColor();
-    let rx = getRandomInt(0, szerokosc_planszy) * grid;
+    let rx = getRandomInt(0, szerokosc_planszy) * grid; //lpsujemy pozycje startową wężowi
     let ry = getRandomInt(0, wysokosc_planszy) * grid;
     let snake = {
         nick: 'nick',
@@ -128,12 +128,12 @@ function loop() {
         {
             let t = {x:el.x, y:el.y, kolor:el.snake.kolor};
             plansz.push(t);
-            if(el.snake.ochrona > 0)
+            if(el.snake.ochrona > 0) //dodanie białej otoczki wężowi jeśli ma efekt ochrony
             {
                 let t2 = {x:el.x, y:el.y, kolor:"white", rodzaj:"strokeRect", kolor2:"cyan"};
                 plansz.push(t2);
             }
-            if(el.snake.tprzysp > 0)
+            if(el.snake.tprzysp > 0) //dodanie zielonej otoczki wężowi jeśli ma efekt przyśpieszenia
             {
                 let t2 = {x:el.x, y:el.y, kolor:"green", rodzaj:"strokeRect", kolor2:"green"};
                 plansz.push(t2);
@@ -145,13 +145,13 @@ function loop() {
             plansz.push(t);
 
             
-            if(i%2 == 0)
+            if(i%2 == 0) //przesuwanie pocisku
             {
                 el.x += el.dx;
                 el.y += el.dy;
                 el.zasieg--;
             }
-            if(el.zasieg == 0)
+            if(el.zasieg == 0) //usuniecie pocisku po przeleceniu ustalone dystansu
             {
                 plan.delete(el);
             }
@@ -203,6 +203,7 @@ function loop() {
         //Sprawdzamy czy kolizje dla danego węża
         plan.forEach((obiekt) => colisions(obiekt, klient));
 
+        //tempo poruszania sie
         if (i < predkosc_ruchu && (snake.tprzysp == 0 || i%4!=0)) {
             return;
         }
