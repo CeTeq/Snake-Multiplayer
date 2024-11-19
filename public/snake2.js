@@ -44,7 +44,7 @@ function init() {
 
     clearInterval(klatka);
     klatka = setInterval(loop, 20); //10fps
-    console.log('Uruchomiono gre');
+    //console.log('Uruchomiono gre');
 }
 
 var plansza = new Map();
@@ -106,6 +106,7 @@ document.getElementById('connect').addEventListener('click', () => {
 document.getElementById('restart').addEventListener('click', () => {
     joinToGame();
     document.getElementById('restart').blur();
+    first = true;
 });
 
 sendMsg.addEventListener('click', () => {
