@@ -10,7 +10,7 @@ export function colisions(obiekt, klient) {
         snake.cells[0].y === obiekt.y &&
         snake.cells[0] !== obiekt
     ) {
-        //Zderzyliśmy sie z jakimś obiektem
+        //Głowa węza zderzyła sie z jakimś obiektem
 
         if (obiekt.typ == 'elsnake' && snake.ochrona == 0 && obiekt.snake.ochrona == 0) {
 
@@ -67,7 +67,7 @@ export function colisions(obiekt, klient) {
             plan.delete(obiekt);
         }
     }
-    else if(snake.cells[1].x === obiekt.x && snake.cells[1].y === obiekt.y && snake.cells[1] !== obiekt)
+    else if(snake.cells[1].x === obiekt.x && snake.cells[1].y === obiekt.y && snake.cells[1] !== obiekt) //Jeśli drugi człon węża skolidował z jakimś obiektem
     {
         if(obiekt.typ == 'pocisk' && obiekt.snake != snake && snake.ochrona == 0)
         {
