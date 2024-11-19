@@ -140,6 +140,7 @@ function loop() {
         }
 
         else if (klawisz == 'ShiftLeft' || klawisz == 'ShiftRight')
+        {
             nruch = 'tarcza';
         }
 
@@ -198,6 +199,7 @@ function loop() {
             context.arc(kwadrat.x+grid/2, kwadrat.y+grid/2, grid/2, 0, 2 * Math.PI);
             context.fillStyle = kwadrat.kolor;
             context.fill();
+           // context.stroke()
         }
     });
 

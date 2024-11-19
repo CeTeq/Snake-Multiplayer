@@ -1,4 +1,4 @@
-import { grid, kolizje, getRandomInt, gracze, plan} from '../serwer-snake.js';
+import { grid, kolizje, getRandomInt, gracze, plan, liczba} from '../serwer-snake.js';
 import { goldenApple } from '../items/goldenApple.js';
 import { ateApple } from '../items/apples.js';
 
@@ -42,16 +42,19 @@ export function colisions(obiekt, klient) {
         {
             snake.tarcze++;
             plan.delete(obiekt);
+            liczba.tarcz--;
         }
         else if(obiekt.typ === 'przysp')
         {
             snake.przysp++;
             plan.delete(obiekt);
+            liczba.przysp--;
         }
         else if(obiekt.typ === 'naboje')
         {
             snake.naboje++;
             plan.delete(obiekt);
+            liczba.naboji--;
         }
         else if(obiekt.typ == 'pocisk' && obiekt.snake != snake)
         {

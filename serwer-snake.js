@@ -25,6 +25,11 @@ export let plan = new Map();
 export let wysokosc_planszy = 40;
 export let szerokosc_planszy = 40;
 
+export let liczba = {
+    tarcz: 0,
+    przysp: 0,
+    naboji: 0,
+};
 
 let fl = false;
 const klienci = new Map();
@@ -116,7 +121,7 @@ function loop() {
     let napisy = [];
 
 
-    if(getRandomInt(0,2000) == 1) //Generowanie tarcz
+    if(getRandomInt(0,2000) == 1 && liczba.tarcz < 1) //Generowanie tarcz
     {
         let tarcza = {
             typ: 'tarcza',
@@ -125,9 +130,10 @@ function loop() {
             y: getRandomInt(0, wysokosc_planszy) * grid,
         };
         plan.set(tarcza, tarcza);
+        liczba.tarcz++;
     }
 
-    if(getRandomInt(0,300) == 1) //Generowanie przyśpieszeń
+    if(getRandomInt(0,2000) == 1 && liczba.przysp < 1) //Generowanie przyśpieszeń
     {
         let przy = {
             typ: 'przysp',
@@ -136,9 +142,10 @@ function loop() {
             y: getRandomInt(0, wysokosc_planszy) * grid,
         };
         plan.set(przy, przy);
+        liczba.przysp++;
     }
 
-    if(getRandomInt(0,100) == 1) //Generowanie naboji
+    if(getRandomInt(0,2000) == 1 && liczba.naboji < 1) //Generowanie naboji
     {
         let nab = {
             typ: 'naboje',
@@ -147,6 +154,7 @@ function loop() {
             y: getRandomInt(0, wysokosc_planszy) * grid,
         };
         plan.set(nab, nab);
+        liczba.naboji++;
     }
 
     plan.forEach(function (el) {
