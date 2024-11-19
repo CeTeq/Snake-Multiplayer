@@ -153,7 +153,7 @@ function loop() {
             nruch = 'strzal';
         }
 
-        console.log(klawisz);
+        //console.log(klawisz); uwaga na to - laguje gre
 
         if(nruch != ruch)
         {
