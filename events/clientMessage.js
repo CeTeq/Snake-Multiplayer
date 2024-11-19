@@ -53,8 +53,8 @@ export function clientMessage(wia, ws) {
                 let pocisk = {
                     typ: 'pocisk',
                     kolor: 'grey',
-                    x: waz.x,
-                    y: waz.y,
+                    x: waz.x+waz.dx,
+                    y: waz.y+waz.dy,
                     dx: waz.dx,
                     dy: waz.dy,
                     snake: waz,

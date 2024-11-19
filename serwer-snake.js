@@ -8,6 +8,7 @@ import { colisions } from './checks/colisions.js';
 import { isInGrid } from './checks/isInGrid.js';
 import { gameUpdateMsg } from './messages/gameUpdate.js';
 import { apples } from './items/apples.js';
+import { generuj_boosty } from './items/boosts.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -24,12 +25,6 @@ export let kolizje = [];
 export let plan = new Map();
 export let wysokosc_planszy = 40;
 export let szerokosc_planszy = 40;
-
-export let liczba = {
-    tarcz: 0,
-    przysp: 0,
-    naboji: 0,
-};
 
 let fl = false;
 const klienci = new Map();
@@ -100,8 +95,13 @@ wss.on('connection', (ws) => {
     ws.on('message', (wia) => clientMessage(wia, ws)); // Obsługa wiadomości otrzymanych od klienta
 
     ws.on('close', () => {
-        console.log('skasowano');
-        chat.push('<span style="color: red;">Gracz ' + gracze.get(ws).nick + ' się rozłączył</span>');
+        console.log('Gracz ' + gracze.get(ws).nick + ' się rozłączył');
+       
+        if(gracze.get(ws).gameover == false)
+        {
+            chat.push('<span style="color: red;">Gracz ' + gracze.get(ws).nick + ' wyszedł z gry</span>');
+        }
+
         liczba_graczy--;
         gracze.get(ws).cells.forEach(function (el) {
             // Usuwanie wszystkich części gracza
@@ -121,41 +121,7 @@ function loop() {
     let napisy = [];
 
 
-    if(getRandomInt(0,2000) == 1 && liczba.tarcz < 1) //Generowanie tarcz
-    {
-        let tarcza = {
-            typ: 'tarcza',
-            kolor: 'cyan',
-            x: getRandomInt(0, szerokosc_planszy) * grid,
-            y: getRandomInt(0, wysokosc_planszy) * grid,
-        };
-        plan.set(tarcza, tarcza);
-        liczba.tarcz++;
-    }
-
-    if(getRandomInt(0,2000) == 1 && liczba.przysp < 1) //Generowanie przyśpieszeń
-    {
-        let przy = {
-            typ: 'przysp',
-            kolor: 'green',
-            x: getRandomInt(0, szerokosc_planszy) * grid,
-            y: getRandomInt(0, wysokosc_planszy) * grid,
-        };
-        plan.set(przy, przy);
-        liczba.przysp++;
-    }
-
-    if(getRandomInt(0,2000) == 1 && liczba.naboji < 1) //Generowanie naboji
-    {
-        let nab = {
-            typ: 'naboje',
-            kolor: '#6c3c0c',
-            x: getRandomInt(0, szerokosc_planszy) * grid,
-            y: getRandomInt(0, wysokosc_planszy) * grid,
-        };
-        plan.set(nab, nab);
-        liczba.naboji++;
-    }
+    generuj_boosty();
 
     plan.forEach(function (el) {
         if(el.typ == "elsnake")
@@ -175,7 +141,7 @@ function loop() {
         }
         else if(el.typ == "pocisk")
         {
-            let t = {x:el.x, y:el.y, kolor:"black", rodzaj:"arc"};
+            let t = {x:el.x, y:el.y, kolor:el.kolor, rodzaj:"arc"};
             plansz.push(t);
 
             

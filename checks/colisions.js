@@ -1,6 +1,7 @@
-import { grid, kolizje, getRandomInt, gracze, plan, liczba} from '../serwer-snake.js';
+import { grid, kolizje, getRandomInt, gracze, plan} from '../serwer-snake.js';
 import { goldenApple } from '../items/goldenApple.js';
 import { ateApple } from '../items/apples.js';
+import { liczba } from '../items/boosts.js';
 
 export function colisions(obiekt, klient) {
     let snake = gracze.get(klient);
@@ -15,17 +16,17 @@ export function colisions(obiekt, klient) {
 
             if(obiekt.snake == snake)
             {
-                kolizje.push('<span style="color: yellow;">Gracz ' + snake.nick + ' uderzył w swój ogon</span>');
+                kolizje.push('<span style="color: red;">Gracz ' + snake.nick + ' uderzył w swój ogon</span>');
                 //kolizje.push('<span style="color: yellow;">Gracz</span> <span style="color: aqua;">' + snake.nick + '</span><span style="color: yellow;"> uderzył w swój ogon</span>');
             }
             else if(obiekt == obiekt.snake.cells[0]) //Czołowe zdarzenie - obaj gracze giną
             {
-                kolizje.push('<span style="color: yellow;">Gracze ' + snake.nick + ' i ' + obiekt.snake.nick + ' zderzyli się</span>');
+                kolizje.push('<span style="color: red;">Gracze ' + snake.nick + ' i ' + obiekt.snake.nick + ' zderzyli się</span>');
                 obiekt.snake.gameover = true;
             }
             else
             {
-                kolizje.push('<span style="color: yellow;">Gracz ' + snake.nick + ' uderzył w gracza: ' + obiekt.snake.nick + '</span>');
+                kolizje.push('<span style="color: red;">Gracz ' + snake.nick + ' uderzył w gracza: ' + obiekt.snake.nick + '</span>');
                 obiekt.snake.wynik += snake.wynik+2;
                 obiekt.snake.maxCells += snake.wynik+2;
             }
@@ -56,9 +57,9 @@ export function colisions(obiekt, klient) {
             plan.delete(obiekt);
             liczba.naboji--;
         }
-        else if(obiekt.typ == 'pocisk' && obiekt.snake != snake)
+        else if(obiekt.typ == 'pocisk' && obiekt.snake != snake && snake.ochrona == 0)
         {
-            kolizje.push('<span style="color: yellow;">Gracz ' + obiekt.snake.nick + ' zastrzelił gracza: ' + snake.nick + '</span>');
+            kolizje.push('<span style="color: red;">Gracz ' + obiekt.snake.nick + ' zastrzelił gracza: ' + snake.nick + '</span>');
             obiekt.snake.wynik += snake.wynik+2;
             obiekt.snake.maxCells += snake.wynik+2;
             snake.gameover = true;
@@ -66,4 +67,17 @@ export function colisions(obiekt, klient) {
             plan.delete(obiekt);
         }
     }
+    else if(snake.cells[1].x === obiekt.x && snake.cells[1].y === obiekt.y && snake.cells[1] !== obiekt)
+    {
+        if(obiekt.typ == 'pocisk' && obiekt.snake != snake && snake.ochrona == 0)
+        {
+            kolizje.push('<span style="color: red;">Gracz ' + obiekt.snake.nick + ' zastrzelił gracza: ' + snake.nick + '</span>');
+            obiekt.snake.wynik += snake.wynik+2;
+            obiekt.snake.maxCells += snake.wynik+2;
+            snake.gameover = true;
+
+            plan.delete(obiekt);
+        }
+    }
+
 }

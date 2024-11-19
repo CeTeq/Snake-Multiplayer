@@ -14,6 +14,7 @@ let napisy = [];
 let ipAddr;
 let first = true;
 let wiadomosc;
+let cooldown = 0;
 let sendMsg = document.getElementById('sendMsg');
 const URL = 'ws://' + document.URL.slice(7, -3) + '80';
 const ranking = document.getElementById('ranking');
@@ -41,19 +42,27 @@ function init() {
     gameover = false;
     document.getElementById('wynik').innerHTML = 'Wynik: 0';
 
+    clearInterval(klatka);
+    klatka = setInterval(loop, 20); //10fps
     console.log('Uruchomiono gre');
 }
 
 var plansza = new Map();
 
-document.getElementById('connect').addEventListener('click', () => {
+function joinToGame()
+{
     // ipAddr = "ws://";
     // ipAddr += document.getElementById('ip').value
     document.getElementById('joinLobby').style.display = 'none';
     document.getElementById('game').style.display = 'initial';
     canvas.height = grid * size;
     canvas.width = grid * size;
-    if (!socket) socket = new WebSocket(ipAddr);
+    if (socket) 
+    {
+        socket.close();
+    }
+    socket = new WebSocket(ipAddr);
+    
     socket.addEventListener('open', () => {
         console.log('Połączono z WebSocket');
         socket.send(
@@ -67,7 +76,7 @@ document.getElementById('connect').addEventListener('click', () => {
             if (wiad.typ === 'plansza') {
                 //Wiadomośc standardowa, czyli przesyłanie klatki gry
                 if (first) {
-                    restart_game();
+                    init();
                     first = false;
                 }
                 plansza = wiad.plansza;
@@ -88,6 +97,15 @@ document.getElementById('connect').addEventListener('click', () => {
             }
         });
     });
+}
+
+document.getElementById('connect').addEventListener('click', () => {
+    joinToGame();
+});
+
+document.getElementById('restart').addEventListener('click', () => {
+    joinToGame();
+    document.getElementById('restart').blur();
 });
 
 sendMsg.addEventListener('click', () => {
@@ -100,6 +118,7 @@ sendMsg.addEventListener('click', () => {
             wiadomosc: wiadomosc,
         }),
     );
+    sendMsg.blur();
 });
 
 function loop() {
@@ -116,11 +135,17 @@ function loop() {
         return;
     }
 
+    if(cooldown > 0)
+    {
+        cooldown--;
+    }
+
     window.addEventListener('keydown', (e) => {
         //Obłsuga klawiszy
 
         let klawisz = e.code;
         let nruch;
+        let akcja = false;
 
         if (klawisz == 'KeyD' || klawisz == "ArrowRight") 
         {
@@ -142,21 +167,25 @@ function loop() {
         else if (klawisz == 'ShiftLeft' || klawisz == 'ShiftRight')
         {
             nruch = 'tarcza';
+            akcja = true;
         }
 
         else if (klawisz == 'ControlLeft' || klawisz == 'ControlRight')
         {
             nruch = 'przysp';
+            akcja = true;
         }
         else if (klawisz == 'Space')
         {
             nruch = 'strzal';
+            akcja = true;
         }
 
         //console.log(klawisz); uwaga na to - laguje gre
 
-        if(nruch != ruch)
-        {
+        if(nruch != ruch || (akcja == true && cooldown == 0))
+        {   
+            cooldown = 25;
             socket.send(
                 JSON.stringify({
                     ruch: nruch,
@@ -196,7 +225,7 @@ function loop() {
         else if(kwadrat.rodzaj == "arc")
         {
             context.beginPath();
-            context.arc(kwadrat.x+grid/2, kwadrat.y+grid/2, grid/2, 0, 2 * Math.PI);
+            context.arc(kwadrat.x+grid/2, kwadrat.y+grid/2, grid/3, 0, 2 * Math.PI);
             context.fillStyle = kwadrat.kolor;
             context.fill();
            // context.stroke()
@@ -219,11 +248,5 @@ function loop() {
     napisy.forEach((nap) => {
         context.fillText(nap.n, nap.x, nap.y);
     });
-}
-
-function restart_game() {
-    init();
-    clearInterval(klatka);
-    klatka = setInterval(loop, 10); //10fps
 }
 
