@@ -80,6 +80,19 @@ canvas {
 	position: absolute;
 }
 
+#nick {
+	left: 2%;
+	top: 5%;
+	position: absolute;
+}
+
+#start {
+	left: 45%;
+	top: 78%;
+	position: absolute;
+	display: none;
+}
+
 /*html,body {
     height: 100%;
     margin: 0;

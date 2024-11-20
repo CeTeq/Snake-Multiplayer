@@ -18,6 +18,9 @@ let cooldown = 0;
 let sendMsg = document.getElementById('sendMsg');
 const URL = 'ws://' + document.URL.slice(7, -3) + '80';
 const ranking = document.getElementById('ranking');
+let host = false;
+let wystartuj = false;
+
 console.log(URL);
 ipAddr = URL;
 function siatka() {
@@ -53,6 +56,11 @@ function init() {
     klatka = setInterval(loop, 20); //10fps
     //console.log('Uruchomiono gre');
 
+    if(host)
+    {
+        console.log("jesteś hostem");
+        document.getElementById("start").style.display = 'block';
+    }
     
 
     // Renderowanie efektu poświaty na pomocniczym canvas żeby przyspieszyc czas gdyż generowanie poswiaty jest bardzo kosztowne
@@ -99,13 +107,17 @@ function joinToGame()
             JSON.stringify({
                 nick: document.getElementById('nickname').value,
             }),
+            
         );
+        document.getElementById('nick').innerHTML = 'Nick: ' + document.getElementById('nickname').value;
+
         socket.addEventListener('message', (wia) => {
             //Obsługa danych przesyłanych przez serwer
             let wiad = JSON.parse(wia.data);
             if (wiad.typ === 'plansza') {
                 //Wiadomośc standardowa, czyli przesyłanie klatki gry
                 if (first) {
+                    host = wiad.host;
                     init();
                     first = false;
                 }
@@ -119,11 +131,12 @@ function joinToGame()
                 document.getElementById('tarcze').innerHTML = 'Tarcze: ' + wiad.tarcze;
                 document.getElementById('przyspieszenia').innerHTML = 'Przyśpieszenia: ' + wiad.przysp;
                 document.getElementById('naboje').innerHTML = 'Naboje: ' + wiad.naboje;
+                document.getElementById('wynik').innerHTML = wiad.tytul;
 
-            } else if (wiad.typ === 'gameover') {
-                //Wiadomośc specjalna, informacja o przegranej
-                gameover = true;
-                wynik = wiad.wynik;
+                if(wiad.odswiez) //żądanie zrestartowania połączenia
+                {
+                    joinToGame();
+                }
             }
         });
     });
@@ -137,6 +150,19 @@ document.getElementById('restart').addEventListener('click', () => {
     joinToGame();
     document.getElementById('restart').blur();
     first = true;
+});
+
+document.getElementById('start').addEventListener('click', () => {
+    if(host)
+    {
+        document.getElementById('start').style.display = 'none';
+        socket.send(
+            JSON.stringify({
+                ruch: undefined,
+                wystartuj: true,
+            }),
+        );
+    }
 });
 
 sendMsg.addEventListener('click', () => {
@@ -273,15 +299,6 @@ function loop() {
            // context.stroke()
         }
     });
-
-    if (!gameover) {
-        document.getElementById('wynik').innerHTML = 'Wynik: ' + wynik;
-    } //Koniec gry
-    else {
-        document.getElementById('wynik').innerHTML =
-            'Koniec gry Wynik: ' + wynik;
-        //clearInterval(klatka);
-    }
 
     //wyświetlanie nicków
     context.fillStyle = 'white';

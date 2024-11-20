@@ -1,4 +1,4 @@
-import { chat, gracze, grid, plan } from '../serwer-snake.js';
+import { chat, gracze, grid, plan, host, wymus_start, liczba_graczy } from '../serwer-snake.js';
 
 export function clientMessage(wia, ws) {
     wia = JSON.parse(wia);
@@ -9,7 +9,7 @@ export function clientMessage(wia, ws) {
         sn.nick = wia.nick;
         sn.czy_pierwszy = false;
         gracze.set(ws, sn);
-        chat.push('<span style="color: green;">Gracz ' + sn.nick + ' dołączył do gry</span>');
+        if(sn.gameover == false) chat.push('<span style="color: green;">Gracz ' + sn.nick + ' dołączył do gry</span>');
     } 
     else 
     {
@@ -20,6 +20,11 @@ export function clientMessage(wia, ws) {
                 chat.push(wiadomosc);
             }
         } 
+
+        else if(host == ws && ruch == undefined && liczba_graczy > 1)
+        {
+            wymus_start.st = true;
+        }
         else 
         {
             let snake = gracze.get(ws);
