@@ -52,7 +52,7 @@ export function getRandomInt(min, max) {
 apples()
 
 function randColor() {
-    return '#' + Math.floor(Math.random() * 16777215).toString(16);
+    return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
 }
 setInterval(loop, fps);
 wss.on('connection', (ws) => {
@@ -68,6 +68,8 @@ wss.on('connection', (ws) => {
         y: ry,
         dx: grid,
         dy: 0,
+        dirX: grid,
+        dirY: 0,
         cells: [
             { x: rx, y: ry, typ: 'elsnake', snake:undefined},
             { x: rx-grid, y: ry, typ: 'elsnake', snake:undefined},
@@ -211,6 +213,11 @@ function loop() {
         //Przesuwamy węża
         snake.x += snake.dx;
         snake.y += snake.dy;
+
+        snake.dirX = snake.dx;
+        snake.dirY = snake.dy;
+
+        snake.moved = true;
 
         //Sprawdzamy czy wąż nie wyleciał poza plansze
         isInGrid(klient);

@@ -45,6 +45,7 @@ const nZ = zielonaPoswiata.getContext('2d');
 
 function init() {
     //inicjalizacja gry
+    ruch =  undefined;
     gameover = false;
     document.getElementById('wynik').innerHTML = 'Wynik: 0';
 
