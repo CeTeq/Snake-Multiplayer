@@ -1,4 +1,4 @@
-import { chat, gracze, grid } from '../serwer-snake.js';
+import { chat, gracze, grid, plan } from '../serwer-snake.js';
 
 export function clientMessage(wia, ws) {
     wia = JSON.parse(wia);
@@ -22,22 +22,47 @@ export function clientMessage(wia, ws) {
         } 
         else 
         {
-            let waz = gracze.get(ws);
+            let snake = gracze.get(ws);
 
-            if (ruch == 'p' && waz.dx >= 0) {
-                waz.dx = grid;
-                waz.dy = 0;
-            } else if (ruch == 'l' && waz.dx <= 0) {
-                waz.dx = -grid;
-                waz.dy = 0;
-            } else if (ruch == 'g' && waz.dy <= 0) {
-                waz.dy = -grid;
-                waz.dx = 0;
-            } else if (ruch == 'd' && waz.dy >= 0) {
-                waz.dy = grid;
-                waz.dx = 0;
+            if (ruch == 'p' && snake.dirX >= 0) {
+                snake.dx = grid;
+                snake.dy = 0;
+            } else if (ruch == 'l' && snake.dirX <= 0) {
+                snake.dx = -grid;
+                snake.dy = 0;
+            } else if (ruch == 'g' && snake.dirY <= 0 ) {
+                snake.dy = -grid;
+                snake.dx = 0;
+            } else if (ruch == 'd' && snake.dirY >= 0) {
+                snake.dy = grid;
+                snake.dx = 0;
             }
-            gracze.set(ws, waz);
+            else if(ruch == 'tarcza' && snake.tarcze > 0)
+            {
+                snake.tarcze--;
+                snake.ochrona = 250;
+            }
+            else if(ruch == 'przysp' && snake.przysp > 0)
+            {
+                snake.przysp--;
+                snake.tprzysp = 250;
+            }
+            else if(ruch == 'strzal' && snake.naboje > 0)
+            {
+                snake.naboje--;
+                let pocisk = {
+                    typ: 'pocisk',
+                    kolor: 'grey',
+                    x: snake.x+snake.dx,
+                    y: snake.y+snake.dy,
+                    dx: snake.dx,
+                    dy: snake.dy,
+                    snake: snake,
+                    zasieg: 30,
+                };
+                plan.set(pocisk, pocisk);
+            }
+            gracze.set(ws, snake);
         }
     }
 }

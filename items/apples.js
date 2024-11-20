@@ -1,4 +1,4 @@
-import { getRandomInt, gracze, grid, plan } from '../serwer-snake.js';
+import { getRandomInt, gracze, grid, plan, szerokosc_planszy, wysokosc_planszy } from '../serwer-snake.js';
 let liczba_jablek = 4
 let zlote = 0
 function goldenApple(eaten, klient) {
@@ -15,8 +15,8 @@ function goldenApple(eaten, klient) {
             let goldenApple = {
                 typ: 'zloteJablko',
                 kolor: 'yellow',
-                x: getRandomInt(0, 25) * grid,
-                y: getRandomInt(0, 25) * grid,
+                x: getRandomInt(0, szerokosc_planszy) * grid,
+                y: getRandomInt(0, wysokosc_planszy) * grid,
             };
             plan.set(10, goldenApple);
             zlote++
@@ -28,8 +28,8 @@ export function apples() {
         let jablko = {
             typ: 'jablko',
             kolor: 'red',
-            x: getRandomInt(0, 25) * grid,
-            y: getRandomInt(0, 25) * grid,
+            x: getRandomInt(0, szerokosc_planszy) * grid,
+            y: getRandomInt(0, wysokosc_planszy) * grid,
         };
         plan.set(jablko, jablko);
     }
@@ -42,8 +42,8 @@ export function ateApple(klient, obiekt, isZlote) {
         snake.wynik++;
         goldenApple(isZlote, klient)
         //Losujemy nowe jabłko
-        obiekt.x = getRandomInt(0, 40) * grid;
-        obiekt.y = getRandomInt(0, 40) * grid;
+        obiekt.x = getRandomInt(0, szerokosc_planszy) * grid;
+        obiekt.y = getRandomInt(0, wysokosc_planszy) * grid;
         console.log('Wąż zjadł jabłko');
     }
     else goldenApple(isZlote, klient)

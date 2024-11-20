@@ -8,6 +8,7 @@ import { colisions } from './checks/colisions.js';
 import { isInGrid } from './checks/isInGrid.js';
 import { gameUpdateMsg } from './messages/gameUpdate.js';
 import { apples } from './items/apples.js';
+import { generuj_boosty } from './items/boosts.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -22,13 +23,15 @@ export const gracze = new Map();
 export let chat = [];
 export let kolizje = [];
 export let plan = new Map();
-export let wysokosc_planszy = grid * 40;
-export let szerokosc_planszy = grid * 40;
+export let wysokosc_planszy = 40;
+export let szerokosc_planszy = 40;
 
 let fl = false;
 const klienci = new Map();
 let liczba_graczy = 0;
 let pol = 0;
+const fps = 10;
+const predkosc_ruchu = 8;
 
 let czy_gra;
 const kolory = ['green', 'red', 'blue', 'orange', 'purple', 'yellow'];
@@ -49,26 +52,35 @@ export function getRandomInt(min, max) {
 apples()
 
 function randColor() {
-    return '#' + Math.floor(Math.random() * 16777215).toString(16);
+    return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
 }
-setInterval(loop, 10);
+setInterval(loop, fps);
 wss.on('connection', (ws) => {
     console.log('Nowe połączenie WebSocket');
     let nowykol = randColor();
+    let rx = getRandomInt(0, szerokosc_planszy) * grid; //lpsujemy pozycje startową wężowi
+    let ry = getRandomInt(0, wysokosc_planszy) * grid;
     let snake = {
         nick: 'nick',
         typ: 'snake',
         kolor: nowykol,
-        x: 160,
-        y: 160,
+        x: rx,
+        y: ry,
         dx: grid,
         dy: 0,
+        dirX: grid,
+        dirY: 0,
         cells: [
-            { x: 160, y: 160, typ: 'elsnake', snake:undefined},
-            { x: 144, y: 160, typ: 'elsnake', snake:undefined},
+            { x: rx, y: ry, typ: 'elsnake', snake:undefined},
+            { x: rx-grid, y: ry, typ: 'elsnake', snake:undefined},
         ], //cialo węża
         maxCells: 2, //bierząca długość węża
         wynik: 0,
+        ochrona: 20 * fps, 
+        tarcze: 0,
+        przysp: 0,
+        tprzysp: 0,
+        naboje: 0,
         gameover: false,
         czy_pierwszy: true,
     };
@@ -85,8 +97,13 @@ wss.on('connection', (ws) => {
     ws.on('message', (wia) => clientMessage(wia, ws)); // Obsługa wiadomości otrzymanych od klienta
 
     ws.on('close', () => {
-        console.log('skasowano');
-        chat.push('<span style="color: red;">Gracz ' + gracze.get(ws).nick + ' się rozłączył</span>');
+        console.log('Gracz ' + gracze.get(ws).nick + ' się rozłączył');
+       
+        if(gracze.get(ws).gameover == false)
+        {
+            chat.push('<span style="color: red;">Gracz ' + gracze.get(ws).nick + ' wyszedł z gry</span>');
+        }
+
         liczba_graczy--;
         gracze.get(ws).cells.forEach(function (el) {
             // Usuwanie wszystkich części gracza
@@ -104,11 +121,42 @@ function loop() {
     i++;
     let plansz = [];
     let napisy = [];
+
+
+    generuj_boosty();
+
     plan.forEach(function (el) {
         if(el.typ == "elsnake")
         {
             let t = {x:el.x, y:el.y, kolor:el.snake.kolor};
             plansz.push(t);
+            if(el.snake.ochrona > 0) //dodanie białej otoczki wężowi jeśli ma efekt ochrony
+            {
+                let t2 = {x:el.x, y:el.y, kolor:"white", rodzaj:"strokeRect", kolor2:"cyan"};
+                plansz.push(t2);
+            }
+            if(el.snake.tprzysp > 0) //dodanie zielonej otoczki wężowi jeśli ma efekt przyśpieszenia
+            {
+                let t2 = {x:el.x, y:el.y, kolor:"green", rodzaj:"strokeRect", kolor2:"green"};
+                plansz.push(t2);
+            }
+        }
+        else if(el.typ == "pocisk")
+        {
+            let t = {x:el.x, y:el.y, kolor:el.kolor, rodzaj:"arc"};
+            plansz.push(t);
+
+            
+            if(i%2 == 0) //przesuwanie pocisku
+            {
+                el.x += el.dx;
+                el.y += el.dy;
+                el.zasieg--;
+            }
+            if(el.zasieg == 0) //usuniecie pocisku po przeleceniu ustalone dystansu
+            {
+                plan.delete(el);
+            }
         }
         else
         {
@@ -136,20 +184,40 @@ function loop() {
     klienci.forEach((klient) => {
         let snake = gracze.get(klient);
 
+
+        if(snake.ochrona > 0)
+        {
+            snake.ochrona--;
+        }
+        if(snake.tprzysp > 0)
+        {
+            snake.tprzysp--;
+        }
+
         gameUpdateMsg(klient, plansz, napisy);
 
         //Czyszczenie chatu
 
-        if (i < 8) {
-            return;
-        }
-
         if (snake.gameover) {
             return;
         }
+
+        //Sprawdzamy czy kolizje dla danego węża
+        plan.forEach((obiekt) => colisions(obiekt, klient));
+
+        //tempo poruszania sie
+        if (i < predkosc_ruchu && (snake.tprzysp == 0 || i%4!=0)) {
+            return;
+        }
+
         //Przesuwamy węża
         snake.x += snake.dx;
         snake.y += snake.dy;
+
+        snake.dirX = snake.dx;
+        snake.dirY = snake.dy;
+
+        snake.moved = true;
 
         //Sprawdzamy czy wąż nie wyleciał poza plansze
         isInGrid(klient);
@@ -168,9 +236,6 @@ function loop() {
             plan.delete(snake.cells[snake.cells.length - 1]);
             snake.cells.pop();
         }
-
-        //Sprawdzamy czy kolizje dla danego węża
-        plan.forEach((obiekt) => colisions(obiekt, klient));
 
         gracze.set(klient, snake);
     });
@@ -194,7 +259,7 @@ function loop() {
         }
         });
 
-    if (i == 8) {
+    if (i == predkosc_ruchu) {
         //tempo poruszania sie
         i = 0;
     }

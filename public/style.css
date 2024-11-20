@@ -37,7 +37,7 @@ canvas {
 }
 #ranking {
 	right: 71%;
-	top: 33%;
+	top: 30%;
 	position: absolute;
 	word-wrap: break-word;
 	border-radius: 6px;
@@ -50,8 +50,33 @@ canvas {
 	text-align: justify;
 }
 #wiadomosci {
-	left: 78%;
-	top: 33%;
+	left: 64.5%;
+	top: 30%;
+	width: 300px;
+	height: 200px;
+	position: absolute;
+}
+
+#restart {
+	right: 30%;
+	top: 10%;
+	position: absolute;
+}
+
+
+#tarcze {
+	left: 30%;
+	top: 75%;
+	position: absolute;
+}
+#przyspieszenia {
+	left: 43%;
+	top: 75%;
+	position: absolute;
+}
+#naboje {
+	left: 58%;
+	top: 75%;
 	position: absolute;
 }
 
