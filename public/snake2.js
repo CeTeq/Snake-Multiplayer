@@ -37,6 +37,12 @@ function siatka() {
     context.stroke();
 }
 
+const niebieskaPoswiata = document.createElement('canvas');
+const nP = niebieskaPoswiata.getContext('2d');
+
+const zielonaPoswiata = document.createElement('canvas');
+const nZ = zielonaPoswiata.getContext('2d');
+
 function init() {
     //inicjalizacja gry
     gameover = false;
@@ -45,6 +51,29 @@ function init() {
     clearInterval(klatka);
     klatka = setInterval(loop, 20); //10fps
     //console.log('Uruchomiono gre');
+
+    
+
+    // Renderowanie efektu poświaty na pomocniczym canvas żeby przyspieszyc czas gdyż generowanie poswiaty jest bardzo kosztowne
+    niebieskaPoswiata.width = grid+40;
+    niebieskaPoswiata.height = grid+40;
+
+    nP.lineWidth = 1;
+    nP.strokeStyle = "white"; 
+    nP.shadowColor = "cyan"; 
+    nP.shadowBlur = 15;
+    nP.strokeRect(20, 20, grid, grid);
+
+
+    zielonaPoswiata.width = grid+40;
+    zielonaPoswiata.height = grid+40;
+    
+
+    nZ.lineWidth = 1;
+    nZ.strokeStyle = "green";
+    nZ.shadowColor = "green"; 
+    nZ.shadowBlur = 15;
+    nZ.strokeRect(20, 20, grid, grid);
 }
 
 var plansza = new Map();
@@ -207,6 +236,8 @@ function loop() {
         ranking.innerHTML += element.n + ': ' + element.wynik + '<br>';
     });
 
+    
+
     plansza.forEach(function (kwadrat) {
         //Rysowanie całej gry: wszystko składa sie z róznokolorowych kszałtów
         if(kwadrat.rodzaj == undefined || kwadrat.rodzaj == "fillRect") //Rysujemy kwadrat
@@ -216,12 +247,21 @@ function loop() {
         }
         else if(kwadrat.rodzaj == "strokeRect") //Rysujemy kwadrat pusty w środku
         {
-            context.lineWidth = 1;
-            context.strokeStyle = kwadrat.kolor;
-            context.shadowColor = kwadrat.kolor2;
-            context.shadowBlur = 15;
-            context.strokeRect(kwadrat.x, kwadrat.y, grid, grid);
-            context.shadowBlur = 0;
+            if(kwadrat.kolor2 == "cyan")
+            {
+                context.drawImage(niebieskaPoswiata, kwadrat.x-20, kwadrat.y-20);
+            }
+            else if(kwadrat.kolor2 == "green")
+            {
+                context.drawImage(zielonaPoswiata, kwadrat.x-20, kwadrat.y-20);
+            }
+            //context.lineWidth = 1;
+            //context.strokeStyle = kwadrat.kolor;
+            
+            //context.shadowColor = kwadrat.kolor2;
+            //context.shadowBlur = 5;
+            //context.strokeRect(kwadrat.x, kwadrat.y, grid, grid);
+            //context.shadowBlur = 0;
         } 
         else if(kwadrat.rodzaj == "arc") //Rysujemy koło
         {

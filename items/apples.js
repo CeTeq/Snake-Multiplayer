@@ -7,7 +7,7 @@ function goldenApple(eaten, klient) {
         zlote--
         plan.delete(10)
         console.log(plan.delete(goldenApple))
-        snake.maxCells++;
+        snake.maxCells+=100;
         snake.wynik+=10;
     }
     if (zlote === 0) {
