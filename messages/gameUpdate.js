@@ -12,6 +12,8 @@ export function gameUpdateMsg(klient, plansz, napisy) {
                 tarcze: snake.tarcze,
                 przysp: snake.przysp,
                 naboje: snake.naboje,
+                snakeX: snake.x/16,
+                snakeY: snake.y/16
             }),
         );
 }

@@ -6,12 +6,13 @@ body {
 	color: white;
 }
 #game {
-	top: 1%;
-	left: 30%;
 	position: fixed;
 	display: none;
 	align-items: center;
 	text-align: center;
+	overflow: hidden;
+	width: 100svw;
+	height: 100svh;
 }
 #joinLobby {
 	left: 45%;
@@ -19,30 +20,44 @@ body {
 	position: fixed;
 }
 #wynik {
+	position: absolute;
 	font-size: 34px;
+	top: 1%;
+	left: 43%;
 }
-canvas {
-	border: 1px solid white;
+#wiadomosci {
+	opacity: 2%;
+	transition: 0.25s opacity;
+}
+#wiadomosci:hover {
+	opacity: 80%;
+	transition: 0.25s opacity;
 }
 #chat {
+	background-color: rgb(34, 34, 34);
 	word-wrap: break-word;
 	border-radius: 6px;
 	padding: 4px;
-	background-color: rgb(34, 34, 34, 0.4);
 	width: 300px;
 	height: 200px;
 	overflow-x: hidden;
 	overflow-y: auto;
 	text-align: justify;
 }
+#ranking:hover {
+	opacity: 80%;
+	transition: 0.25s opacity;
+}
 #ranking {
+	opacity: 2%;
+	transition: 0.25s opacity;
 	right: 71%;
 	top: 30%;
 	position: absolute;
 	word-wrap: break-word;
 	border-radius: 6px;
 	padding: 4px;
-	background-color: rgb(34, 34, 34, 0.4);
+	background-color: rgb(34, 34, 34);
 	width: 300px;
 	height: 200px;
 	overflow-x: hidden;
@@ -79,7 +94,12 @@ canvas {
 	top: 75%;
 	position: absolute;
 }
-
+#plansza {
+	position: relative;
+	transition-property: all;
+	transition-duration: 1s;
+	transform-style: initial;
+}
 /*html,body {
     height: 100%;
     margin: 0;
