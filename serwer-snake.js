@@ -127,18 +127,6 @@ function loop() {
 
     generuj_boosty();
 
-    gracze.forEach(function (el) {
-        if(el.gameover == false)
-        {
-            napisy.push({
-                n: el.nick,
-                x: el.x,
-                y: el.y,
-                wynik: el.wynik,
-            });
-        }
-    });
-
     kolizje.forEach((element) => {
         chat.push(element);
     });
@@ -270,7 +258,20 @@ function loop() {
     }
     else if(i%4 == 0) jakieWyslanie = '4';
     else if(i%2 == 0) jakieWyslanie = '2';
+    else jakieWyslanie = '1';
     
+    gracze.forEach(function (el) {
+        if(el.gameover == false)
+        {
+            napisy.push({
+                n: el.nick,
+                x: el.x,
+                y: el.y,
+                wynik: el.wynik,
+            });
+        }
+    });
+
 
     klienci.forEach((kl) => {
         let sn = gracze.get(kl);
