@@ -23,8 +23,8 @@ export const gracze = new Map();
 export let chat = [];
 export let kolizje = [];
 export let plan = new Map();
-export let wysokosc_planszy = 40;
-export let szerokosc_planszy = 40;
+export let wysokosc_planszy = 200;
+export let szerokosc_planszy = 200;
 
 let fl = false;
 const klienci = new Map();

@@ -8,7 +8,7 @@ export let liczba = {
 
 export function generuj_boosty()
 {
-    if(getRandomInt(0,2000) == 1 && liczba.tarcz < 1) //Generowanie tarcz
+    if(getRandomInt(0,2000) == 1 && liczba.tarcz < 100) //Generowanie tarcz
     {
         let tarcza = {
             typ: 'tarcza',
@@ -20,7 +20,7 @@ export function generuj_boosty()
         liczba.tarcz++;
     }
 
-    if(getRandomInt(0,2000) == 1 && liczba.przysp < 1) //Generowanie przyśpieszeń
+    if(getRandomInt(0,2000) == 1 && liczba.przysp < 100) //Generowanie przyśpieszeń
     {
         let przy = {
             typ: 'przysp',
@@ -32,7 +32,7 @@ export function generuj_boosty()
         liczba.przysp++;
     }
 
-    if(getRandomInt(0,2000) == 1 && liczba.naboji < 1) //Generowanie naboji
+    if(getRandomInt(0,2000) == 1 && liczba.naboji < 100) //Generowanie naboji
     {
         let nab = {
             typ: 'naboje',
