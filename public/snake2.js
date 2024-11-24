@@ -114,22 +114,21 @@ function joinToGame()
 
                 if(wiad.jakieWyslanie == '8')
                 {
-                    console.log("8");
                     plansza8 = wiad.plansza8;
                     plansza4 = wiad.plansza4;
                     plansza2 = wiad.plansza2;
                 }
                 else if(wiad.jakieWyslanie == '4')
-                {console.log("4");
+                {
                     plansza4 = wiad.plansza4;
                     plansza2 = wiad.plansza2;
                 }
                 else if(wiad.jakieWyslanie == '2')
-                {console.log("2");
+                {
                     plansza2 = wiad.plansza2;
                 }
 
-                console.log(wiad.jakieWyslanie);
+
 
                 plansza.clear();
                 
