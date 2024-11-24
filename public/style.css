@@ -17,25 +17,24 @@ body {
 	left: 45%;
 	top: 20%;
 	position: fixed;
+	align-items: center;
+    justify-content: center;
 }
 
 #nnick {
-	left: 47%;
+	width: 100%;
 	top: 15.5%;
 	position: fixed;
-	text-align: center;
 	font-size: 19px;
 }
 
 #nickname {
-	left: 42%;
 	top: 20%;
 	position: fixed;
 	font-size: 20px;
 }
 
 #connect {
-	left: 45%;
 	top: 27%;
 	width: 11.5%;
 	height: 11%;
