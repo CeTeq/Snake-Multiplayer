@@ -5,8 +5,8 @@ export function goldenApple() {
         let goldenApple = {
             typ: 'zloteJablko',
             kolor: 'yellow',
-            x: getRandomInt(0, 25) * grid,
-            y: getRandomInt(0, 25) * grid,
+            x: getRandomInt(0, wymiaryPlanszy.szerokosc) * grid,
+            y: getRandomInt(0, wymiaryPlanszy.szerokosc) * grid,
         };
         plan.set(goldenApple, goldenApple);
     }

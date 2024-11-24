@@ -7,9 +7,13 @@
     </head>
     <body>
         <div id="joinLobby">
+            <div id="nnick">Podaj nick:</div>
             <input type="text" placeholder="Nickname" id="nickname" /><br />
             <!--<input type="text" id="ip" placeholder="ws://0.0.0.0:0000">-->
             <button id="connect">Connect</button>
+
+            <div  id="nhaslo">Hasło hosta (opcjonalne)</div>
+            <input type="password" id="haslo">
         </div>
         <div id="game">
             <span id="wynik">Wynik: </span><br />
@@ -27,7 +31,20 @@
         </div>
         <button id="restart">RESTART</button>
         <button id="start">START</button>
-        <button id="zmien">START</button>
+        <button id="zmienTryb">Zmień tryb gry</button>
+        <div id="tryb"></div>
+
+
+        
+        <div id="rozmiarX">Szerokość mapy</div>
+        <input type="text" id="zmienX" placeholder="40" value="40"></input>
+        <div id="rozmiarY">Wysokość mapy</div>
+        <input type="text" id="zmienY" placeholder="40" value="40"></input>
+        
+        <div id="jablka">Ilość jabłek na mapie; jakakolwiek litera = tyle ile graczy</div>
+        <input type="text" id="zmienJablka" value="0"></input>
+        
+
         <div id="nick"></div>
         <div id="tarcze">Tarcze: 0</div><div id="przyspieszenia">Przyśpieszenia: 0</div><div id="naboje">Naboje: 0</div>
         <script src="snake2.js"></script>

@@ -1,4 +1,11 @@
-import { chat, gracze, grid, plan, host, wymus_start, liczba_graczy } from '../serwer-snake.js';
+import { chat, gracze, grid, plan, wymiaryPlanszy, wymus_start, liczba_graczy, battle_royal, czy_lobby, odliczanie_rozpoczecia, czas_odli_rozp, odliczanie_restartowania } from '../serwer-snake.js';
+import { apples } from '../items/apples.js';
+import { liczba } from '../items/boosts.js';
+export let liczba_jablek = 0;
+export let kick = null;
+export let haslo = "k";
+export let hosts = [];
+
 
 export function clientMessage(wia, ws) {
     wia = JSON.parse(wia);
@@ -8,23 +15,116 @@ export function clientMessage(wia, ws) {
     {
         sn.nick = wia.nick;
         sn.czy_pierwszy = false;
-        gracze.set(ws, sn);
+        if(wia.haslo == haslo)
+        {
+            hosts.push(ws);
+            console.log("haslo poprawne");
+        }
+
         if(sn.gameover == false) chat.push('<span style="color: green;">Gracz ' + sn.nick + ' dołączył do gry</span>');
     } 
     else 
     {
         let ruch = wia.ruch;
         let wiadomosc = wia.wiadomosc;
-        if (wiadomosc != undefined) {
-            if (wiadomosc != null) {
-                chat.push(wiadomosc);
+        let czy_host = false;
+
+        hosts.forEach(host => {
+            if(ws == host)
+            {
+                czy_host = true;
             }
+        });
+
+        if (wiadomosc != undefined && wiadomosc != null) {
+                if(czy_host && wiadomosc.search('/') > 0) //Komendy
+                {
+                    let komenda = [];
+                    komenda = wiadomosc.split(" ");
+
+                    if(komenda[1] == "/kill") // kill
+                    {
+                        if(komenda[2] == "all")
+                        {
+                            gracze.forEach(gr => {
+                            if(gr.gameover == false)
+                            {
+                                chat.push('<span style="color: red;">Gracz ' + gr.nick + ' zginął</span>');
+                            }
+                            gr.gameover = true;
+                            
+                            });
+                        }
+                        else
+                        {
+                            gracze.forEach(gr => {
+
+                                if(gr.nick == komenda[2])
+                                {
+                                    chat.push('<span style="color: red;">Gracz ' + gr.nick + ' zginął</span>');
+                                    gr.gameover = true;
+                                }
+                                });
+                        }
+                    }
+                    else if(komenda[1] == "/kick")
+                    {
+                        kick = komenda[2];
+                    }
+                    else if(komenda[1] == "/clear")
+                    {
+                        plan.forEach(el => {
+                            if(el.typ != "elsnake")
+                            {
+                                plan.delete(el);
+                            }
+                        });
+                    }
+                    
+                    //console.log(komenda[1]);
+                }
+                else
+                {
+                    chat.push(wiadomosc);
+                }
         } 
 
-        else if(host == ws && ruch == undefined && liczba_graczy > 1)
+        else if(czy_host && ruch == undefined && wia.akcjaHosta == "wystartuj" && liczba_graczy > 1)
         {
             wymus_start.st = true;
         }
+        else if(czy_host && ruch == undefined && wia.akcjaHosta == "zmienTryb")
+        {
+            console.log("zmieniono tryb gry");
+            if(battle_royal.t)
+            {
+                battle_royal.t = false;
+            }
+            else
+            {
+                battle_royal.t = true;
+            }
+        }
+        else if(czy_host && ruch == undefined && wia.akcjaHosta == "zmien")
+        {
+            wymiaryPlanszy.szerokosc = wia.szerokosc_planszy;
+            wymiaryPlanszy.wysokosc = wia.wysokosc_planszy;
+            let temp = liczba_jablek;
+            
+            if(wia.jablka.search('d') > -1)
+            {
+                liczba_jablek = liczba_graczy - temp;
+
+            }
+            else
+            {
+                liczba_jablek = wia.jablka - temp;
+            }
+
+            if(liczba_jablek > 0) apples();
+            liczba_jablek += temp;
+        }
+
         else 
         {
             let snake = gracze.get(ws);

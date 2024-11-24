@@ -20,6 +20,11 @@ const URL = 'ws://' + document.URL.slice(7, -3) + '80';
 const ranking = document.getElementById('ranking');
 let host = false;
 let wystartuj = false;
+let wysokosc_planszy = 40;
+let szerokosc_planszy = 40;
+
+let uwysokosc_planszy = 40;
+let uszerokosc_planszy = 40;
 
 console.log(URL);
 ipAddr = URL;
@@ -55,12 +60,6 @@ function init() {
     clearInterval(klatka);
     klatka = setInterval(loop, 20); //10fps
     //console.log('Uruchomiono gre');
-
-    if(host)
-    {
-        console.log("jesteś hostem");
-        document.getElementById("start").style.display = 'block';
-    }
     
 
     // Renderowanie efektu poświaty na pomocniczym canvas żeby przyspieszyc czas gdyż generowanie poswiaty jest bardzo kosztowne
@@ -86,38 +85,54 @@ function init() {
 }
 
 var plansza = new Map();
+let wjablka = true;
+let wszer = true;
+let wwys = true;
 
 function joinToGame()
 {
-    // ipAddr = "ws://";
-    // ipAddr += document.getElementById('ip').value
     document.getElementById('joinLobby').style.display = 'none';
     document.getElementById('game').style.display = 'initial';
+
+
+
+    document.getElementById("ranking").style.display = 'block';
+    document.getElementById("wiadomosci").style.display = 'block';
+    document.getElementById('restart').style.display = 'block';
+
+    document.getElementById("tarcze").style.display = 'block';
+    document.getElementById("przyspieszenia").style.display = 'block';
+    document.getElementById("naboje").style.display = 'block';
+
     canvas.height = grid * size;
     canvas.width = grid * size;
+    
     if (socket) 
     {
         socket.close();
     }
     socket = new WebSocket(ipAddr);
+
     
     socket.addEventListener('open', () => {
         console.log('Połączono z WebSocket');
         socket.send(
             JSON.stringify({
                 nick: document.getElementById('nickname').value,
+                haslo: document.getElementById("haslo").value,
             }),
             
         );
-        document.getElementById('nick').innerHTML = 'Nick: ' + document.getElementById('nickname').value;
+        
 
         socket.addEventListener('message', (wia) => {
             //Obsługa danych przesyłanych przez serwer
             let wiad = JSON.parse(wia.data);
             if (wiad.typ === 'plansza') {
                 //Wiadomośc standardowa, czyli przesyłanie klatki gry
+                host = wiad.host;
                 if (first) {
-                    host = wiad.host;
+                    
                     init();
                     first = false;
                 }
@@ -132,6 +147,93 @@ function joinToGame()
                 document.getElementById('przyspieszenia').innerHTML = 'Przyśpieszenia: ' + wiad.przysp;
                 document.getElementById('naboje').innerHTML = 'Naboje: ' + wiad.naboje;
                 document.getElementById('wynik').innerHTML = wiad.tytul;
+                document.getElementById('tryb').innerHTML = 'Tryb gry: ' + wiad.tryb;
+                document.getElementById('nick').innerHTML = 'Nick: ' + document.getElementById('nickname').value;
+
+                if(host)
+                {
+                    if(wiad.jablka != document.getElementById("zmienJablka").value && wjablka == false)
+                        {
+                            wjablka = true;
+                        }
+                        else if(wiad.jablka != document.getElementById("zmienJablka").value)
+                        {
+                            document.getElementById("zmienJablka").value = wiad.jablka;
+                            wjablka = false;
+                        }
+                        else
+                        {
+                            wjablka = false;
+                        }
+    
+    
+                        if(wiad.szerokosc_planszy != document.getElementById("zmienX").value && wszer == false)
+                        {
+                            wszer = true;
+                        }
+                        else if(wiad.szerokosc_planszy != document.getElementById("zmienX").value)
+                        {
+                            document.getElementById("zmienX").value = wiad.szerokosc_planszy;
+                            wszer = false;
+                        }
+                        else
+                        {
+                            wszer = false;
+                        }
+    
+                        if(wiad.wysokosc_planszy != document.getElementById("zmienY").value && wwys == false)
+                        {
+                            wwys = true;
+                        }
+                        else if(wiad.wysokosc_planszy != document.getElementById("zmienY").value)
+                        {
+                            document.getElementById("zmienY").value = wiad.wysokosc_planszy;
+                            wwys = false;
+                        }
+                        else
+                        {
+                            wwys = false;
+                        }
+
+                    //console.log("jesteś hostem");
+                    document.getElementById("start").style.display = 'block';
+                    document.getElementById("zmienTryb").style.display = 'block';
+                    document.getElementById('nick').innerHTML += ' (host)';
+
+                    document.getElementById("rozmiarX").style.display = 'block';
+                    document.getElementById("zmienX").style.display = 'block';
+                    document.getElementById("rozmiarY").style.display = 'block';
+                    document.getElementById("zmienY").style.display = 'block';
+
+                    document.getElementById("jablka").style.display = 'block';
+                    document.getElementById("zmienJablka").style.display = 'block';
+
+                    uwysokosc_planszy = document.getElementById("zmienY").value;
+                    uszerokosc_planszy = document.getElementById("zmienX").value;
+
+                    document.getElementById("ranking").style.left = '70%';
+                    document.getElementById("ranking").style.top = '10%';
+                    document.getElementById("restart").style.top = '88%';
+                    document.getElementById("wiadomosci").style.top = '45%';
+                    
+                    socket.send(
+                        JSON.stringify({
+                            ruch: undefined,
+                            akcjaHosta: "zmien",
+                            wysokosc_planszy: uwysokosc_planszy,
+                            szerokosc_planszy: uszerokosc_planszy,
+                            jablka: document.getElementById("zmienJablka").value,
+                        }),
+                    );
+
+                }
+
+                if(canvas.height != wiad.wysokosc_planszy*grid || canvas.width != wiad.szerokosc_planszy*grid)
+                {
+                    console.log("s");
+                    canvas.height = grid * wiad.wysokosc_planszy;
+                    canvas.width = grid * wiad.szerokosc_planszy;
+                }
 
                 if(wiad.odswiez) //żądanie zrestartowania połączenia
                 {
@@ -159,7 +261,20 @@ document.getElementById('start').addEventListener('click', () => {
         socket.send(
             JSON.stringify({
                 ruch: undefined,
-                wystartuj: true,
+                akcjaHosta: "wystartuj",
+            }),
+        );
+    }
+});
+
+document.getElementById('zmienTryb').addEventListener('click', () => {
+    if(host)
+    {
+        // /document.getElementById('zmienTryb').style.display = 'none';
+        socket.send(
+            JSON.stringify({
+                ruch: undefined,
+                akcjaHosta: "zmienTryb",
             }),
         );
     }
@@ -175,6 +290,7 @@ sendMsg.addEventListener('click', () => {
             wiadomosc: wiadomosc,
         }),
     );
+    document.getElementById('msg').value = "";
     sendMsg.blur();
 });
 
@@ -192,6 +308,8 @@ function loop() {
         return;
     }
 
+
+    
     if(cooldown > 0)
     {
         cooldown--;

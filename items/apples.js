@@ -1,6 +1,7 @@
-import { getRandomInt, gracze, grid, plan, szerokosc_planszy, wysokosc_planszy } from '../serwer-snake.js';
-let liczba_jablek = 4
+import { getRandomInt, gracze, grid, plan, wymiaryPlanszy } from '../serwer-snake.js';
+import { liczba_jablek } from '../events/clientMessage.js';
 let zlote = 0
+let jablka = 0;
 function goldenApple(eaten, klient) {
     let snake = gracze.get(klient)
     if(eaten) {
@@ -15,8 +16,8 @@ function goldenApple(eaten, klient) {
             let goldenApple = {
                 typ: 'zloteJablko',
                 kolor: 'yellow',
-                x: getRandomInt(0, szerokosc_planszy) * grid,
-                y: getRandomInt(0, wysokosc_planszy) * grid,
+                x: getRandomInt(0, wymiaryPlanszy.szerokosc) * grid,
+                y: getRandomInt(0, wymiaryPlanszy.wysokosc) * grid,
             };
             plan.set(10, goldenApple);
             zlote++
@@ -28,10 +29,11 @@ export function apples() {
         let jablko = {
             typ: 'jablko',
             kolor: 'red',
-            x: getRandomInt(0, szerokosc_planszy) * grid,
-            y: getRandomInt(0, wysokosc_planszy) * grid,
+            x: getRandomInt(0, wymiaryPlanszy.szerokosc) * grid,
+            y: getRandomInt(0, wymiaryPlanszy.wysokosc) * grid,
         };
         plan.set(jablko, jablko);
+        jablka++;
     }
 }
 
@@ -42,8 +44,14 @@ export function ateApple(klient, obiekt, isZlote) {
         snake.wynik++;
         goldenApple(isZlote, klient)
         //Losujemy nowe jabłko
-        obiekt.x = getRandomInt(0, szerokosc_planszy) * grid;
-        obiekt.y = getRandomInt(0, wysokosc_planszy) * grid;
+        obiekt.x = getRandomInt(0, wymiaryPlanszy.szerokosc) * grid;
+        obiekt.y = getRandomInt(0, wymiaryPlanszy.wysokosc) * grid;
+
+        if(jablka > liczba_jablek)
+        {
+            plan.delete(obiekt);
+            jablka--;
+        }
         console.log('Wąż zjadł jabłko');
     }
     else goldenApple(isZlote, klient)

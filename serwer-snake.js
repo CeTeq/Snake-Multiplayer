@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path';
 import { clientMessage } from './events/clientMessage.js';
-import { colisions } from './checks/colisions.js';
+import { colisions, czolowe_zderzenia } from './checks/colisions.js';
 import { isInGrid } from './checks/isInGrid.js';
 import { gameUpdateMsg } from './messages/gameUpdate.js';
 import { apples } from './items/apples.js';
@@ -23,22 +23,26 @@ export const gracze = new Map();
 export let chat = [];
 export let kolizje = [];
 export let plan = new Map();
-export let wysokosc_planszy = 40;
-export let szerokosc_planszy = 40;
+export let wymiaryPlanszy = {
+    wysokosc: 40,
+    szerokosc: 40,
+};
 export const tps = 10;
-export let battle_royal = true;
-export let czy_lobby = battle_royal;
+export let battle_royal = {
+    t:false,
+};
+export let czy_lobby = battle_royal.t;
 export let zakonczenie_gry = false;
 export let wygrany_gracz = undefined;
 export let czas_odli_rozp = 250;
 export let odliczanie_rozpoczecia = czas_odli_rozp;
 export let odliczanie_restartowania = 0;
-export let host = undefined;
 export let wymus_start = {
 st: false,
 };
 export let liczba_graczy = 0;
-let min_graczy = 3;
+export let remis = false;
+let min_graczy = 100;
 
 let fl = false;
 const klienci = new Map();
@@ -71,8 +75,8 @@ setInterval(loop, tps);
 wss.on('connection', (ws) => {
     console.log('Nowe połączenie WebSocket');
     let nowykol = randColor();
-    let rx = getRandomInt(0, szerokosc_planszy) * grid; //lpsujemy pozycje startową wężowi
-    let ry = getRandomInt(0, wysokosc_planszy) * grid;
+    let rx = getRandomInt(0, wymiaryPlanszy.szerokosc) * grid; //lpsujemy pozycje startową wężowi
+    let ry = getRandomInt(0, wymiaryPlanszy.wysokosc) * grid;
     let snake = {
         nick: 'nick',
         typ: 'snake',
@@ -98,14 +102,9 @@ wss.on('connection', (ws) => {
         czy_pierwszy: true,
     };
 
-    if(host == undefined)
-    {
-        host = ws;
-    }
-
     gracze.set(ws, snake);
 
-    if(battle_royal == false || czy_lobby == true)
+    if(battle_royal.t == false || czy_lobby == true)
     {
         liczba_graczy++;
 
@@ -127,10 +126,6 @@ wss.on('connection', (ws) => {
     ws.on('message', (wia) => clientMessage(wia, ws)); // Obsługa wiadomości otrzymanych od klienta
 
     ws.on('close', () => {
-        if(host == ws)
-        {
-            host = undefined;
-        }
         console.log('Gracz ' + gracze.get(ws).nick + ' się rozłączył');
        
         if(gracze.get(ws).gameover == false)
@@ -157,6 +152,15 @@ function loop() {
     i++;
     let plansz = [];
     let napisy = [];
+
+    if(battle_royal.t == false)
+    {
+        czy_lobby = false;
+        wygrany_gracz = undefined;
+        odliczanie_rozpoczecia = czas_odli_rozp;
+        odliczanie_restartowania = 0;
+        wymus_start.st = false;
+    }
 
     if((liczba_graczy >= min_graczy || wymus_start.st) && czy_lobby)
     {
@@ -185,6 +189,7 @@ function loop() {
         wygrany_gracz = undefined;
         zakonczenie_gry = false;
         czy_lobby = true;
+        wymus_start.st = false;
     }
 
     kolizje.forEach((element) => {
@@ -192,18 +197,29 @@ function loop() {
     });
     kolizje = [];
 
-    if(battle_royal && czy_lobby == false && liczba_graczy == 1 && zakonczenie_gry == false)
+    if(battle_royal.t && czy_lobby == false && zakonczenie_gry == false)
     {
-        zakonczenie_gry = true;
+        if(liczba_graczy == 1)
+        {
+            zakonczenie_gry = true;
 
-        gracze.forEach(gr => {
-            if(gr.gameover == false)
-            {
-                wygrany_gracz = gr;
-            }
-        });
-        chat.push('<span style="color: yellow;">Gracz ' + wygrany_gracz.nick + ' wygrał gre</span>');
-        odliczanie_restartowania = 500;
+            gracze.forEach(gr => {
+                if(gr.gameover == false)
+                {
+                    wygrany_gracz = gr;
+                }
+            });
+            chat.push('<span style="color: yellow;">Gracz ' + wygrany_gracz.nick + ' wygrał gre</span>');
+            odliczanie_restartowania = 500;
+        }
+        else if(liczba_graczy == 0)
+        {
+            zakonczenie_gry = true;
+            remis = true;
+            chat.push('<span style="color: yellow;">Gracze ' + czolowe_zderzenia.snake1.nick + ' i ' + czolowe_zderzenia.snake2.nick + ' zremisowali</span>');
+            odliczanie_restartowania = 500;
+            wygrany_gracz = czolowe_zderzenia.snake1;
+        }
     }
 
     if(czy_lobby == false)

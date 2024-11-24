@@ -1,4 +1,4 @@
-import { getRandomInt, gracze, grid, plan, szerokosc_planszy, wysokosc_planszy } from '../serwer-snake.js';
+import { getRandomInt, gracze, grid, plan, wymiaryPlanszy } from '../serwer-snake.js';
 
 export let liczba = {
     tarcz: 0,
@@ -13,8 +13,8 @@ export function generuj_boosty()
         let tarcza = {
             typ: 'tarcza',
             kolor: 'cyan',
-            x: getRandomInt(0, szerokosc_planszy) * grid,
-            y: getRandomInt(0, wysokosc_planszy) * grid,
+            x: getRandomInt(0, wymiaryPlanszy.szerokosc) * grid,
+            y: getRandomInt(0, wymiaryPlanszy.wysokosc) * grid,
         };
         plan.set(tarcza, tarcza);
         liczba.tarcz++;
@@ -25,8 +25,8 @@ export function generuj_boosty()
         let przy = {
             typ: 'przysp',
             kolor: 'green',
-            x: getRandomInt(0, szerokosc_planszy) * grid,
-            y: getRandomInt(0, wysokosc_planszy) * grid,
+            x: getRandomInt(0, wymiaryPlanszy.szerokosc) * grid,
+            y: getRandomInt(0, wymiaryPlanszy.wysokosc) * grid,
         };
         plan.set(przy, przy);
         liczba.przysp++;
@@ -37,8 +37,8 @@ export function generuj_boosty()
         let nab = {
             typ: 'naboje',
             kolor: '#6c3c0c',
-            x: getRandomInt(0, szerokosc_planszy) * grid,
-            y: getRandomInt(0, wysokosc_planszy) * grid,
+            x: getRandomInt(0, wymiaryPlanszy.szerokosc) * grid,
+            y: getRandomInt(0, wymiaryPlanszy.wysokosc) * grid,
         };
         plan.set(nab, nab);
         liczba.naboji++;

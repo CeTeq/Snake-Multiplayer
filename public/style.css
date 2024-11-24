@@ -7,7 +7,7 @@ body {
 }
 #game {
 	top: 1%;
-	left: 30%;
+	left: 25%;
 	position: fixed;
 	display: none;
 	align-items: center;
@@ -18,6 +18,47 @@ body {
 	top: 20%;
 	position: fixed;
 }
+
+#nnick {
+	left: 47%;
+	top: 15.5%;
+	position: fixed;
+	text-align: center;
+	font-size: 19px;
+}
+
+#nickname {
+	left: 42%;
+	top: 20%;
+	position: fixed;
+	font-size: 20px;
+}
+
+#connect {
+	left: 45%;
+	top: 27%;
+	width: 11.5%;
+	height: 11%;
+	position: fixed;
+	font-size: 27px;
+}
+
+#haslo {
+	left: 45%;
+	top: 80%;
+	position: fixed;
+}
+
+#nhaslo {
+	left: 45%;
+	top: 75%;
+	position: fixed;
+	font-size: 15px;
+    font-style: inherit;
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+}
+
 #wynik {
 	font-size: 34px;
 }
@@ -48,36 +89,43 @@ canvas {
 	overflow-x: hidden;
 	overflow-y: auto;
 	text-align: justify;
+	display: none;
 }
 #wiadomosci {
-	left: 64.5%;
+	left: 70%;
 	top: 30%;
 	width: 300px;
 	height: 200px;
 	position: absolute;
+	display: none;
 }
 
 #restart {
-	right: 30%;
-	top: 10%;
+	right: 25%;
+	top: 20%;
 	position: absolute;
+	display: none;
 }
 
 
 #tarcze {
 	left: 30%;
-	top: 75%;
+	top: 90%;
 	position: absolute;
+	display: none;
+	
 }
 #przyspieszenia {
 	left: 43%;
-	top: 75%;
+	top: 90%;
 	position: absolute;
+	display: none;
 }
 #naboje {
 	left: 58%;
-	top: 75%;
+	top: 90%;
 	position: absolute;
+	display: none;
 }
 
 #nick {
@@ -90,6 +138,68 @@ canvas {
 	left: 45%;
 	top: 78%;
 	position: absolute;
+	display: none;
+}
+
+#zmienTryb {
+	left: 2%;
+	top: 13%;
+	position: absolute;
+	display: none;
+}
+
+#tryb {
+	left: 2%;
+	top: 17%;
+	position: absolute;
+}
+
+
+#rozmiarX {
+	font-size: 14px;
+	left: 2%;
+	top: 23%;
+	position: absolute;
+	display: none;
+
+}
+#rozmiarY {
+	font-size: 14px;
+	left: 11%;
+	top: 23%;
+	position: absolute;
+	display: none;
+}
+
+#zmienX {
+	left: 2%;
+	top: 26%;
+	position: absolute;
+	width: 3%;
+	display: none;
+}
+
+#zmienY {
+	left: 11%;
+	top: 26%;
+	position: absolute;
+	width: 3%;
+	display: none;
+}
+
+#jablka {
+	font-size: 14px;
+	left: 2%;
+	top: 32%;
+	position: absolute;
+	display: none;
+}
+
+#zmienJablka {
+	left: 2%;
+	top: 35%;
+	position: absolute;
+	width: 3%;
 	display: none;
 }
 
