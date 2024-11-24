@@ -2,7 +2,7 @@ const canvas = document.getElementById('plansza');
 const context = canvas.getContext('2d');
 let klatka; //ID funkcji do setInterval
 const grid = 16; //rozmiar siatki
-let size = 40;
+let size = 200; //640x640px 40x40 pól
 let snake;
 let jablko;
 let wynik = 0;
@@ -18,11 +18,13 @@ let plansza2 = new Map();
 let ipAddr;
 let first = true;
 let wiadomosc;
+let snakeX
+let snakeY
 let cooldown = 0;
 let sendMsg = document.getElementById('sendMsg');
 const URL = 'ws://' + document.URL.slice(7, -3) + '80';
 const ranking = document.getElementById('ranking');
-console.log(URL);
+// console.log(URL);
 ipAddr = URL;
 function siatka() {
     context.lineWidth = 1;
@@ -87,8 +89,8 @@ function joinToGame()
     // ipAddr += document.getElementById('ip').value
     document.getElementById('joinLobby').style.display = 'none';
     document.getElementById('game').style.display = 'initial';
-    canvas.height = grid * size;
-    canvas.width = grid * size;
+    canvas.height = 200*grid;
+    canvas.width = 200*grid;
     if (socket) 
     {
         socket.close();
@@ -96,7 +98,7 @@ function joinToGame()
     socket = new WebSocket(ipAddr);
     
     socket.addEventListener('open', () => {
-        console.log('Połączono z WebSocket');
+        // console.log('Połączono z WebSocket');
         socket.send(
             JSON.stringify({
                 nick: document.getElementById('nickname').value,
@@ -105,12 +107,14 @@ function joinToGame()
         socket.addEventListener('message', (wia) => {
             //Obsługa danych przesyłanych przez serwer
             let wiad = JSON.parse(wia.data);
+            // console.log(wiad)
             if (wiad.typ === 'plansza') {
                 //Wiadomośc standardowa, czyli przesyłanie klatki gry
                 if (first) {
                     init();
                     first = false;
                 }
+
 
                 if(wiad.jakieWyslanie == '8')
                 {
@@ -141,7 +145,10 @@ function joinToGame()
                 plansza2.forEach( el =>{
                     plansza.set(el,el);
                 });
-    
+   
+          
+                snakeX = wiad.snakeX - screen.width/34
+                snakeY = wiad.snakeY - screen.height/34
 
                 wiad.chat.forEach((n) => {
                     document.getElementById('chat').innerHTML += n + '<br>';
@@ -184,8 +191,21 @@ sendMsg.addEventListener('click', () => {
     );
     sendMsg.blur();
 });
-
+let lastX
+let lastY
+let firstLoop = true
 function loop() {
+    if(firstLoop){
+        canvas.style.transitionDuration = '220ms'
+        firstLoop = false
+    }
+    else if(Math.abs(snakeX - lastX) > 1) canvas.style.transitionDuration = '220ms'
+    else canvas.style.transitionDuration = '1s'
+
+    canvas.style.transform = 'translateX(' + (-1) * snakeX*grid + 'px)'
+    canvas.style.transform += 'translateY(' + (-1) * snakeY*grid + 'px)'
+    lastY = snakeY
+    lastX = snakeX
     //Czyścimy płótno
     context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -193,6 +213,11 @@ function loop() {
     siatka();
 
     //console.log('Wiadomość od serwera:', plansza[1]);
+
+
+
+
+
 
     if(cooldown > 0)
     {

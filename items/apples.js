@@ -1,5 +1,5 @@
 import { getRandomInt, gracze, grid, plan, szerokosc_planszy, wysokosc_planszy } from '../serwer-snake.js';
-let liczba_jablek = 4
+let liczba_jablek = 100
 let zlote = 0
 function goldenApple(eaten, klient) {
     let snake = gracze.get(klient)
