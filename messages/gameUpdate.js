@@ -26,7 +26,6 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
             JSON.stringify({
                 typ: 'plansza',
                 jakieWyslanie: jakieWyslanie,
-                plansza8: undefined,
                 plansza4: plansz4,
                 plansza2: plansz2,
                 chat: chat,
@@ -44,8 +43,6 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
             JSON.stringify({
                 typ: 'plansza',
                 jakieWyslanie: jakieWyslanie,
-                plansza8: undefined,
-                plansza4: undefined,
                 plansza2: plansz2,
                 chat: chat,
                 napisy: napisy,
