@@ -119,50 +119,13 @@ let i = 0;
 function loop() {
 
     i++;
-    let plansz = [];
+    let plansz8 = [];
+    let plansz4 = [];
+    let plansz2 = [];
     let napisy = [];
 
 
     generuj_boosty();
-
-    plan.forEach(function (el) {
-        if(el.typ == "elsnake")
-        {
-            let t = {x:el.x, y:el.y, kolor:el.snake.kolor};
-            plansz.push(t);
-            if(el.snake.ochrona > 0) //dodanie białej otoczki wężowi jeśli ma efekt ochrony
-            {
-                let t2 = {x:el.x, y:el.y, kolor:"white", rodzaj:"strokeRect", kolor2:"cyan"};
-                plansz.push(t2);
-            }
-            if(el.snake.tprzysp > 0) //dodanie zielonej otoczki wężowi jeśli ma efekt przyśpieszenia
-            {
-                let t2 = {x:el.x, y:el.y, kolor:"green", rodzaj:"strokeRect", kolor2:"green"};
-                plansz.push(t2);
-            }
-        }
-        else if(el.typ == "pocisk")
-        {
-            let t = {x:el.x, y:el.y, kolor:el.kolor, rodzaj:"arc"};
-            plansz.push(t);
-
-            
-            if(i%2 == 0) //przesuwanie pocisku
-            {
-                el.x += el.dx;
-                el.y += el.dy;
-                el.zasieg--;
-            }
-            if(el.zasieg == 0) //usuniecie pocisku po przeleceniu ustalone dystansu
-            {
-                plan.delete(el);
-            }
-        }
-        else
-        {
-            plansz.push(el);
-        }
-    });
 
     gracze.forEach(function (el) {
         if(el.gameover == false)
@@ -181,6 +144,7 @@ function loop() {
     });
     kolizje = [];
 
+
     klienci.forEach((klient) => {
         let snake = gracze.get(klient);
 
@@ -194,9 +158,7 @@ function loop() {
             snake.tprzysp--;
         }
 
-        gameUpdateMsg(klient, plansz, napisy);
-
-        //Czyszczenie chatu
+        
 
         if (snake.gameover) {
             return;
@@ -239,7 +201,76 @@ function loop() {
 
         gracze.set(klient, snake);
     });
-    chat = [];
+
+    let jakieWyslanie = null;
+    plan.forEach(function (el) {
+        if(i == predkosc_ruchu) // raz na predkosc_ruchu tickow, raz na 8 ticków
+        {
+            if(el.typ == "elsnake" && el.snake.tprzysp == 0)
+            {
+                let t = {x:el.x, y:el.y, kolor:el.snake.kolor};
+                plansz8.push(t);
+                if(el.snake.ochrona > 0) //dodanie białej otoczki wężowi jeśli ma efekt ochrony
+                {
+                    let t2 = {x:el.x, y:el.y, kolor:"white", rodzaj:"strokeRect", kolor2:"cyan"};
+                    plansz8.push(t2);
+                }
+            }
+            else if(el.typ != "elsnake" && el.typ != 'pocisk')
+            {
+                plansz8.push(el);
+            }
+
+        }
+        if(i%4==0) // raz na 4 ticki
+        {
+            if(el.typ == "elsnake" && el.snake.tprzysp > 0)
+            {
+                let t = {x:el.x, y:el.y, kolor:el.snake.kolor};
+                plansz4.push(t);
+                if(el.snake.ochrona > 0) //dodanie białej otoczki wężowi jeśli ma efekt ochrony
+                {
+                    let t2 = {x:el.x, y:el.y, kolor:"white", rodzaj:"strokeRect", kolor2:"cyan"};
+                    plansz4.push(t2);
+                }
+
+                //dodanie zielonej otoczki wężowi jeśli ma efekt przyśpieszenia
+                let t2 = {x:el.x, y:el.y, kolor:"green", rodzaj:"strokeRect", kolor2:"green"};
+                plansz4.push(t2);
+
+            }
+        }
+        if(i%2 == 0) // raz na 2 ticki
+        {
+            if(el.typ == "pocisk")
+            {
+                let t = {x:el.x, y:el.y, kolor:el.kolor, rodzaj:"arc"};
+                plansz2.push(t);
+    
+                
+                if(i%2 == 0) //przesuwanie pocisku
+                {
+                    el.x += el.dx;
+                    el.y += el.dy;
+                    el.zasieg--;
+                }
+                if(el.zasieg == 0) //usuniecie pocisku po przeleceniu ustalone dystansu
+                {
+                    plan.delete(el);
+                }
+            }
+        }
+       
+    });
+
+    if(i == predkosc_ruchu)
+    {
+        jakieWyslanie = '8';
+
+    }
+    else if(i%4 == 0) jakieWyslanie = '4';
+    else if(i%2 == 0) jakieWyslanie = '2';
+    
 
     klienci.forEach((kl) => {
         let sn = gracze.get(kl);
@@ -256,8 +287,12 @@ function loop() {
                 plan.delete(el);
             });
             liczba_graczy--;
+
         }
+        gameUpdateMsg(kl, plansz8, plansz4, plansz2, napisy, jakieWyslanie);
         });
+
+    chat = [];
 
     if (i == predkosc_ruchu) {
         //tempo poruszania sie

@@ -11,6 +11,10 @@ let socket;
 let ruch;
 let i = 0;
 let napisy = [];
+let plansza = new Map();
+let plansza8 = new Map();
+let plansza4 = new Map();
+let plansza2 = new Map();
 let ipAddr;
 let first = true;
 let wiadomosc;
@@ -77,8 +81,6 @@ function init() {
     nZ.strokeRect(20, 20, grid, grid);
 }
 
-var plansza = new Map();
-
 function joinToGame()
 {
     // ipAddr = "ws://";
@@ -109,7 +111,39 @@ function joinToGame()
                     init();
                     first = false;
                 }
-                plansza = wiad.plansza;
+
+                if(wiad.jakieWyslanie == '8')
+                {
+                    console.log("8");
+                    plansza8 = wiad.plansza8;
+                    plansza4 = wiad.plansza4;
+                    plansza2 = wiad.plansza2;
+                }
+                else if(wiad.jakieWyslanie == '4')
+                {console.log("4");
+                    plansza4 = wiad.plansza4;
+                    plansza2 = wiad.plansza2;
+                }
+                else if(wiad.jakieWyslanie == '2')
+                {console.log("2");
+                    plansza2 = wiad.plansza2;
+                }
+
+                console.log(wiad.jakieWyslanie);
+
+                plansza.clear();
+                
+                plansza8.forEach( el =>{
+                    plansza.set(el,el);
+                });
+                plansza4.forEach( el =>{
+                    plansza.set(el,el);
+                });
+                plansza2.forEach( el =>{
+                    plansza.set(el,el);
+                });
+    
+
                 wiad.chat.forEach((n) => {
                     document.getElementById('chat').innerHTML += n + '<br>';
                     chat.scrollTop = chat.scrollHeight;
@@ -160,11 +194,6 @@ function loop() {
     siatka();
 
     //console.log('Wiadomość od serwera:', plansza[1]);
-
-    if (plansza == undefined) {
-        console.log('brak planszy');
-        return;
-    }
 
     if(cooldown > 0)
     {
@@ -237,7 +266,8 @@ function loop() {
         ranking.innerHTML += element.n + ': ' + element.wynik + '<br>';
     });
 
-    
+    let planszaDoNarysowania;
+        
 
     plansza.forEach(function (kwadrat) {
         //Rysowanie całej gry: wszystko składa sie z róznokolorowych kszałtów
