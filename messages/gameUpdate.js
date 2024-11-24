@@ -1,6 +1,6 @@
 import { czolowe_zderzenia } from '../checks/colisions.js';
 import { chat, gracze, remis, czy_lobby, wymiaryPlanszy,  battle_royal, zakonczenie_gry, wygrany_gracz, czas_odli_rozp, odliczanie_restartowania, odliczanie_rozpoczecia, tps } from '../serwer-snake.js';
-import { kick, hosts, liczba_jablek } from '../events/clientMessage.js';
+import { kick, admins, liczba_jablek } from '../events/clientMessage.js';
 
 export function gameUpdateMsg(klient, plansz, napisy) {
     let snake = gracze.get(klient);
@@ -19,7 +19,7 @@ export function gameUpdateMsg(klient, plansz, napisy) {
     }
 
     
-    hosts.forEach(host => {
+    admins.forEach(host => {
         if(host == klient)
         {
             h = true;

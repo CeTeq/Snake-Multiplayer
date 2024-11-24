@@ -4,7 +4,7 @@ import { liczba } from '../items/boosts.js';
 export let liczba_jablek = 0;
 export let kick = null;
 export let haslo = "k";
-export let hosts = [];
+export let admins = [];
 
 
 export function clientMessage(wia, ws) {
@@ -17,7 +17,7 @@ export function clientMessage(wia, ws) {
         sn.czy_pierwszy = false;
         if(wia.haslo == haslo)
         {
-            hosts.push(ws);
+            admins.push(ws);
             console.log("haslo poprawne");
         }
 
@@ -29,7 +29,7 @@ export function clientMessage(wia, ws) {
         let wiadomosc = wia.wiadomosc;
         let czy_host = false;
 
-        hosts.forEach(host => {
+        admins.forEach(host => {
             if(ws == host)
             {
                 czy_host = true;
@@ -80,6 +80,9 @@ export function clientMessage(wia, ws) {
                             }
                         });
                     }
+
+               
+                        
                     
                     //console.log(komenda[1]);
                 }
