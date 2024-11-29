@@ -3,6 +3,11 @@ import { goldenApple } from '../items/goldenApple.js';
 import { ateApple } from '../items/apples.js';
 import { liczba } from '../items/boosts.js';
 
+export let czolowe_zderzenia = {
+    snake1: undefined,
+    snake2: undefined,
+}
+
 export function colisions(obiekt, klient) {
     let snake = gracze.get(klient);
     if (
@@ -23,6 +28,8 @@ export function colisions(obiekt, klient) {
             {
                 kolizje.push('<span style="color: red;">Gracze ' + snake.nick + ' i ' + obiekt.snake.nick + ' zderzyli się</span>');
                 obiekt.snake.gameover = true;
+                czolowe_zderzenia.snake1 = snake;
+                czolowe_zderzenia.snake2 = obiekt.snake;
             }
             else
             {

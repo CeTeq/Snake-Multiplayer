@@ -3,8 +3,8 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path';
-import { clientMessage } from './events/clientMessage.js';
-import { colisions } from './checks/colisions.js';
+import { clientMessage, battle_royal } from './events/clientMessage.js';
+import { colisions, czolowe_zderzenia } from './checks/colisions.js';
 import { isInGrid } from './checks/isInGrid.js';
 import { gameUpdateMsg } from './messages/gameUpdate.js';
 import { apples } from './items/apples.js';
@@ -26,11 +26,26 @@ export let plan = new Map();
 export let wysokosc_planszy = 200;
 export let szerokosc_planszy = 200;
 
+export let czy_lobby = battle_royal;
+export let zakonczenie_gry = false;
+export let wygrany_gracz = undefined;
+export let czas_odli_rozp = 250;
+export let odliczanie_rozpoczecia = czas_odli_rozp;
+export let odliczanie_restartowania = 0;
+export let wymus_start = {
+st: false,
+};
+export let liczba_graczy = 0;
+export let liczba_klientow = 0;
+export let remis = false;
+export const tps = 10;
+export let zrespawnuj = false;
+let min_graczy = 100;
+
+
 let fl = false;
 const klienci = new Map();
-let liczba_graczy = 0;
 let pol = 0;
-const fps = 10;
 const predkosc_ruchu = 8;
 
 let czy_gra;
@@ -54,7 +69,7 @@ apples()
 function randColor() {
     return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
 }
-setInterval(loop, fps);
+setInterval(loop, tps);
 wss.on('connection', (ws) => {
     console.log('Nowe połączenie WebSocket');
     let nowykol = randColor();
@@ -76,7 +91,7 @@ wss.on('connection', (ws) => {
         ], //cialo węża
         maxCells: 2, //bierząca długość węża
         wynik: 0,
-        ochrona: 20 * fps, 
+        ochrona: 20 * tps, 
         tarcze: 0,
         przysp: 0,
         tprzysp: 0,
@@ -87,12 +102,25 @@ wss.on('connection', (ws) => {
 
     gracze.set(ws, snake);
     klienci.set(ws, ws);
-    liczba_graczy++;
 
-    snake.cells.forEach((c) => {
-        c.snake = snake;
-        plan.set(c, c);
-    });
+    if(battle_royal == false || czy_lobby == true)
+    {
+        liczba_graczy++;
+
+        snake.cells.forEach((c) => {
+            c.snake = snake;
+            plan.set(c, c);
+        });
+    }
+
+    else
+    {
+        snake.gameover = true;
+        snake.cells = [];
+    }
+
+    liczba_klientow++;
+
 
     ws.on('message', (wia) => clientMessage(wia, ws)); // Obsługa wiadomości otrzymanych od klienta
 
@@ -104,14 +132,18 @@ wss.on('connection', (ws) => {
             chat.push('<span style="color: red;">Gracz ' + gracze.get(ws).nick + ' wyszedł z gry</span>');
         }
 
-        liczba_graczy--;
-        gracze.get(ws).cells.forEach(function (el) {
-            // Usuwanie wszystkich części gracza
-            plan.delete(el);
-        });
+        if(gracze.get(ws).cells.length > 0)
+        {
+            liczba_graczy--;
+            gracze.get(ws).cells.forEach(function (el) {
+                // Usuwanie wszystkich części gracza
+                plan.delete(el);
+            });
+        }
 
         gracze.delete(ws);
         klienci.delete(ws);
+        liczba_klientow--;
     });
 });
 
@@ -124,8 +156,77 @@ function loop() {
     let plansz2 = [];
     let napisy = [];
 
+    if(czy_lobby == false)
+    {
+        generuj_boosty();
+    }
 
-    generuj_boosty();
+    if(battle_royal == false)
+    {
+        czy_lobby = false;
+        wygrany_gracz = undefined;
+        odliczanie_rozpoczecia = czas_odli_rozp;
+        odliczanie_restartowania = 0;
+        wymus_start.st = false;
+    }
+
+    if((liczba_graczy >= min_graczy || wymus_start.st) && czy_lobby)
+    {
+        odliczanie_rozpoczecia--;
+    }
+
+    if(odliczanie_rozpoczecia == 0)
+    {
+        czy_lobby = false;
+        wymus_start.st = false;
+        odliczanie_rozpoczecia = czas_odli_rozp;
+    }
+
+    if(odliczanie_restartowania > 0)
+    {
+        odliczanie_restartowania--;
+    }
+
+    if(odliczanie_restartowania == 2)
+    {
+        wygrany_gracz.gameover = true;
+    }
+        
+    if(odliczanie_restartowania == 1)
+    {
+        wygrany_gracz = undefined;
+        zakonczenie_gry = false;
+        czy_lobby = true;
+        wymus_start.st = false;
+        zrespawnuj = true
+    }
+
+    if(battle_royal && czy_lobby == false && zakonczenie_gry == false)
+    {
+        //console.log(liczba_graczy);
+        if(liczba_graczy == 1)
+        {
+            zakonczenie_gry = true;
+
+            gracze.forEach(gr => {
+                if(gr.gameover == false)
+                {
+                    wygrany_gracz = gr;
+                }
+            });
+            chat.push('<span style="color: yellow;">Gracz ' + wygrany_gracz.nick + ' wygrał gre</span>');
+            odliczanie_restartowania = 500;
+        }
+        else if(liczba_graczy == 0)
+        {
+            zakonczenie_gry = true;
+            remis = true;
+            chat.push('<span style="color: yellow;">Gracze ' + czolowe_zderzenia.snake1.nick + ' i ' + czolowe_zderzenia.snake2.nick + ' zremisowali</span>');
+            odliczanie_restartowania = 500;
+            wygrany_gracz = czolowe_zderzenia.snake1;
+        }
+    }
+    
 
     kolizje.forEach((element) => {
         chat.push(element);
@@ -148,7 +249,7 @@ function loop() {
 
         
 
-        if (snake.gameover) {
+        if (snake.gameover  || czy_lobby) {
             return;
         }
 
@@ -274,28 +375,33 @@ function loop() {
 
 
     klienci.forEach((kl) => {
-        let sn = gracze.get(kl);
-        if (sn.gameover) {
+        let snake = gracze.get(kl);
+        if (snake.gameover) {
             kl.send(
                 JSON.stringify({
                     typ: 'gameover',
-                    wynik: sn.wynik,
+                    wynik: snake.wynik,
                 }),
             );
-
-            sn.cells.forEach(function (el) {
+            
+            snake.cells.forEach(function (el) {
                 // Usuwanie wszystkich części gracza
                 plan.delete(el);
             });
-            liczba_graczy--;
+            if(snake.cells.length > 0)
+            {
+                liczba_graczy--;
+            }
+            snake.cells = [];
 
         }
         gameUpdateMsg(kl, plansz8, plansz4, plansz2, napisy, jakieWyslanie);
         });
 
-    chat = [];
 
     if (i == predkosc_ruchu) {
+        chat = [];
+        zrespawnuj = false
         //tempo poruszania sie
         i = 0;
     }

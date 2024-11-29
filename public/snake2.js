@@ -18,9 +18,14 @@ let plansza2 = new Map();
 let ipAddr;
 let first = true;
 let wiadomosc;
-let snakeX
-let snakeY
+let snakeX;
+let snakeY;
+let admin = false;
 let cooldown = 0;
+let cooldown2 = 0;
+let czy_start = false;
+let czyWynik = false;
+let haslo;
 let sendMsg = document.getElementById('sendMsg');
 const URL = 'ws://' + document.URL.slice(7, -3) + '80';
 const ranking = document.getElementById('ranking');
@@ -59,7 +64,12 @@ function init() {
     klatka = setInterval(loop, 20); //10fps
     //console.log('Uruchomiono gre');
 
-    
+    document.getElementById('nick').innerHTML = 'Nick: ' + document.getElementById('nickname').value;
+
+    if(admin)
+    {
+        document.getElementById('nick').innerHTML += ' (admin)';
+    }
 
     // Renderowanie efektu poświaty na pomocniczym canvas żeby przyspieszyc czas gdyż generowanie poswiaty jest bardzo kosztowne
     niebieskaPoswiata.width = grid+40;
@@ -88,7 +98,20 @@ function joinToGame()
     // ipAddr = "ws://";
     // ipAddr += document.getElementById('ip').value
     document.getElementById('joinLobby').style.display = 'none';
-    document.getElementById('game').style.display = 'initial';
+    document.getElementById('game').style.display = 'initial';  
+
+
+    document.getElementById("wynik").style.display = 'block';
+    document.getElementById("ranking").style.display = 'block';
+    document.getElementById("tranking").style.display = 'block';
+    document.getElementById("wiadomosci").style.display = 'block';
+    document.getElementById('restart').style.display = 'block';
+
+    document.getElementById("tarcze").style.display = 'block';
+    document.getElementById("przyspieszenia").style.display = 'block';
+    document.getElementById("naboje").style.display = 'block';
+
+
     canvas.height = 200*grid;
     canvas.width = 200*grid;
     if (socket) 
@@ -102,6 +125,7 @@ function joinToGame()
         socket.send(
             JSON.stringify({
                 nick: document.getElementById('nickname').value,
+                haslo: haslo,
             }),
         );
         socket.addEventListener('message', (wia) => {
@@ -121,6 +145,41 @@ function joinToGame()
                     plansza8 = wiad.plansza8;
                     plansza4 = wiad.plansza4;
                     plansza2 = wiad.plansza2;
+                    wynik = wiad.wynik;
+                    let czy_lobby = wiad.czy_lobby;
+
+                    document.getElementById('tryb').innerHTML = 'Tryb gry: ' + wiad.tryb;
+                    document.getElementById('tarcze').innerHTML = wiad.tarcze + ' ';
+                    document.getElementById('przyspieszenia').innerHTML = wiad.przysp + ' ';
+                    document.getElementById('naboje').innerHTML = wiad.naboje + ' ';
+                    document.getElementById('wynik').innerHTML = wiad.tytul;
+
+                    document.getElementById('ogracze').innerHTML = 'Gracze online: ' + wiad.ogracze;
+                    document.getElementById('zgracze').innerHTML = 'Żywi gracze: ' + wiad.zgracze;
+
+                    wiad.chat.forEach((n) => {
+                        document.getElementById('chat').innerHTML += n + '<br>';
+                        chat.scrollTop = chat.scrollHeight;
+                    });
+
+                    if(wiad.admin && admin == false)
+                    {
+                        admin = true;
+                        document.getElementById('nick').innerHTML += ' (admin)';
+                    }
+
+                    if(admin && czy_lobby && czy_start == false)
+                    {
+                        czy_start = true;
+                        document.getElementById('start').style.display = 'block';
+                    }
+
+                    else if(admin && czy_lobby == false && czy_start)
+                    {
+                        czy_start = false;
+                        document.getElementById('start').style.display = 'none';
+                    }
+
                 }
                 else if(wiad.jakieWyslanie == '4')
                 {
@@ -146,27 +205,53 @@ function joinToGame()
                     plansza.set(el,el);
                 });
    
-          
                 snakeX = wiad.snakeX - screen.width/34
                 snakeY = wiad.snakeY - screen.height/34
 
-                wiad.chat.forEach((n) => {
-                    document.getElementById('chat').innerHTML += n + '<br>';
-                    chat.scrollTop = chat.scrollHeight;
-                });
-                wynik = wiad.wynik;
-                napisy = wiad.napisy;
-                document.getElementById('tarcze').innerHTML = 'Tarcze: ' + wiad.tarcze;
-                document.getElementById('przyspieszenia').innerHTML = 'Przyśpieszenia: ' + wiad.przysp;
-                document.getElementById('naboje').innerHTML = 'Naboje: ' + wiad.naboje;
+                /*let wzgledneX = bh;
+                let wzgledneY = snakeY*16;
 
-            } else if (wiad.typ === 'gameover') {
+                /let t = {x:wzgledneX+10*16, y:wzgledneY+40*16, kolor:"cyan"};
+                let t2 = {x:wzgledneX, y:wzgledneY+200, kolor:'green'};
+                let t3 = {x:wzgledneX+100, y:wzgledneY+200, kolor:'6c3c0c'};
+                plansza.set(t,t);
+                plansza.set(t2,t2);
+                plansza.set(t3,t3);*/
+
+
+                napisy = wiad.napisy;
+
+                if(wiad.odswiez) //żądanie zrestartowania połączenia
+                {
+                    joinToGame();
+                }
+
+            } 
+            else if (wiad.typ === 'gameover') {
                 //Wiadomośc specjalna, informacja o przegranej
                 gameover = true;
                 wynik = wiad.wynik;
             }
         });
     });
+}
+
+function wyslijWiadomosc()
+{
+    let t = document.getElementById('msg').value;
+    wiadomosc =
+        document.getElementById('nickname').value + ': ' + t;
+    socket.send(
+        JSON.stringify({
+            wiadomosc: wiadomosc,
+        }),
+    );
+    if(!admin && t.split(" ")[0] == '/admin')
+    {
+        haslo = t.split(" ")[1];
+    }
+    document.getElementById('msg').value = "";
+    sendMsg.blur();
 }
 
 document.getElementById('connect').addEventListener('click', () => {
@@ -179,17 +264,22 @@ document.getElementById('restart').addEventListener('click', () => {
     first = true;
 });
 
+
+document.getElementById('start').addEventListener('click', () => {
+    if(admin)
+    {
+        document.getElementById('start').style.display = 'none';
+        socket.send(
+            JSON.stringify({
+                ruch: undefined,
+                wymus_start: true,
+            }),
+        );
+    }
+});
+
 sendMsg.addEventListener('click', () => {
-    wiadomosc =
-        document.getElementById('nickname').value +
-        ': ' +
-        document.getElementById('msg').value;
-    socket.send(
-        JSON.stringify({
-            wiadomosc: wiadomosc,
-        }),
-    );
-    sendMsg.blur();
+    wyslijWiadomosc();
 });
 let lastX
 let lastY
@@ -202,8 +292,12 @@ function loop() {
     else if(Math.abs(snakeX - lastX) > 1) canvas.style.transitionDuration = '220ms'
     else canvas.style.transitionDuration = '1s'
 
+    if(snakeX !== lastX) 
     canvas.style.transform = 'translateX(' + (-1) * snakeX*grid + 'px)'
+
+    if(snakeY !== lastY)
     canvas.style.transform += 'translateY(' + (-1) * snakeY*grid + 'px)'
+
     lastY = snakeY
     lastX = snakeX
     //Czyścimy płótno
@@ -216,12 +310,13 @@ function loop() {
 
 
 
-
-
-
     if(cooldown > 0)
     {
         cooldown--;
+    }
+    if(cooldown2 > 0)
+    {
+        cooldown2--;
     }
 
     window.addEventListener('keydown', (e) => {
@@ -264,8 +359,14 @@ function loop() {
             nruch = 'strzal';
             akcja = true;
         }
+        else if (klawisz == 'Enter' && cooldown2 == 0)
+        {
+            wyslijWiadomosc();
+            cooldown2 = 1;
+        }
+    
 
-        //console.log(klawisz); uwaga na to - laguje gre
+        //console.log(klawisz); //uwaga na to - laguje gre
 
         if(nruch != ruch || (akcja == true && cooldown == 0))
         {   
@@ -328,10 +429,10 @@ function loop() {
         }
     });
 
-    if (!gameover) {
+    if (!gameover && czyWynik) {
         document.getElementById('wynik').innerHTML = 'Wynik: ' + wynik;
     } //Koniec gry
-    else {
+    else if(czyWynik) {
         document.getElementById('wynik').innerHTML =
             'Koniec gry Wynik: ' + wynik;
         //clearInterval(klatka);

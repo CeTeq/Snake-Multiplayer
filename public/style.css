@@ -14,6 +14,21 @@ body {
 	width: 100svw;
 	height: 100svh;
 }
+
+#nickname {
+	top: 20%;
+	position: fixed;
+	font-size: 20px;
+}
+
+#connect {
+	top: 27%;
+	width: 11.5%;
+	height: 11%;
+	position: fixed;
+	font-size: 27px;
+}
+
 #joinLobby {
 	left: 45%;
 	top: 20%;
@@ -24,17 +39,53 @@ body {
 	font-size: 34px;
 	top: 1%;
 	left: 43%;
+	display: none;
 }
-#wiadomosci {
-	opacity: 2%;
-	transition: 0.25s opacity;
+
+#nnick {
+	width: 100%;
+	top: 15.5%;
+	position: fixed;
+	font-size: 19px;
 }
-#wiadomosci:hover {
-	opacity: 80%;
-	transition: 0.25s opacity;
+
+#nick {
+	left: 1.5%;
+	top: 5%;
+	position: absolute;
+	font-size: 17px;
 }
+
+#tryb {
+	left: 1.5%;
+	top: 9%;
+	position: absolute;
+	font-size: 15px;
+}
+
+#ogracze {
+	right: 2%;
+	top: 5%;
+	position: absolute;
+	font-size: 17px;
+}
+
+#zgracze {
+	right: 2%;
+	top: 9%;
+	position: absolute;
+	font-size: 17px;
+}
+
+
+
+#msg{
+	background-color: rgb(34, 34, 34, 0);
+	color: white;
+}
+
 #chat {
-	background-color: rgb(34, 34, 34);
+	background-color: rgb(34, 34, 34, 0);
 	word-wrap: break-word;
 	border-radius: 6px;
 	padding: 4px;
@@ -44,56 +95,75 @@ body {
 	overflow-y: auto;
 	text-align: justify;
 }
-#ranking:hover {
-	opacity: 80%;
-	transition: 0.25s opacity;
+
+#tranking {
+	left: 1.5%;
+	top: 16%;
+	position: absolute;
+	font-size: 25px;
+	display: none;
 }
+
 #ranking {
-	opacity: 2%;
-	transition: 0.25s opacity;
-	right: 71%;
-	top: 30%;
+	left: 1.5%;
+	top: 20%;
 	position: absolute;
 	word-wrap: break-word;
 	border-radius: 6px;
 	padding: 4px;
-	background-color: rgb(34, 34, 34);
+	background-color: rgb(34, 34, 34, 0);
 	width: 300px;
 	height: 200px;
 	overflow-x: hidden;
 	overflow-y: auto;
 	text-align: justify;
+	display: none;
 }
 #wiadomosci {
-	left: 64.5%;
-	top: 30%;
-	width: 300px;
+	right: 0%;
+	bottom: 12%;
+	width: 225px;
 	height: 200px;
 	position: absolute;
+	display: none;
 }
 
 #restart {
-	right: 30%;
-	top: 10%;
+	right: 2%;
+	top: 13%;
 	position: absolute;
+	display: none;
+}
+
+#start {
+	left: 45%;
+	top: 78%;
+	position: absolute;
+	display: none;
 }
 
 
 #tarcze {
 	left: 30%;
-	top: 75%;
+	bottom: 5%;
 	position: absolute;
+	display: none;
 }
 #przyspieszenia {
 	left: 43%;
-	top: 75%;
+	bottom: 5%;
 	position: absolute;
+	display: none;
 }
 #naboje {
 	left: 58%;
-	top: 75%;
+	bottom: 5%;
 	position: absolute;
+	display: none;
 }
+
+
+
 #plansza {
 	position: relative;
 	transition-property: all;
