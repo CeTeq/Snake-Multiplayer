@@ -1,5 +1,4 @@
-import { chat, gracze, czy_lobby, zakonczenie_gry, remis, wygrany_gracz, zrespawnuj, odliczanie_rozpoczecia, czas_odli_rozp, tps, liczba_klientow, liczba_graczy } from '../serwer-snake.js';
-import { battle_royal } from '../events/clientMessage.js';
+import { chat, gracze, battle_royal, czy_lobby, zakonczenie_gry, remis, wygrany_gracz, zrespawnuj, odliczanie_rozpoczecia, czas_odli_rozp, tps, liczba_klientow, liczba_graczy, szerokosc_planszy, wysokosc_planszy } from '../serwer-snake.js';
 import { kick, admins, liczba_jablek } from '../events/clientMessage.js';
 import { czolowe_zderzenia } from '../checks/colisions.js';
 
@@ -9,6 +8,8 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
     let od = false;
     let h = false;
     let tr;
+
+
     if(battle_royal)
     {
         tr = "Battle Royal";
@@ -17,8 +18,6 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
     {
         tr = "Sandbox";
     }
-
-
 
     admins.forEach(host => {
         if(host == klient)
@@ -64,6 +63,17 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
     
     if(jakieWyslanie == '8')
     {
+        let mapa = [];
+
+        gracze.forEach( snake2 => {
+            let czy = false;
+            if(snake2 == snake)
+            {
+                czy = true;
+            }
+            mapa.push({x: snake2.x, y: snake2.y, kolor: snake2.kolor, czyJa: czy});
+        })
+
         klient.send(
             JSON.stringify({
                 tytul: t,
@@ -84,6 +94,9 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
                 ogracze: liczba_klientow,
                 zgracze: liczba_graczy,
                 czy_lobby: czy_lobby,
+                minimapa: mapa,
+                szerokosc_planszy: szerokosc_planszy,
+                wysokosc_planszy: wysokosc_planszy,
                 admin: h,
                 tryb: tr,
             }),

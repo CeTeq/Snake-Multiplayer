@@ -1,6 +1,5 @@
 import { chat, gracze, grid, plan, liczba_klientow, wymus_start } from '../serwer-snake.js';
 
-export let battle_royal = false;
 export let liczba_jablek = 100;
 export let kick = null;
 export let haslo = "k";
@@ -103,19 +102,6 @@ export function clientMessage(wia, ws) {
             
                         if(liczba_jablek > 0) apples();
                         liczba_jablek += temp;
-                    }
-                    else if(komenda[1] == '/chmod')
-                    {
-                        console.log("zmieniono tryb gry");
-                        if(battle_royal)
-                        {
-                            battle_royal = false;
-                        }
-                        else
-                        {
-                            battle_royal = true;
-                        }
-    
                     }
                         
                     

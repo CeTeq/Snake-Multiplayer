@@ -3,17 +3,24 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path';
-import { clientMessage, battle_royal } from './events/clientMessage.js';
+import { clientMessage } from './events/clientMessage.js';
 import { colisions, czolowe_zderzenia } from './checks/colisions.js';
 import { isInGrid } from './checks/isInGrid.js';
 import { gameUpdateMsg } from './messages/gameUpdate.js';
 import { apples } from './items/apples.js';
 import { generuj_boosty } from './items/boosts.js';
 
+let portGry = 8080;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const argument = process.argv[2];
 
-const wss = new WebSocketServer({ port: 8080, host: '0.0.0.0' });
+if(argument == 'b')
+{
+    portGry = 8090;
+}
+
+const wss = new WebSocketServer({ port: portGry, host: '0.0.0.0' });
 
 const app = express();
 const port = 8000;
@@ -25,6 +32,13 @@ export let kolizje = [];
 export let plan = new Map();
 export let wysokosc_planszy = 200;
 export let szerokosc_planszy = 200;
+
+export let battle_royal = false;
+
+if(argument == 'b')
+{
+    battle_royal = true;
+}
 
 export let czy_lobby = battle_royal;
 export let zakonczenie_gry = false;
@@ -50,15 +64,19 @@ const predkosc_ruchu = 8;
 
 let czy_gra;
 const kolory = ['green', 'red', 'blue', 'orange', 'purple', 'yellow'];
-app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'snake.html'));
-});
+if(argument != 'b')
+{
+    app.use(express.static(path.join(__dirname, 'public')));
 
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
+    app.get('/', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'snake.html'));
+    });
+
+    app.listen(port, () => {
+        console.log(`Server is running on http://localhost:${port}`);
+    });
+}
 
 export function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
@@ -406,3 +424,5 @@ function loop() {
         i = 0;
     }
 }
+
+

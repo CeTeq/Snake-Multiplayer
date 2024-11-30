@@ -19,6 +19,7 @@ body {
 	top: 20%;
 	position: fixed;
 	font-size: 20px;
+	width: 11%;
 }
 
 #connect {
@@ -46,7 +47,22 @@ body {
 	width: 100%;
 	top: 15.5%;
 	position: fixed;
-	font-size: 19px;
+	font-size: 20px;
+}
+
+
+#ntryb {
+	top: 52%;
+	position: fixed;
+	font-size: 25px;
+}
+
+#zmienTryb {
+	top: 57%;
+	width: 11.5%;
+	height: 8%;
+	position: fixed;
+	font-size: 25px;
 }
 
 #nick {
@@ -137,29 +153,37 @@ body {
 
 #start {
 	left: 45%;
-	top: 78%;
+	top: 7%;
+	width: 4%;
+	height: 4%;
+	font-size: 15px;
 	position: absolute;
 	display: none;
 }
 
 
-#tarcze {
-	left: 30%;
+#dtarcze {
+	left: 37%;
 	bottom: 5%;
 	position: absolute;
 	display: none;
 }
-#przyspieszenia {
-	left: 43%;
+#dprzyspieszenia {
+	left: 47%;
 	bottom: 5%;
 	position: absolute;
 	display: none;
 }
-#naboje {
-	left: 58%;
+#dnaboje {
+	left: 57%;
 	bottom: 5%;
 	position: absolute;
 	display: none;
+}
+
+#naboje, #przyspieszenia, #tarcze {
+	float: left;
+	padding-right: 5px;
 }
 
 
@@ -169,6 +193,13 @@ body {
 	transition-property: all;
 	transition-duration: 1s;
 	transform-style: initial;
+}
+
+#minimapa {
+	position: absolute;
+	bottom: 3%;
+	left: 0%;
+	border: 1px solid white;
 }
 /*html,body {
     height: 100%;

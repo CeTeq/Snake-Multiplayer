@@ -1,5 +1,8 @@
 const canvas = document.getElementById('plansza');
 const context = canvas.getContext('2d');
+const canvasMapa = document.getElementById('minimapa');
+const contextMapa = canvasMapa.getContext('2d');
+
 let klatka; //ID funkcji do setInterval
 const grid = 16; //rozmiar siatki
 let size = 200; //640x640px 40x40 pól
@@ -15,6 +18,7 @@ let plansza = new Map();
 let plansza8 = new Map();
 let plansza4 = new Map();
 let plansza2 = new Map();
+let minimapa = [];
 let ipAddr;
 let first = true;
 let wiadomosc;
@@ -27,10 +31,10 @@ let czy_start = false;
 let czyWynik = false;
 let haslo;
 let sendMsg = document.getElementById('sendMsg');
-const URL = 'ws://' + document.URL.slice(7, -3) + '80';
+const URL = 'ws://' + document.URL.slice(7, -3);
 const ranking = document.getElementById('ranking');
 // console.log(URL);
-ipAddr = URL;
+
 function siatka() {
     context.lineWidth = 1;
     context.strokeStyle = '#111111';
@@ -107,19 +111,33 @@ function joinToGame()
     document.getElementById("wiadomosci").style.display = 'block';
     document.getElementById('restart').style.display = 'block';
 
-    document.getElementById("tarcze").style.display = 'block';
-    document.getElementById("przyspieszenia").style.display = 'block';
-    document.getElementById("naboje").style.display = 'block';
+    document.getElementById("dtarcze").style.display = 'block';
+    document.getElementById("dprzyspieszenia").style.display = 'block';
+    document.getElementById("dnaboje").style.display = 'block';
 
 
-    canvas.height = 200*grid;
-    canvas.width = 200*grid;
+    canvas.height = size*grid;
+    canvas.width = size*grid;
+
+    canvasMapa.height = size;
+    canvasMapa.width = size;
+
     if (socket) 
     {
         socket.close();
     }
-    socket = new WebSocket(ipAddr);
     
+
+    if(document.getElementById("ntryb").innerHTML == 'Battle Royal')
+    {
+        ipAddr = URL + '90';
+    }
+    else
+    {
+        ipAddr = URL + '80';
+    }
+    socket = new WebSocket(ipAddr);
+
     socket.addEventListener('open', () => {
         // console.log('Połączono z WebSocket');
         socket.send(
@@ -145,6 +163,7 @@ function joinToGame()
                     plansza8 = wiad.plansza8;
                     plansza4 = wiad.plansza4;
                     plansza2 = wiad.plansza2;
+                    minimapa = wiad.minimapa;
                     wynik = wiad.wynik;
                     let czy_lobby = wiad.czy_lobby;
 
@@ -239,6 +258,11 @@ function joinToGame()
 function wyslijWiadomosc()
 {
     let t = document.getElementById('msg').value;
+    if(t == '') 
+    {
+        return;
+    }
+
     wiadomosc =
         document.getElementById('nickname').value + ': ' + t;
     socket.send(
@@ -262,6 +286,19 @@ document.getElementById('restart').addEventListener('click', () => {
     joinToGame();
     document.getElementById('restart').blur();
     first = true;
+});
+
+
+document.getElementById('zmienTryb').addEventListener('click', () => {
+    let tryb = document.getElementById('ntryb').innerHTML;
+    if(tryb == 'Battle Royal')
+    {
+        document.getElementById('ntryb').innerHTML = "Sandbox";
+    }
+    else
+    {
+        document.getElementById('ntryb').innerHTML =  'Battle Royal';
+    }
 });
 
 
@@ -302,6 +339,8 @@ function loop() {
     lastX = snakeX
     //Czyścimy płótno
     context.clearRect(0, 0, canvas.width, canvas.height);
+
+    contextMapa.clearRect(0, 0, canvasMapa.width, canvasMapa.height);
 
     //Rysujemy kratkę
     siatka();
@@ -391,7 +430,6 @@ function loop() {
         ranking.innerHTML += element.n + ': ' + element.wynik + '<br>';
     });
 
-    let planszaDoNarysowania;
         
 
     plansza.forEach(function (kwadrat) {
@@ -426,6 +464,20 @@ function loop() {
             context.fillStyle = kwadrat.kolor;
             context.fill();
            // context.stroke()
+        }
+    });
+
+    minimapa.forEach(function (kwadrat) {
+        //Rysowanie minimapy
+        contextMapa.fillStyle = kwadrat.kolor;
+        
+        if(kwadrat.czyJa == true)
+        {
+            contextMapa.fillRect(kwadrat.x/16, kwadrat.y/16, 7, 7);
+        }
+        else
+        {
+            contextMapa.fillRect(kwadrat.x/16, kwadrat.y/16, 5, 5);
         }
     });
 
