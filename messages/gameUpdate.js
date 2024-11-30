@@ -1,4 +1,4 @@
-import { chat, gracze, battle_royal, czy_lobby, zakonczenie_gry, remis, wygrany_gracz, zrespawnuj, odliczanie_rozpoczecia, czas_odli_rozp, tps, liczba_klientow, liczba_graczy, szerokosc_planszy, wysokosc_planszy } from '../serwer-snake.js';
+import { chat, gracze, odliczanie_zmniejszania, battle_royal, czy_lobby, zakonczenie_gry, remis, wygrany_gracz, zrespawnuj, odliczanie_rozpoczecia, czas_odli_rozp, tps, liczba_klientow, liczba_graczy, szerokosc_planszy, wysokosc_planszy } from '../serwer-snake.js';
 import { kick, admins, liczba_jablek } from '../events/clientMessage.js';
 import { czolowe_zderzenia } from '../checks/colisions.js';
 
@@ -71,8 +71,13 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
             {
                 czy = true;
             }
-            mapa.push({x: snake2.x, y: snake2.y, kolor: snake2.kolor, czyJa: czy});
+            mapa.push({x: snake2.x, y: snake2.y, kolor: snake2.kolor, czyJa: czy, rodzaj:"fillRect"});
         })
+
+        if(odliczanie_zmniejszania < 200*tps && odliczanie_zmniejszania != 0)
+        {
+            mapa.push({x: szerokosc_planszy/4, y: wysokosc_planszy/4, kolor: "red", rodzaj:"strokeRect"});
+        }
 
         klient.send(
             JSON.stringify({
@@ -95,8 +100,7 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
                 zgracze: liczba_graczy,
                 czy_lobby: czy_lobby,
                 minimapa: mapa,
-                szerokosc_planszy: szerokosc_planszy,
-                wysokosc_planszy: wysokosc_planszy,
+                size: szerokosc_planszy,
                 admin: h,
                 tryb: tr,
             }),

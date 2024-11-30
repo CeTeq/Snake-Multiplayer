@@ -6,6 +6,8 @@ const contextMapa = canvasMapa.getContext('2d');
 let klatka; //ID funkcji do setInterval
 const grid = 16; //rozmiar siatki
 let size = 200; //640x640px 40x40 pól
+let szerokosc_planszy;
+let wysokosc_planszy;
 let snake;
 let jablko;
 let wynik = 0;
@@ -167,6 +169,16 @@ function joinToGame()
                     wynik = wiad.wynik;
                     let czy_lobby = wiad.czy_lobby;
 
+                    if(wiad.size != size)
+                    {
+                        canvasMapa.height = wiad.size;
+                        canvasMapa.width = wiad.size;
+
+                        canvas.height = wiad.size*grid;
+                        canvas.width = wiad.size*grid;
+                    }
+                    size = wiad.size;
+
                     document.getElementById('tryb').innerHTML = 'Tryb gry: ' + wiad.tryb;
                     document.getElementById('tarcze').innerHTML = wiad.tarcze + ' ';
                     document.getElementById('przyspieszenia').innerHTML = wiad.przysp + ' ';
@@ -227,6 +239,7 @@ function joinToGame()
                 snakeX = wiad.snakeX - screen.width/34
                 snakeY = wiad.snakeY - screen.height/34
 
+                
                 /*let wzgledneX = bh;
                 let wzgledneY = snakeY*16;
 
@@ -469,16 +482,27 @@ function loop() {
 
     minimapa.forEach(function (kwadrat) {
         //Rysowanie minimapy
-        contextMapa.fillStyle = kwadrat.kolor;
+        if(kwadrat.rodzaj == undefined || kwadrat.rodzaj == "fillRect")
+        {
+            contextMapa.fillStyle = kwadrat.kolor;
         
-        if(kwadrat.czyJa == true)
-        {
-            contextMapa.fillRect(kwadrat.x/16, kwadrat.y/16, 7, 7);
+            if(kwadrat.czyJa == true)
+            {
+                contextMapa.fillRect(kwadrat.x/16, kwadrat.y/16, 7, 7);
+            }
+            else
+            {
+                contextMapa.fillRect(kwadrat.x/16, kwadrat.y/16, 5, 5);
+            }
         }
-        else
+
+        else if(kwadrat.rodzaj == "strokeRect") //Rysujemy ostrzezenie przed zmniejszającą się planszą
         {
-            contextMapa.fillRect(kwadrat.x/16, kwadrat.y/16, 5, 5);
-        }
+            contextMapa.lineWidth = 1;
+            contextMapa.strokeStyle = kwadrat.kolor;
+            
+            contextMapa.strokeRect(kwadrat.x, kwadrat.y, size/2, size/2);
+        } 
     });
 
     if (!gameover && czyWynik) {

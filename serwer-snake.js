@@ -46,6 +46,7 @@ export let wygrany_gracz = undefined;
 export let czas_odli_rozp = 250;
 export let odliczanie_rozpoczecia = czas_odli_rozp;
 export let odliczanie_restartowania = 0;
+export let odliczanie_zmniejszania = 0;
 export let wymus_start = {
 st: false,
 };
@@ -56,7 +57,7 @@ export const tps = 10;
 export let zrespawnuj = false;
 let min_graczy = 100;
 
-
+let size = 200;
 let fl = false;
 const klienci = new Map();
 let pol = 0;
@@ -174,6 +175,27 @@ function loop() {
     let plansz2 = [];
     let napisy = [];
 
+    if(odliczanie_zmniejszania == 1)
+    {
+        plan.forEach( el => {
+            el.x -= szerokosc_planszy*grid/4;
+            el.y -= wysokosc_planszy*grid/4;
+        })
+
+        gracze.forEach( el => {
+            el.x -= szerokosc_planszy*grid/4;
+            el.y -= wysokosc_planszy*grid/4;
+        })
+
+        szerokosc_planszy /= 2;
+        wysokosc_planszy /= 2;
+    }
+
+    if(odliczanie_zmniejszania > 0)
+    {
+        odliczanie_zmniejszania--;
+    }
+
     if(czy_lobby == false)
     {
         generuj_boosty();
@@ -198,6 +220,7 @@ function loop() {
         czy_lobby = false;
         wymus_start.st = false;
         odliczanie_rozpoczecia = czas_odli_rozp;
+        odliczanie_zmniejszania = 200 * tps;
     }
 
     if(odliczanie_restartowania > 0)
@@ -217,6 +240,8 @@ function loop() {
         czy_lobby = true;
         wymus_start.st = false;
         zrespawnuj = true
+        szerokosc_planszy = size;
+        wysokosc_planszy = size;
     }
 
     if(battle_royal && czy_lobby == false && zakonczenie_gry == false)

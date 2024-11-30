@@ -80,6 +80,10 @@ export function clientMessage(wia, ws) {
                             }
                         });
                     }
+                    else if(komenda[1] == '/start')
+                    {
+                        wymus_start.st = true;
+                    }
 
                     else if(komenda[1] == '/bsize')
                     {
@@ -124,7 +128,7 @@ export function clientMessage(wia, ws) {
         else if(czy_host && ruch == undefined && wia.wymus_start && liczba_klientow > 1)
         {
             wymus_start.st = true;
-            console.log("wystartowano ręcznie");
+            //console.log("wystartowano ręcznie");
         }
         else if(czy_host && ruch == undefined && wia.akcjaHosta == "zmienTryb")
         {
