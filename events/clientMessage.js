@@ -1,9 +1,12 @@
-import { chat, gracze, grid, plan, liczba_klientow, wymus_start } from '../serwer-snake.js';
+import { chat, gracze, grid, plan, liczba_klientow, wymus_start, tps } from '../serwer-snake.js';
 
 export let liczba_jablek = 100;
 export let kick = null;
 export let haslo = "k";
 export let admins = [];
+export let host = {
+    h:undefined,
+};
 
 export function clientMessage(wia, ws) {
     wia = JSON.parse(wia);
@@ -25,14 +28,14 @@ export function clientMessage(wia, ws) {
     {
         let ruch = wia.ruch;
         let wiadomosc = wia.wiadomosc;
-        let czy_host = false;
+        let czy_admin = false;
 
        
 
-        admins.forEach(host => {
-        if(ws == host)
+        admins.forEach(ad => {
+        if(ws == ad)
         {
-            czy_host = true;
+            czy_admin = true;
         }
         });
 
@@ -40,7 +43,7 @@ export function clientMessage(wia, ws) {
             let komenda = [];
             komenda = wiadomosc.split(" ");
 
-                if(czy_host && wiadomosc.search('/') > 0) //Komendy
+                if(czy_admin && wiadomosc.search('/') > 0) //Komendy
                 {
                     if(komenda[1] == "/kill") // kill
                     {
@@ -71,7 +74,7 @@ export function clientMessage(wia, ws) {
                     {
                         kick = komenda[2];
                     }
-                    else if(komenda[1] == "/clear")
+                    else if(komenda[1] == "/clr")
                     {
                         plan.forEach(el => {
                             if(el.typ != "elsnake")
@@ -85,12 +88,88 @@ export function clientMessage(wia, ws) {
                         wymus_start.st = true;
                     }
 
+                    else if(komenda[1] == "/eff")
+                    {
+                        if(komenda[2] == 'speed')
+                        {
+                            if(komenda.length > 4)
+                            {
+                                gracze.forEach(gr => {
+
+                                if(gr.nick == komenda[3])
+                                {
+                                    gr.tprzysp = komenda[4]*tps;
+                                }
+                                });
+                            }
+                            else
+                            {
+                                sn.tprzysp = komenda[3]*tps;
+                            }
+                        }
+                        else if(komenda[2] == 'shield')
+                        {
+                            if(komenda.length > 4)
+                            {
+                                gracze.forEach(gr => {
+
+                                if(gr.nick == komenda[3])
+                                {
+                                    gr.ochrona = komenda[4]*tps;
+                                }
+                                });
+                            }
+                            else
+                            {
+                                sn.ochrona = komenda[3]*tps;
+                            }
+                        }
+                    }
+
+                    else if(komenda[1] == "/cells")
+                    {
+                        if(komenda.length > 3)
+                        {
+                            gracze.forEach(gr => {
+
+                            if(gr.nick == komenda[2])
+                            {
+                                gr.maxCells = komenda[3];
+                            }
+                            });
+                        }
+                        else
+                        {
+                            sn.maxCells = komenda[2];
+                        }
+        
+                    }
+
+                    else if(komenda[1] == "/ammo")
+                    {
+                        if(komenda.length > 3)
+                        {
+                            gracze.forEach(gr => {
+
+                            if(gr.nick == komenda[2])
+                            {
+                                gr.naboje = komenda[3];
+                            }
+                            });
+                        }
+                        else
+                        {
+                            sn.naboje = komenda[2];
+                        }
+        
+                    }
+
                     else if(komenda[1] == '/bsize')
                     {
                         //wymiaryPlanszy.szerokosc = komenda[2];
                        // wymiaryPlanszy.wysokosc = komenda[3];
                     }
-                    else if(komenda[1] == '/apple')
+                    else if(komenda[1] == '/apl')
                     {
                         let temp = liczba_jablek;
                         
@@ -111,7 +190,7 @@ export function clientMessage(wia, ws) {
                     
                     //console.log(komenda[1]);
                 }
-                else if(komenda[1] == '/admin')
+                else if(komenda[1] == '/adm')
                 {
                     if(komenda[2] == haslo)
                     {
@@ -125,22 +204,10 @@ export function clientMessage(wia, ws) {
                 }
         } 
 
-        else if(czy_host && ruch == undefined && wia.wymus_start && liczba_klientow > 1)
+        else if((czy_admin || ws == host.h) && ruch == undefined && wia.wymus_start && liczba_klientow > 1)
         {
             wymus_start.st = true;
             //console.log("wystartowano ręcznie");
-        }
-        else if(czy_host && ruch == undefined && wia.akcjaHosta == "zmienTryb")
-        {
-            console.log("zmieniono tryb gry");
-            if(battle_royal)
-            {
-                battle_royal = false;
-            }
-            else
-            {
-                battle_royal = true;
-            }
         }
         
         else 

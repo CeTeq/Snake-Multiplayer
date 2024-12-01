@@ -27,11 +27,15 @@ let wiadomosc;
 let snakeX;
 let snakeY;
 let admin = false;
+let host = false;
 let cooldown = 0;
 let cooldown2 = 0;
 let czy_start = false;
 let czyWynik = false;
 let haslo;
+let przesuniecie = 0;
+let fps = 0;
+let czas = new Date();
 let sendMsg = document.getElementById('sendMsg');
 const URL = 'ws://' + document.URL.slice(7, -3);
 const ranking = document.getElementById('ranking');
@@ -167,15 +171,13 @@ function joinToGame()
                     plansza2 = wiad.plansza2;
                     minimapa = wiad.minimapa;
                     wynik = wiad.wynik;
+                    przesuniecie = wiad.przesuniecie;
                     let czy_lobby = wiad.czy_lobby;
 
                     if(wiad.size != size)
                     {
                         canvasMapa.height = wiad.size;
                         canvasMapa.width = wiad.size;
-
-                        canvas.height = wiad.size*grid;
-                        canvas.width = wiad.size*grid;
                     }
                     size = wiad.size;
 
@@ -188,6 +190,9 @@ function joinToGame()
                     document.getElementById('ogracze').innerHTML = 'Gracze online: ' + wiad.ogracze;
                     document.getElementById('zgracze').innerHTML = 'Żywi gracze: ' + wiad.zgracze;
 
+                    document.getElementById('tps').innerHTML = 'Tps: ' + wiad.tps;
+                    document.getElementById('fps').innerHTML = 'Fps: ' + fps;
+
                     wiad.chat.forEach((n) => {
                         document.getElementById('chat').innerHTML += n + '<br>';
                         chat.scrollTop = chat.scrollHeight;
@@ -199,18 +204,22 @@ function joinToGame()
                         document.getElementById('nick').innerHTML += ' (admin)';
                     }
 
-                    if(admin && czy_lobby && czy_start == false)
+                    if(wiad.host && host == false)
+                    {
+                        host = true;
+                    }
+
+                    if((admin || host) && czy_lobby && czy_start == false)
                     {
                         czy_start = true;
                         document.getElementById('start').style.display = 'block';
                     }
 
-                    else if(admin && czy_lobby == false && czy_start)
+                    else if((admin || host) && czy_lobby == false && czy_start)
                     {
                         czy_start = false;
                         document.getElementById('start').style.display = 'none';
                     }
-
                 }
                 else if(wiad.jakieWyslanie == '4')
                 {
@@ -223,33 +232,32 @@ function joinToGame()
                 }
 
 
-
                 plansza.clear();
                 
                 plansza8.forEach( el =>{
+                    if(wiad.jakieWyslanie == '8')
+                    {
+                        el.x += przesuniecie;
+                        el.y += przesuniecie;
+                    }
                     plansza.set(el,el);
                 });
                 plansza4.forEach( el =>{
+                    if(wiad.jakieWyslanie == '8' || wiad.jakieWyslanie == '4')
+                    {
+                        el.x += przesuniecie;
+                        el.y += przesuniecie;
+                    }
                     plansza.set(el,el);
                 });
                 plansza2.forEach( el =>{
+                    el.x += przesuniecie;
+                    el.y += przesuniecie;
                     plansza.set(el,el);
                 });
-   
-                snakeX = wiad.snakeX - screen.width/34
-                snakeY = wiad.snakeY - screen.height/34
-
                 
-                /*let wzgledneX = bh;
-                let wzgledneY = snakeY*16;
-
-                /let t = {x:wzgledneX+10*16, y:wzgledneY+40*16, kolor:"cyan"};
-                let t2 = {x:wzgledneX, y:wzgledneY+200, kolor:'green'};
-                let t3 = {x:wzgledneX+100, y:wzgledneY+200, kolor:'6c3c0c'};
-                plansza.set(t,t);
-                plansza.set(t2,t2);
-                plansza.set(t3,t3);*/
-
+                snakeX = wiad.snakeX+(przesuniecie/16) - screen.width/34
+                snakeY = wiad.snakeY+(przesuniecie/16) - screen.height/34
 
                 napisy = wiad.napisy;
 
@@ -316,7 +324,7 @@ document.getElementById('zmienTryb').addEventListener('click', () => {
 
 
 document.getElementById('start').addEventListener('click', () => {
-    if(admin)
+    if(admin || host)
     {
         document.getElementById('start').style.display = 'none';
         socket.send(
@@ -350,6 +358,12 @@ function loop() {
 
     lastY = snakeY
     lastX = snakeX
+
+    let czasTeraz = new Date();
+    fps = czasTeraz.getTime() - czas.getTime();
+    czas = new Date();
+
+
     //Czyścimy płótno
     context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -462,13 +476,20 @@ function loop() {
             {
                 context.drawImage(zielonaPoswiata, kwadrat.x-20, kwadrat.y-20);
             }
-            //context.lineWidth = 1;
-            //context.strokeStyle = kwadrat.kolor;
+            else
+            {
+                if(kwadrat.grubosc != undefined) context.lineWidth = kwadrat.grubosc;
+
+                else
+                context.lineWidth =  1;
+
+                context.strokeStyle = kwadrat.kolor;
             
-            //context.shadowColor = kwadrat.kolor2;
+                context.strokeRect(kwadrat.x, kwadrat.y, kwadrat.roz, kwadrat.roz);
+             //context.shadowColor = kwadrat.kolor2;
             //context.shadowBlur = 5;
-            //context.strokeRect(kwadrat.x, kwadrat.y, grid, grid);
             //context.shadowBlur = 0;
+            }
         } 
         else if(kwadrat.rodzaj == "arc") //Rysujemy koło
         {
@@ -519,7 +540,7 @@ function loop() {
     context.font = '12px serif';
 
     napisy.forEach((nap) => {
-        context.fillText(nap.n, nap.x, nap.y);
+        context.fillText(nap.n, nap.x+przesuniecie, nap.y+przesuniecie);
     });
 }
 

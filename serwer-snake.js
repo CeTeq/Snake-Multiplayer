@@ -3,7 +3,7 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path';
-import { clientMessage } from './events/clientMessage.js';
+import { clientMessage, host } from './events/clientMessage.js';
 import { colisions, czolowe_zderzenia } from './checks/colisions.js';
 import { isInGrid } from './checks/isInGrid.js';
 import { gameUpdateMsg } from './messages/gameUpdate.js';
@@ -55,9 +55,12 @@ export let liczba_klientow = 0;
 export let remis = false;
 export const tps = 10;
 export let zrespawnuj = false;
+export let przesuniecie = 0;
+export let realneTps = 0;
 let min_graczy = 100;
 
 let size = 200;
+let czas = new Date();
 let fl = false;
 const klienci = new Map();
 let pol = 0;
@@ -145,7 +148,13 @@ wss.on('connection', (ws) => {
 
     ws.on('close', () => {
         console.log('Gracz ' + gracze.get(ws).nick + ' się rozłączył');
-       
+
+        if(host.h == ws)
+        {
+            host.h = undefined;
+        }
+        
+        
         if(gracze.get(ws).gameover == false)
         {
             chat.push('<span style="color: red;">Gracz ' + gracze.get(ws).nick + ' wyszedł z gry</span>');
@@ -175,8 +184,13 @@ function loop() {
     let plansz2 = [];
     let napisy = [];
 
+    let czasTeraz = new Date();
+    realneTps = czasTeraz.getTime() - czas.getTime();
+    czas = new Date();
+
     if(odliczanie_zmniejszania == 1)
     {
+        przesuniecie += szerokosc_planszy*grid/4;
         plan.forEach( el => {
             el.x -= szerokosc_planszy*grid/4;
             el.y -= wysokosc_planszy*grid/4;
@@ -189,6 +203,11 @@ function loop() {
 
         szerokosc_planszy /= 2;
         wysokosc_planszy /= 2;
+
+        if(szerokosc_planszy > 50)
+        {
+            odliczanie_zmniejszania = 100 * tps;
+        }
     }
 
     if(odliczanie_zmniejszania > 0)
@@ -220,7 +239,7 @@ function loop() {
         czy_lobby = false;
         wymus_start.st = false;
         odliczanie_rozpoczecia = czas_odli_rozp;
-        odliczanie_zmniejszania = 200 * tps;
+        odliczanie_zmniejszania = 100 * tps;
     }
 
     if(odliczanie_restartowania > 0)
@@ -242,6 +261,7 @@ function loop() {
         zrespawnuj = true
         szerokosc_planszy = size;
         wysokosc_planszy = size;
+        przesuniecie = 0;
     }
 
     if(battle_royal && czy_lobby == false && zakonczenie_gry == false)
@@ -437,6 +457,11 @@ function loop() {
             }
             snake.cells = [];
 
+        }
+
+        if(host.h == undefined)
+        {
+            host.h = kl;
         }
         gameUpdateMsg(kl, plansz8, plansz4, plansz2, napisy, jakieWyslanie);
         });

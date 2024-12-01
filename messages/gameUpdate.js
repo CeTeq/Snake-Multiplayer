@@ -1,5 +1,5 @@
-import { chat, gracze, odliczanie_zmniejszania, battle_royal, czy_lobby, zakonczenie_gry, remis, wygrany_gracz, zrespawnuj, odliczanie_rozpoczecia, czas_odli_rozp, tps, liczba_klientow, liczba_graczy, szerokosc_planszy, wysokosc_planszy } from '../serwer-snake.js';
-import { kick, admins, liczba_jablek } from '../events/clientMessage.js';
+import { chat, realneTps, grid, gracze, odliczanie_zmniejszania, battle_royal, czy_lobby, zakonczenie_gry, remis, wygrany_gracz, zrespawnuj, odliczanie_rozpoczecia, czas_odli_rozp, tps, liczba_klientow, liczba_graczy, szerokosc_planszy, wysokosc_planszy, przesuniecie } from '../serwer-snake.js';
+import { kick, admins, liczba_jablek, host } from '../events/clientMessage.js';
 import { czolowe_zderzenia } from '../checks/colisions.js';
 
 export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWyslanie) {
@@ -7,6 +7,7 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
     let t;
     let od = false;
     let h = false;
+    let a = false;
     let tr;
 
 
@@ -19,12 +20,17 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
         tr = "Sandbox";
     }
 
-    admins.forEach(host => {
-        if(host == klient)
+    admins.forEach(ad => {
+        if(ad == klient)
         {
-            h = true;
+            a = true;
         }
     });
+
+    if(host.h == klient)
+    {
+        h = true;
+    }
     
     if(czy_lobby)
     {
@@ -51,9 +57,10 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
         }
     }
     
-    if((battle_royal && zrespawnuj) || kick == snake.nick || kick == 'all')
+    if((battle_royal && zrespawnuj) || kick == snake.nick)
     {
         od = true;
+        kick = undefined;
     }
 
     if(battle_royal && odliczanie_rozpoczecia < czas_odli_rozp)
@@ -61,6 +68,7 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
         t = 'Gra rozpocznie sie za ' + Math.floor(odliczanie_rozpoczecia/(tps*5) + 1) + 's';
     }
     
+
     if(jakieWyslanie == '8')
     {
         let mapa = [];
@@ -74,10 +82,17 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
             mapa.push({x: snake2.x, y: snake2.y, kolor: snake2.kolor, czyJa: czy, rodzaj:"fillRect"});
         })
 
-        if(odliczanie_zmniejszania < 200*tps && odliczanie_zmniejszania != 0)
+        if(odliczanie_zmniejszania < 200*tps && odliczanie_zmniejszania != 0) //czerwona linia na minimapie
         {
             mapa.push({x: szerokosc_planszy/4, y: wysokosc_planszy/4, kolor: "red", rodzaj:"strokeRect"});
         }
+
+        if(odliczanie_zmniejszania < 200*tps && odliczanie_zmniejszania != 0) //czerwona linia na planszy
+        {
+            plansz8.push({x: szerokosc_planszy*grid/4, y: wysokosc_planszy*grid/4, kolor: "red", rodzaj:"strokeRect", roz:szerokosc_planszy/2*grid});
+        }
+
+        plansz8.push({x: 2, y: 2, kolor: "grey", rodzaj:"strokeRect", roz:szerokosc_planszy*grid-4, grubosc:3}); //Granica mapy
 
         klient.send(
             JSON.stringify({
@@ -101,8 +116,11 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
                 czy_lobby: czy_lobby,
                 minimapa: mapa,
                 size: szerokosc_planszy,
-                admin: h,
+                przesuniecie: przesuniecie,
+                admin: a,
+                host: h,
                 tryb: tr,
+                tps: realneTps,
             }),
         );
     }
