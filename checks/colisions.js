@@ -1,4 +1,4 @@
-import { grid, kolizje, getRandomInt, gracze, plan} from '../serwer-snake.js';
+import { grid, kolizje, getRandomInt, gracze, plan, chat} from '../serwer-snake.js';
 import { goldenApple } from '../items/goldenApple.js';
 import { ateApple } from '../items/apples.js';
 import { liczba } from '../items/boosts.js';
@@ -21,19 +21,39 @@ export function colisions(obiekt, klient) {
 
             if(obiekt.snake == snake)
             {
-                kolizje.push('<span style="color: red;">Gracz ' + snake.nick + ' uderzył w swój ogon</span>');
-                //kolizje.push('<span style="color: yellow;">Gracz</span> <span style="color: aqua;">' + snake.nick + '</span><span style="color: yellow;"> uderzył w swój ogon</span>');
+                let temp = [];
+                temp.push({tekst:'Gracz ', kolor:"red"});
+                temp.push({tekst:snake.nick, kolor:snake.kolor});
+                temp.push({tekst:' uderzył w swój ogon', kolor:"red"});
+
+                chat.push(temp);
+                //kolizje.push('<span style="color: red;">Gracz ' + snake.nick + ' uderzył w swój ogon</span>');
             }
             else if(obiekt == obiekt.snake.cells[0]) //Czołowe zdarzenie - obaj gracze giną
             {
-                kolizje.push('<span style="color: red;">Gracze ' + snake.nick + ' i ' + obiekt.snake.nick + ' zderzyli się</span>');
+                let temp = [];
+                temp.push({tekst:'Gracze ', kolor:"red"});
+                temp.push({tekst:snake.nick, kolor:snake.kolor});
+                temp.push({tekst:'i', kolor:'red'});
+                temp.push({tekst:obiekt.snake.nick, kolor:obiekt.snake.kolor});
+                temp.push({tekst:'  zremisowali', kolor:"red"});
+
+                chat.push(temp);
+                //kolizje.push('<span style="color: red;">Gracze ' + snake.nick + ' i ' + obiekt.snake.nick + ' zderzyli się</span>');
                 obiekt.snake.gameover = true;
                 czolowe_zderzenia.snake1 = snake;
                 czolowe_zderzenia.snake2 = obiekt.snake;
             }
             else
             {
-                kolizje.push('<span style="color: red;">Gracz ' + snake.nick + ' uderzył w gracza: ' + obiekt.snake.nick + '</span>');
+                let temp = [];
+                temp.push({tekst:'Gracz ', kolor:"red"});
+                temp.push({tekst:snake.nick, kolor:snake.kolor});
+                temp.push({tekst:' uderzył w gracza: ', kolor:'red'});
+                temp.push({tekst:obiekt.snake.nick, kolor:obiekt.snake.kolor});
+
+                chat.push(temp);
+                //kolizje.push('<span style="color: red;">Gracz ' + snake.nick + ' uderzył w gracza: ' + obiekt.snake.nick + '</span>');
                 obiekt.snake.wynik += snake.wynik+2;
                 obiekt.snake.maxCells += snake.wynik+2;
             }
@@ -66,7 +86,15 @@ export function colisions(obiekt, klient) {
         }
         else if(obiekt.typ == 'pocisk' && obiekt.snake != snake && snake.ochrona == 0)
         {
-            kolizje.push('<span style="color: red;">Gracz ' + obiekt.snake.nick + ' zastrzelił gracza: ' + snake.nick + '</span>');
+            let temp = [];
+            temp.push({tekst:'Gracz ', kolor:"red"});
+            temp.push({tekst:obiekt.snake.nick, kolor:obiekt.snake.kolor});
+            temp.push({tekst:' zastrzelił gracza: ', kolor:'red'});
+            temp.push({tekst:snake.nick, kolor:snake.kolor});
+
+            chat.push(temp);
+
+            //kolizje.push('<span style="color: red;">Gracz ' + obiekt.snake.nick + ' zastrzelił gracza: ' + snake.nick + '</span>');
             obiekt.snake.wynik += snake.wynik+2;
             obiekt.snake.maxCells += snake.wynik+2;
             snake.gameover = true;
@@ -78,7 +106,14 @@ export function colisions(obiekt, klient) {
     {
         if(obiekt.typ == 'pocisk' && obiekt.snake != snake && snake.ochrona == 0)
         {
-            kolizje.push('<span style="color: red;">Gracz ' + obiekt.snake.nick + ' zastrzelił gracza: ' + snake.nick + '</span>');
+            let temp = [];
+            temp.push({tekst:'Gracz ', kolor:"red"});
+            temp.push({tekst:obiekt.snake.nick, kolor:obiekt.snake.kolor});
+            temp.push({tekst:' zastrzelił gracza: ', kolor:'red'});
+            temp.push({tekst:snake.nick, kolor:snake.kolor});
+
+            chat.push(temp);
+            //kolizje.push('<span style="color: red;">Gracz ' + obiekt.snake.nick + ' zastrzelił gracza: ' + snake.nick + '</span>');
             obiekt.snake.wynik += snake.wynik+2;
             obiekt.snake.maxCells += snake.wynik+2;
             snake.gameover = true;

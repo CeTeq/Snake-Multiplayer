@@ -7,6 +7,7 @@
     </head>
     <body>
         <div id="joinLobby">
+            <img src="grafika/tlo.png" id="tlo">
             <div id="nnick">Podaj nick:</div>
             <input type="text" placeholder="Nickname" id="nickname" /><br />
             <!--<input type="text" id="ip" placeholder="ws://0.0.0.0:0000">-->
@@ -19,16 +20,19 @@
             <canvas id="plansza"></canvas>
             <canvas id="minimapa"></canvas>
         </div>
-        <div id="wynik">Wynik: </div>
+        <div id="gorne">
+            <div id="wynik">Wynik: </div>
+            <button id="start">START</button>
+        </div>
         <div id="tranking">Ranking</div>
         <div id="ranking"></div>
         <div id="wiadomosci">
             <div id="chat"></div>
             <br/>
-            <input type="text" placeholder="Message" id="msg" /><button id="sendMsg">send</button>
+            <input type="text" placeholder="" id="msg" /> <!--<button id="sendMsg">send</button>-->
         </div>
         <button id="restart">RESTART</button>
-        <button id="start">START</button>
+        
         <div id="dtarcze"><div id="tarcze">: 0</div><img src="grafika/tarcza.png" id="otarcze"></div>
         <div id="dprzyspieszenia"><div id="przyspieszenia">: 0</div><img src="grafika/przyspieszenie.png" id="oprzyspieszenia"></div>
         <div id="dnaboje"><div id="naboje">: 0</div><img src="grafika/naboj.png" id="onaboje"></div>

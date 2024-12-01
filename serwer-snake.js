@@ -1,5 +1,6 @@
 import { WebSocketServer } from 'ws';
 import express from 'express';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path';
@@ -28,6 +29,7 @@ const port = 8000;
 export let grid = 16;
 export const gracze = new Map();
 export let chat = [];
+export let privChat = [];
 export let kolizje = [];
 export let plan = new Map();
 export let wysokosc_planszy = 200;
@@ -157,7 +159,13 @@ wss.on('connection', (ws) => {
         
         if(gracze.get(ws).gameover == false)
         {
-            chat.push('<span style="color: red;">Gracz ' + gracze.get(ws).nick + ' wyszedł z gry</span>');
+            let temp = [];
+            temp.push({tekst:'Gracz ', kolor:"red"});
+            temp.push({tekst:gracze.get(ws).nick, kolor:gracze.get(ws).kolor});
+            temp.push({tekst:'  wyszedł z gry', kolor:"red"});
+
+            chat.push(temp);
+            //chat.push('<span style="color: red;">Gracz ' + gracze.get(ws).nick + ' wyszedł z gry</span>');
         }
 
         if(gracze.get(ws).cells.length > 0)
@@ -277,14 +285,32 @@ function loop() {
                     wygrany_gracz = gr;
                 }
             });
-            chat.push('<span style="color: yellow;">Gracz ' + wygrany_gracz.nick + ' wygrał gre</span>');
+
+            let temp = [];
+            temp.push({tekst:'Gracz ', kolor:"yellow"});
+            temp.push({tekst:wygrany_gracz.nick, kolor:wygrany_gracz.kolor});
+            temp.push({tekst:'  wygrał gre', kolor:"yellow"});
+
+            chat.push(temp);
+
+            //chat.push('<span style="color: yellow;">Gracz ' + wygrany_gracz.nick + ' wygrał gre</span>');
             odliczanie_restartowania = 500;
         }
         else if(liczba_graczy == 0)
         {
             zakonczenie_gry = true;
             remis = true;
-            chat.push('<span style="color: yellow;">Gracze ' + czolowe_zderzenia.snake1.nick + ' i ' + czolowe_zderzenia.snake2.nick + ' zremisowali</span>');
+
+            let temp = [];
+            temp.push({tekst:'Gracze ', kolor:"yellow"});
+            temp.push({tekst:czolowe_zderzenia.snake1.nick, kolor:czolowe_zderzenia.snake1.kolor});
+            temp.push({tekst:'i', kolor:'yellow'});
+            temp.push({tekst:czolowe_zderzenia.snake2.nick, kolor:czolowe_zderzenia.snake2.kolor});
+            temp.push({tekst:'  zremisowali', kolor:"yellow"});
+
+            chat.push(temp);
+
+            //chat.push('<span style="color: yellow;">Gracze ' + czolowe_zderzenia.snake1.nick + ' i ' + czolowe_zderzenia.snake2.nick + ' zremisowali</span>');
             odliczanie_restartowania = 500;
             wygrany_gracz = czolowe_zderzenia.snake1;
         }
@@ -432,6 +458,8 @@ function loop() {
                 x: el.x,
                 y: el.y,
                 wynik: el.wynik,
+                kierunekX: el.dx,
+                kierunekY: el.dy,
             });
         }
     });
@@ -454,9 +482,14 @@ function loop() {
             if(snake.cells.length > 0)
             {
                 liczba_graczy--;
+                try {
+                    fs.writeFileSync('./wyniki.json', JSON.stringify({nick:snake.nick, wynik:snake.wynik}));
+                } catch (err) {
+                    console.error(err)
+                }
             }
             snake.cells = [];
-
+            
         }
 
         if(host.h == undefined)
@@ -469,6 +502,7 @@ function loop() {
 
     if (i == predkosc_ruchu) {
         chat = [];
+        privChat = [];
         zrespawnuj = false
         //tempo poruszania sie
         i = 0;

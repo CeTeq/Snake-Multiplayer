@@ -1,4 +1,4 @@
-import { chat, realneTps, grid, gracze, odliczanie_zmniejszania, battle_royal, czy_lobby, zakonczenie_gry, remis, wygrany_gracz, zrespawnuj, odliczanie_rozpoczecia, czas_odli_rozp, tps, liczba_klientow, liczba_graczy, szerokosc_planszy, wysokosc_planszy, przesuniecie } from '../serwer-snake.js';
+import { chat, privChat, realneTps, grid, gracze, odliczanie_zmniejszania, battle_royal, czy_lobby, zakonczenie_gry, remis, wygrany_gracz, zrespawnuj, odliczanie_rozpoczecia, czas_odli_rozp, tps, liczba_klientow, liczba_graczy, szerokosc_planszy, wysokosc_planszy, przesuniecie } from '../serwer-snake.js';
 import { kick, admins, liczba_jablek, host } from '../events/clientMessage.js';
 import { czolowe_zderzenia } from '../checks/colisions.js';
 
@@ -60,7 +60,6 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
     if((battle_royal && zrespawnuj) || kick == snake.nick)
     {
         od = true;
-        kick = undefined;
     }
 
     if(battle_royal && odliczanie_rozpoczecia < czas_odli_rozp)
@@ -72,6 +71,14 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
     if(jakieWyslanie == '8')
     {
         let mapa = [];
+        let chatDo = structuredClone(chat);
+
+        privChat.forEach( pr => {
+            if(pr.gr == snake)
+            {
+                chatDo.push(pr.wiad);
+            }
+        });
 
         gracze.forEach( snake2 => {
             let czy = false;
@@ -102,7 +109,7 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
                 plansza8: plansz8,
                 plansza4: plansz4,
                 plansza2: plansz2,
-                chat: chat,
+                chat: chatDo,
                 odswiez: od,
                 napisy: napisy,
                 wynik: snake.wynik,
@@ -143,7 +150,6 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
                 typ: 'plansza',
                 jakieWyslanie: jakieWyslanie,
                 plansza2: plansz2,
-                napisy: napisy,
             }),
         );
     }
