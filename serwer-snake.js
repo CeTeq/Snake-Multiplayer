@@ -193,7 +193,7 @@ function loop() {
     let napisy = [];
 
     let czasTeraz = new Date();
-    realneTps = czasTeraz.getTime() - czas.getTime();
+    realneTps = Math.floor(1000 / (czasTeraz.getTime() - czas.getTime()), 1);
     czas = new Date();
 
     if(odliczanie_zmniejszania == 1)

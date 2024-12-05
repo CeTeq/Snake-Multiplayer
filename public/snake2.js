@@ -72,7 +72,7 @@ function init() {
     document.getElementById('wynik').innerHTML = 'Wynik: 0';
 
     clearInterval(klatka);
-    klatka = setInterval(loop, 20); //10fps
+    klatka = setInterval(loop, 10); //10fps
     //console.log('Uruchomiono gre');
 
     document.getElementById('nick').innerHTML = 'Nick: ' + document.getElementById('nickname').value;
@@ -376,7 +376,7 @@ function loop() {
     lastX = snakeX
 
     let czasTeraz = new Date();
-    fps = czasTeraz.getTime() - czas.getTime();
+    fps = Math.floor(1000 / (czasTeraz.getTime() - czas.getTime()), 1);
     czas = new Date();
 
 
