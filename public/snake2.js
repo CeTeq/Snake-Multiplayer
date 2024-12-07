@@ -199,7 +199,8 @@ function loop() {
         canvas.style.transitionDuration = '220ms'
         firstLoop = false
     }
-    else if(Math.abs(snakeX - lastX) > 1) canvas.style.transitionDuration = '220ms'
+    else if(Math.abs(snakeX - lastX) > 1) canvas.style.transitionDuration = '0ms'
+    else if(Math.abs(snakeY - lastY) > 1) canvas.style.transitionDuration = '0ms'
     else canvas.style.transitionDuration = '1s'
 
     canvas.style.transform = 'translateX(' + (-1) * snakeX*grid + 'px)'

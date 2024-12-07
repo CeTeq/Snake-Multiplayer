@@ -97,7 +97,7 @@ body {
 #plansza {
 	position: relative;
 	transition-property: all;
-	transition-duration: 1s;
+	transition-duration: 0.6s;
 	transform-style: initial;
 }
 /*html,body {
