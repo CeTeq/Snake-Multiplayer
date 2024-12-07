@@ -14,27 +14,213 @@ body {
 	width: 100svw;
 	height: 100svh;
 }
-#joinLobby {
-	left: 45%;
-	top: 20%;
+
+#nickname {
+	top: 26%;
 	position: fixed;
+	font-size: 22px;
+	width: 11%;
 }
+
+#connect {
+	top: 33%;
+	width: 11.5%;
+	height: 11%;
+	position: fixed;
+	font-size: 33px;
+}
+
+#gorne {
+	width: 100%;
+	display: flex;
+	text-align: center;
+	justify-content: center;
+    align-items: center;
+}
+
 #wynik {
 	position: absolute;
 	font-size: 34px;
 	top: 1%;
-	left: 43%;
+	display: none;
 }
-#wiadomosci {
-	opacity: 2%;
-	transition: 0.25s opacity;
+
+#start {
+	top: 7%;
+	width: 4%;
+	height: 4%;
+	font-size: 20px;
+	position: absolute;
+	display: none;
 }
-#wiadomosci:hover {
-	opacity: 80%;
-	transition: 0.25s opacity;
+
+
+#joinLobby {
+	left: 45%;
+	top: 20%;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	text-align: center;
+	justify-content: center;
+    align-items: center;
 }
+
+#tlo {
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+
+#tytul {
+	top: 10%;
+	position: fixed;
+	font-size: 50px;
+	color: yellowgreen;
+}
+
+#nnick {
+	top: 21.5%;
+	position: fixed;
+	font-size: 22px;
+}
+
+
+#ntryb {
+	top: 55%;
+	position: fixed;
+	font-size: 25px;
+	color: yellow;
+}
+
+#zmienTryb {
+	top: 60%;
+	width: 11.5%;
+	height: 8%;
+	position: fixed;
+	font-size: 25px;
+}
+
+#trwaleWyniki {
+	top: 8%;
+	right: 1%;
+	width: 250px;
+	height: 300px;
+	border: 1px solid white;
+	padding: 0.5%;
+	font-size: 17px;
+	text-align: left;
+	position: fixed;
+	word-wrap: break-word;
+	display: none;
+	background-color: black;
+}
+
+#ptrwaleWyniki {
+	right: 3%;
+	top: 1%;
+	position: fixed;
+	user-select: none;
+	border: none;
+	background: none;
+}
+
+#ptrwaleWyniki:hover {
+	content: url('grafika/wyniki2.png');
+	right: 3.2%;
+	top: 0.7%;
+}
+
+#ppomoc {
+	right: 0.5%;
+	top: 1%;
+	font-size: 37px;
+	position: fixed;
+	user-select: none;
+	width: 48px;
+	height: 48px;
+}
+
+#ppomoc:hover {
+	right: 0.5%;
+	top: 0.8%;
+	font-size: 42px;
+	cursor: default;
+}
+
+
+#pomoc {
+	top: 8%;
+	right: 1%;
+	width: 250px;
+	height: 300px;
+	border: 1px solid white;
+	padding: 0.5%;
+	font-size: 17px;
+	text-align: left;
+	position: fixed;
+	word-wrap: break-word;
+	display: none;
+	background-color: black;
+	color: yellowgreen;
+}
+
+#nick {
+	left: 1.5%;
+	top: 3%;
+	position: absolute;
+	font-size: 17px;
+}
+
+#tryb {
+	left: 1.5%;
+	top: 7%;
+	position: absolute;
+	font-size: 15px;
+}
+
+
+#zgracze {
+	right: 2%;
+	top: 3%;
+	position: absolute;
+	font-size: 17px;
+}
+
+#ogracze {
+	right: 2%;
+	top: 8%;
+	position: absolute;
+	font-size: 10px;
+	display: none;
+}
+
+#fps {
+	right: 2%;
+	top: 12%;
+	position: absolute;
+	font-size: 10px;
+	display: none;
+}
+
+#tps {
+	right: 2%;
+	top: 14%;
+	position: absolute;
+	font-size: 10px;
+	display: none;
+}
+
+
+#msg{
+	background-color: rgb(34, 34, 34, 0);
+	border: 1px solid grey;
+	color: white;
+	width: 90%;
+}
+
 #chat {
-	background-color: rgb(34, 34, 34);
+	background-color: rgb(34, 34, 34, 0);
 	word-wrap: break-word;
 	border-radius: 6px;
 	padding: 4px;
@@ -44,61 +230,86 @@ body {
 	overflow-y: auto;
 	text-align: justify;
 }
-#ranking:hover {
-	opacity: 80%;
-	transition: 0.25s opacity;
+
+#tranking {
+	left: 1.5%;
+	top: 16%;
+	position: absolute;
+	font-size: 25px;
+	display: none;
 }
+
 #ranking {
-	opacity: 2%;
-	transition: 0.25s opacity;
-	right: 71%;
-	top: 30%;
+	left: 1.5%;
+	top: 20%;
 	position: absolute;
 	word-wrap: break-word;
 	border-radius: 6px;
 	padding: 4px;
-	background-color: rgb(34, 34, 34);
+	background-color: rgb(34, 34, 34, 0);
 	width: 300px;
 	height: 200px;
 	overflow-x: hidden;
 	overflow-y: auto;
 	text-align: justify;
+	display: none;
 }
 #wiadomosci {
-	left: 64.5%;
-	top: 30%;
-	width: 300px;
-	height: 200px;
-	position: absolute;
+	right: 0%;
+	top: 70%;
+	width: 225px;
+	height: 100px;
+	position: fixed;
+	display: none;
 }
 
 #restart {
-	right: 30%;
-	top: 10%;
+	right: 2%;
+	top: 7%;
 	position: absolute;
+	display: none;
 }
 
 
-#tarcze {
-	left: 30%;
-	top: 75%;
+
+#dtarcze {
+	left: 37%;
+	bottom: 5%;
 	position: absolute;
+	display: none;
 }
-#przyspieszenia {
-	left: 43%;
-	top: 75%;
+#dprzyspieszenia {
+	left: 47%;
+	bottom: 5%;
 	position: absolute;
+	display: none;
 }
-#naboje {
-	left: 58%;
-	top: 75%;
+#dnaboje {
+	left: 57%;
+	bottom: 5%;
 	position: absolute;
+	display: none;
 }
+
+#naboje, #przyspieszenia, #tarcze {
+	float: left;
+	padding-right: 5px;
+}
+
+
+
 #plansza {
 	position: relative;
 	transition-property: all;
 	transition-duration: 1s;
 	transform-style: initial;
+}
+
+#minimapa {
+	position: absolute;
+	bottom: 3%;
+	left: 0.5%;
+	border: 1px solid white;
 }
 /*html,body {
     height: 100%;

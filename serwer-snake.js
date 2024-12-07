@@ -1,19 +1,27 @@
 import { WebSocketServer } from 'ws';
-import express from 'express';
+import express, { json } from 'express';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path';
-import { clientMessage } from './events/clientMessage.js';
-import { colisions } from './checks/colisions.js';
+import { clientMessage, host } from './events/clientMessage.js';
+import { colisions, czolowe_zderzenia } from './checks/colisions.js';
 import { isInGrid } from './checks/isInGrid.js';
 import { gameUpdateMsg } from './messages/gameUpdate.js';
 import { apples } from './items/apples.js';
 import { generuj_boosty } from './items/boosts.js';
 
+let portGry = 8080;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const argument = process.argv[2];
 
-const wss = new WebSocketServer({ port: 8080, host: '0.0.0.0' });
+if(argument == 'b')
+{
+    portGry = 8090;
+}
+
+const wss = new WebSocketServer({ port: portGry, host: '0.0.0.0' });
 
 const app = express();
 const port = 8000;
@@ -21,29 +29,60 @@ const port = 8000;
 export let grid = 16;
 export const gracze = new Map();
 export let chat = [];
+export let privChat = [];
 export let kolizje = [];
 export let plan = new Map();
 export let wysokosc_planszy = 200;
 export let szerokosc_planszy = 200;
 
+export let battle_royal = false;
+
+if(argument == 'b')
+{
+    battle_royal = true;
+}
+
+export let czy_lobby = battle_royal;
+export let zakonczenie_gry = false;
+export let wygrany_gracz = undefined;
+export let czas_odli_rozp = 250;
+export let odliczanie_rozpoczecia = czas_odli_rozp;
+export let odliczanie_restartowania = 0;
+export let odliczanie_zmniejszania = 0;
+export let wymus_start = {
+st: false,
+};
+export let liczba_graczy = 0;
+export let liczba_klientow = 0;
+export let remis = false;
+export const tps = 10;
+export let zrespawnuj = false;
+export let przesuniecie = 0;
+export let realneTps = 0;
+let min_graczy = 100;
+
+let size = 200;
+let czas = new Date();
 let fl = false;
 const klienci = new Map();
-let liczba_graczy = 0;
 let pol = 0;
-const fps = 10;
 const predkosc_ruchu = 8;
 
 let czy_gra;
 const kolory = ['green', 'red', 'blue', 'orange', 'purple', 'yellow'];
-app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'snake.html'));
-});
+if(argument != 'b')
+{
+    app.use(express.static(path.join(__dirname, 'public')));
 
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
+    app.get('/', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'snake.html'));
+    });
+
+    app.listen(port, () => {
+        console.log(`Server is running on http://localhost:${port}`);
+    });
+}
 
 export function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
@@ -54,7 +93,64 @@ apples()
 function randColor() {
     return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
 }
-setInterval(loop, fps);
+
+
+function zapiszWynik(snake)
+{
+    let dane;
+    let wyniki = [];
+    let wyniki2 = [];
+    let nieistnieje = false;
+
+    
+   try {
+    dane = fs.readFileSync(__dirname + '/public/wyniki.txt', 'utf8');
+   } catch (error) {
+    nieistnieje = true;
+   } 
+
+    if(nieistnieje == false)
+    {
+        wyniki = dane.split('\n');
+        wyniki.push(`${snake.nick}: ${snake.wynik}`);
+        wyniki.forEach( w => {
+            let t = w.split(" ");
+            if(t[0] != undefined && t[1] != undefined)
+            {
+                wyniki2.push({wynik:t[1], nick:t[0]});
+            }
+
+        })
+
+        wyniki2.sort((a, b) => b.wynik - a.wynik);
+
+        if(wyniki2.length > 50)
+        {
+            wyniki2.pop();
+        }
+
+        let doZapisania = '';
+        let ind = 1;
+        wyniki2.forEach( w => {
+            if(w.wynik > 0)
+            {
+                doZapisania += w.nick;
+                doZapisania +=  " ";
+                doZapisania += String(w.wynik);
+                doZapisania += '\n';
+            }
+            ind++;
+        })
+        
+        try {
+            fs.writeFileSync(__dirname + '/public/wyniki.txt', doZapisania);
+        } catch (error) {
+            
+        }
+    }
+}
+
+setInterval(loop, tps);
 wss.on('connection', (ws) => {
     console.log('Nowe połączenie WebSocket');
     let nowykol = randColor();
@@ -76,7 +172,7 @@ wss.on('connection', (ws) => {
         ], //cialo węża
         maxCells: 2, //bierząca długość węża
         wynik: 0,
-        ochrona: 20 * fps, 
+        ochrona: 20 * tps, 
         tarcze: 0,
         przysp: 0,
         tprzysp: 0,
@@ -87,31 +183,61 @@ wss.on('connection', (ws) => {
 
     gracze.set(ws, snake);
     klienci.set(ws, ws);
-    liczba_graczy++;
 
-    snake.cells.forEach((c) => {
-        c.snake = snake;
-        plan.set(c, c);
-    });
+    if(battle_royal == false || czy_lobby == true)
+    {
+        liczba_graczy++;
+
+        snake.cells.forEach((c) => {
+            c.snake = snake;
+            plan.set(c, c);
+        });
+    }
+
+    else
+    {
+        snake.gameover = true;
+        snake.cells = [];
+    }
+
+    liczba_klientow++;
+
 
     ws.on('message', (wia) => clientMessage(wia, ws)); // Obsługa wiadomości otrzymanych od klienta
 
     ws.on('close', () => {
-        console.log('Gracz ' + gracze.get(ws).nick + ' się rozłączył');
-       
-        if(gracze.get(ws).gameover == false)
+        let snake = gracze.get(ws);
+        console.log('Gracz ' + snake.nick + ' się rozłączył');
+
+        if(host.h == ws)
         {
-            chat.push('<span style="color: red;">Gracz ' + gracze.get(ws).nick + ' wyszedł z gry</span>');
+            host.h = undefined;
+        }
+        
+        
+        if(snake.gameover == false)
+        {
+            let temp = [];
+            temp.push({tekst:'Gracz ', kolor:"red"});
+            temp.push({tekst:snake.nick, kolor:snake.kolor});
+            temp.push({tekst:'  wyszedł z gry', kolor:"red"});
+
+            chat.push(temp);
         }
 
-        liczba_graczy--;
-        gracze.get(ws).cells.forEach(function (el) {
-            // Usuwanie wszystkich części gracza
-            plan.delete(el);
-        });
+        if(snake.cells.length > 0)
+        {
+            zapiszWynik(snake);
+            liczba_graczy--;
+            snake.cells.forEach(function (el) {
+                // Usuwanie wszystkich części gracza
+                plan.delete(el);
+            });
+        }
 
         gracze.delete(ws);
         klienci.delete(ws);
+        liczba_klientow--;
     });
 });
 
@@ -124,8 +250,130 @@ function loop() {
     let plansz2 = [];
     let napisy = [];
 
+    let czasTeraz = new Date();
+    realneTps = Math.floor(1000 / (czasTeraz.getTime() - czas.getTime()), 1);
+    czas = new Date();
 
-    generuj_boosty();
+    if(odliczanie_zmniejszania == 1)
+    {
+        przesuniecie += szerokosc_planszy*grid/4;
+        plan.forEach( el => {
+            el.x -= szerokosc_planszy*grid/4;
+            el.y -= wysokosc_planszy*grid/4;
+        })
+
+        gracze.forEach( el => {
+            el.x -= szerokosc_planszy*grid/4;
+            el.y -= wysokosc_planszy*grid/4;
+        })
+
+        szerokosc_planszy /= 2;
+        wysokosc_planszy /= 2;
+
+        if(szerokosc_planszy > 50)
+        {
+            odliczanie_zmniejszania = 100 * tps;
+        }
+    }
+
+    if(odliczanie_zmniejszania > 0)
+    {
+        odliczanie_zmniejszania--;
+    }
+
+    if(czy_lobby == false)
+    {
+        generuj_boosty();
+    }
+
+    if(battle_royal == false)
+    {
+        czy_lobby = false;
+        wygrany_gracz = undefined;
+        odliczanie_rozpoczecia = czas_odli_rozp;
+        odliczanie_restartowania = 0;
+        wymus_start.st = false;
+    }
+
+    if((liczba_graczy >= min_graczy || wymus_start.st) && czy_lobby)
+    {
+        odliczanie_rozpoczecia--;
+    }
+
+    if(odliczanie_rozpoczecia == 0)
+    {
+        czy_lobby = false;
+        wymus_start.st = false;
+        odliczanie_rozpoczecia = czas_odli_rozp;
+        odliczanie_zmniejszania = 100 * tps;
+    }
+
+    if(odliczanie_restartowania > 0)
+    {
+        odliczanie_restartowania--;
+    }
+
+    if(odliczanie_restartowania == 2)
+    {
+        wygrany_gracz.gameover = true;
+    }
+        
+    if(odliczanie_restartowania == 1)
+    {
+        wygrany_gracz = undefined;
+        zakonczenie_gry = false;
+        czy_lobby = true;
+        wymus_start.st = false;
+        zrespawnuj = true
+        szerokosc_planszy = size;
+        wysokosc_planszy = size;
+        przesuniecie = 0;
+    }
+
+    if(battle_royal && czy_lobby == false && zakonczenie_gry == false)
+    {
+        //console.log(liczba_graczy);
+        if(liczba_graczy == 1)
+        {
+            zakonczenie_gry = true;
+
+            gracze.forEach(gr => {
+                if(gr.gameover == false)
+                {
+                    wygrany_gracz = gr;
+                }
+            });
+
+            let temp = [];
+            temp.push({tekst:'Gracz ', kolor:"yellow"});
+            temp.push({tekst:wygrany_gracz.nick, kolor:wygrany_gracz.kolor});
+            temp.push({tekst:'  wygrał gre', kolor:"yellow"});
+
+            chat.push(temp);
+
+            //chat.push('<span style="color: yellow;">Gracz ' + wygrany_gracz.nick + ' wygrał gre</span>');
+            odliczanie_restartowania = 500;
+        }
+        else if(liczba_graczy == 0)
+        {
+            zakonczenie_gry = true;
+            remis = true;
+
+            let temp = [];
+            temp.push({tekst:'Gracze ', kolor:"yellow"});
+            temp.push({tekst:czolowe_zderzenia.snake1.nick, kolor:czolowe_zderzenia.snake1.kolor});
+            temp.push({tekst:'i', kolor:'yellow'});
+            temp.push({tekst:czolowe_zderzenia.snake2.nick, kolor:czolowe_zderzenia.snake2.kolor});
+            temp.push({tekst:'  zremisowali', kolor:"yellow"});
+
+            chat.push(temp);
+
+            //chat.push('<span style="color: yellow;">Gracze ' + czolowe_zderzenia.snake1.nick + ' i ' + czolowe_zderzenia.snake2.nick + ' zremisowali</span>');
+            odliczanie_restartowania = 500;
+            wygrany_gracz = czolowe_zderzenia.snake1;
+        }
+    }
+    
 
     kolizje.forEach((element) => {
         chat.push(element);
@@ -148,7 +396,7 @@ function loop() {
 
         
 
-        if (snake.gameover) {
+        if (snake.gameover  || czy_lobby) {
             return;
         }
 
@@ -268,35 +516,51 @@ function loop() {
                 x: el.x,
                 y: el.y,
                 wynik: el.wynik,
+                kierunekX: el.dx,
+                kierunekY: el.dy,
             });
         }
     });
 
 
     klienci.forEach((kl) => {
-        let sn = gracze.get(kl);
-        if (sn.gameover) {
+        let snake = gracze.get(kl);
+        if (snake.gameover) {
             kl.send(
                 JSON.stringify({
                     typ: 'gameover',
-                    wynik: sn.wynik,
+                    wynik: snake.wynik,
                 }),
             );
-
-            sn.cells.forEach(function (el) {
+            
+            snake.cells.forEach(function (el) {
                 // Usuwanie wszystkich części gracza
                 plan.delete(el);
             });
-            liczba_graczy--;
+            if(snake.cells.length > 0)
+            {
+                zapiszWynik(snake);
+                liczba_graczy--;
+            }
+            snake.cells = [];
+            
+        }
 
+        if(host.h == undefined)
+        {
+            host.h = kl;
         }
         gameUpdateMsg(kl, plansz8, plansz4, plansz2, napisy, jakieWyslanie);
         });
 
-    chat = [];
 
     if (i == predkosc_ruchu) {
+        chat = [];
+        privChat = [];
+        zrespawnuj = false
         //tempo poruszania sie
         i = 0;
     }
 }
+
+
