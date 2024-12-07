@@ -5,17 +5,23 @@
         <title>Snake multiplayer</title>
         <link rel="stylesheet" href="style.css" />
     </head>
-    <body>
+    <body onload="Ustaw()">
         <div id="joinLobby">
             <img src="grafika/tlo.png" id="tlo">
+            <div id="tytul">SnakeMulti</div>
             <div id="nnick">Podaj nick:</div>
-            <input type="text" placeholder="Nickname" id="nickname" /><br />
+            <div id="ppomoc">?</div>
+            <div id="pomoc">Sterowanie wężem:<br> WASD lub strzałkami<br><br>Akcje:<br>Tarcza - Shift<br>Przyśpieszenie - Q<br>Strzał - Spacja<br><br>Dodatkowe informacje - E</div>
+            <input type="text" placeholder="Nickname" id="nickname" maxlength="12" /><br />
             <!--<input type="text" id="ip" placeholder="ws://0.0.0.0:0000">-->
             <button id="connect">Connect</button>
 
             <div id="ntryb">Sandbox</div>
             <button id="zmienTryb">Zmień tryb gry</button>
+            <img id="ptrwaleWyniki" src="grafika/wyniki.png">
+            <div id="trwaleWyniki"><span style="font-size: 20px; color: yellow;">Top length</span><br></div>
         </div>
+        
         <div id="game">
             <canvas id="plansza"></canvas>
             <canvas id="minimapa"></canvas>

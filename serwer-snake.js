@@ -1,5 +1,5 @@
 import { WebSocketServer } from 'ws';
-import express from 'express';
+import express, { json } from 'express';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -93,6 +93,63 @@ apples()
 function randColor() {
     return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
 }
+
+
+function zapiszWynik(snake)
+{
+    let dane;
+    let wyniki = [];
+    let wyniki2 = [];
+    let nieistnieje = false;
+
+    
+   try {
+    dane = fs.readFileSync(__dirname + '/public/wyniki.txt', 'utf8');
+   } catch (error) {
+    nieistnieje = true;
+   } 
+
+    if(nieistnieje == false)
+    {
+        wyniki = dane.split('\n');
+        wyniki.push(`${snake.nick}: ${snake.wynik}`);
+        wyniki.forEach( w => {
+            let t = w.split(" ");
+            if(t[0] != undefined && t[1] != undefined)
+            {
+                wyniki2.push({wynik:t[1], nick:t[0]});
+            }
+
+        })
+
+        wyniki2.sort((a, b) => b.wynik - a.wynik);
+
+        if(wyniki2.length > 50)
+        {
+            wyniki2.pop();
+        }
+
+        let doZapisania = '';
+        let ind = 1;
+        wyniki2.forEach( w => {
+            if(w.wynik > 0)
+            {
+                doZapisania += w.nick;
+                doZapisania +=  " ";
+                doZapisania += String(w.wynik);
+                doZapisania += '\n';
+            }
+            ind++;
+        })
+        
+        try {
+            fs.writeFileSync(__dirname + '/public/wyniki.txt', doZapisania);
+        } catch (error) {
+            
+        }
+    }
+}
+
 setInterval(loop, tps);
 wss.on('connection', (ws) => {
     console.log('Nowe połączenie WebSocket');
@@ -149,7 +206,8 @@ wss.on('connection', (ws) => {
     ws.on('message', (wia) => clientMessage(wia, ws)); // Obsługa wiadomości otrzymanych od klienta
 
     ws.on('close', () => {
-        console.log('Gracz ' + gracze.get(ws).nick + ' się rozłączył');
+        let snake = gracze.get(ws);
+        console.log('Gracz ' + snake.nick + ' się rozłączył');
 
         if(host.h == ws)
         {
@@ -157,21 +215,21 @@ wss.on('connection', (ws) => {
         }
         
         
-        if(gracze.get(ws).gameover == false)
+        if(snake.gameover == false)
         {
             let temp = [];
             temp.push({tekst:'Gracz ', kolor:"red"});
-            temp.push({tekst:gracze.get(ws).nick, kolor:gracze.get(ws).kolor});
+            temp.push({tekst:snake.nick, kolor:snake.kolor});
             temp.push({tekst:'  wyszedł z gry', kolor:"red"});
 
             chat.push(temp);
-            //chat.push('<span style="color: red;">Gracz ' + gracze.get(ws).nick + ' wyszedł z gry</span>');
         }
 
-        if(gracze.get(ws).cells.length > 0)
+        if(snake.cells.length > 0)
         {
+            zapiszWynik(snake);
             liczba_graczy--;
-            gracze.get(ws).cells.forEach(function (el) {
+            snake.cells.forEach(function (el) {
                 // Usuwanie wszystkich części gracza
                 plan.delete(el);
             });
@@ -481,12 +539,8 @@ function loop() {
             });
             if(snake.cells.length > 0)
             {
+                zapiszWynik(snake);
                 liczba_graczy--;
-                try {
-                    fs.writeFileSync('./wyniki.json', JSON.stringify({nick:snake.nick, wynik:snake.wynik}));
-                } catch (err) {
-                    console.error(err)
-                }
             }
             snake.cells = [];
             

@@ -42,7 +42,7 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
     }
     else if(snake.gameover == true)
     {
-        t = 'Koniec Gry Wynik: ' + snake.wynik;
+        t = 'Koniec gry!' + '<br>' + 'Wynik: ' + snake.wynik;
     }
 
     if(battle_royal && zakonczenie_gry == true)

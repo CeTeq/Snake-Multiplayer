@@ -196,12 +196,30 @@ export function clientMessage(wia, ws) {
 
                             if(gr.nick == komenda[1])
                             {
+                                for(let i =0; i<gr.maxCells; i++)
+                                {
+                                    if(i > komenda[2])
+                                    {
+                                        plan.delete(gr.cells[gr.cells.length-1]);
+                                        gr.cells.pop();
+                                    }
+                                }
+
                                 gr.maxCells = komenda[2];
                             }
                             });
                         }
                         else
                         {
+                            for(let i =0; i<sn.maxCells; i++)
+                            {
+                                if(i >= komenda[1])
+                                {
+                                    plan.delete(sn.cells[sn.cells.length-1]);
+                                    sn.cells.pop();
+                                }
+                            }
+
                             sn.maxCells = komenda[1];
                         }
         

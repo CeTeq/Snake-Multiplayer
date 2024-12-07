@@ -36,6 +36,7 @@ let haslo;
 let przesuniecie = 0;
 let fps = 0;
 let czas = new Date();
+let wpisywanieHasla = false;
 //let sendMsg = document.getElementById('sendMsg');
 const msg  = document.getElementById('msg');
 const URL = 'ws://' + document.URL.slice(7, -3);
@@ -65,6 +66,23 @@ const nP = niebieskaPoswiata.getContext('2d');
 const zielonaPoswiata = document.createElement('canvas');
 const nZ = zielonaPoswiata.getContext('2d');
 
+
+function Ustaw()
+{
+    fetch("wyniki.txt")
+    .then((res) => res.text())
+    .then((text) => {
+        let tekst = text.split("\n");
+        tekst.pop();
+        let ind = 1;
+        tekst.forEach( t => {
+            document.getElementById("trwaleWyniki").innerHTML += `<span style="font-size: 20px;">${ind}</span>. ${t}<br>`;
+            ind++;
+        })
+     })
+    .catch((e) => console.error(e));
+}
+
 function init() {
     //inicjalizacja gry
     ruch =  undefined;
@@ -72,7 +90,7 @@ function init() {
     document.getElementById('wynik').innerHTML = 'Wynik: 0';
 
     clearInterval(klatka);
-    klatka = setInterval(loop, 10); //10fps
+    klatka = setInterval(loop, 20); //10fps
     //console.log('Uruchomiono gre');
 
     document.getElementById('nick').innerHTML = 'Nick: ' + document.getElementById('nickname').value;
@@ -121,7 +139,6 @@ function joinToGame()
     document.getElementById("dtarcze").style.display = 'block';
     document.getElementById("dprzyspieszenia").style.display = 'block';
     document.getElementById("dnaboje").style.display = 'block';
-
 
     canvas.height = size*grid;
     canvas.width = size*grid;
@@ -299,18 +316,22 @@ function wyslijWiadomosc()
             wiadomosc: wiadomosc,
         }),
     );
-    if(!admin && t.split(" ")[0] == '/adm')
+    if(!admin && wpisywanieHasla)
     {
-        haslo = t.split(" ")[1];
+        haslo = t;
+    }
+
+    
+    if(wpisywanieHasla)
+    {
+        wpisywanieHasla = false;
+        document.getElementById('msg').type = 'text';
     }
 
     if(t.split(" ")[0] == '/adm')
     {
         document.getElementById('msg').type = 'password';
-    }
-    else
-    {
-        document.getElementById('msg').type = 'text';
+        wpisywanieHasla = true;
     }
     document.getElementById('msg').value = "";
     //sendMsg.blur();
@@ -352,12 +373,73 @@ document.getElementById('start').addEventListener('click', () => {
     }
 });
 
+let twyn = false;
+let tpom = false;
+
+document.getElementById('ptrwaleWyniki').addEventListener('click', (event) => {
+    event.stopPropagation();
+    if(!twyn)
+    {
+        twyn = true;
+        document.getElementById('trwaleWyniki').style.display = 'block';
+        if(tpom)
+        {
+            tpom = false;
+            document.getElementById('pomoc').style.display = 'none';
+        }
+    }
+    else
+    {
+        twyn = false;
+        document.getElementById('trwaleWyniki').style.display = 'none';
+    }
+});
+
+document.getElementById('ppomoc').addEventListener('click', (event) => {
+    event.stopPropagation();
+    if(!tpom)
+    {
+        tpom = true;
+        document.getElementById('pomoc').style.display = 'block';
+        if(twyn)
+        {
+            twyn = false;
+            document.getElementById('trwaleWyniki').style.display = 'none';
+        }
+    }
+    else
+    {
+        tpom = false;
+        document.getElementById('pomoc').style.display = 'none';
+    }
+});
+
+
+document.addEventListener('click', () => {
+    document.getElementById('trwaleWyniki').style.display = 'none';
+    document.getElementById('pomoc').style.display = 'none';
+});
+
+
+
+
+
+
+
 /*sendMsg.addEventListener('click', () => {
     wyslijWiadomosc();
 });*/
+
+let dfps =  document.getElementById("fps");
+let dtps = document.getElementById("tps");
+let dogracze = document.getElementById("ogracze");
+let drestart = document.getElementById("restart");
+
+
 let lastX
 let lastY
 let firstLoop = true
+let dodatkoweInfo = false;
 function loop() {
     if(firstLoop){
         canvas.style.transitionDuration = '220ms'
@@ -443,13 +525,35 @@ function loop() {
                 nruch = 'strzal';
                 akcja = true;
             }
+            
         } 
         
         else if (klawisz == 'Enter' && cooldown2 == 0)
         {
             wyslijWiadomosc();
             cooldown2 = 1;
-        }
+        }    
+
+
+        if(klawisz == 'KeyE')
+        {
+            if(dodatkoweInfo == false)
+            {
+                dodatkoweInfo = true;
+                dfps.style.display = 'block';
+                dtps.style.display = 'block';
+                dogracze.style.display = 'block';
+                drestart.style.top = "18%";
+            }
+            else
+            {
+                dodatkoweInfo = false;
+                dfps.style.display = 'none';
+                dtps.style.display = 'none';
+                dogracze.style.display = 'none';
+                drestart.style.top = "7%";
+            }
+        }           
 
         /*else if (klawisz == 'KeyO')
         {
@@ -495,8 +599,11 @@ function loop() {
     });
     ranking.innerHTML = '';
     napisy.sort((a, b) => b.wynik - a.wynik);
+
+    let ind = 1;
     napisy.forEach((element) => {
-        ranking.innerHTML += element.n + ': ' + element.wynik + '<br>';
+        ranking.innerHTML += `<span style="font-size: 20px;">${ind}</span>` + '. ' + element.n + ': ' + element.wynik + '<br>';
+        ind++;
     });
 
         
@@ -567,15 +674,6 @@ function loop() {
             contextMapa.strokeRect(kwadrat.x, kwadrat.y, size/2, size/2);
         } 
     });
-
-    if (!gameover && czyWynik) {
-        document.getElementById('wynik').innerHTML = 'Wynik: ' + wynik;
-    } //Koniec gry
-    else if(czyWynik) {
-        document.getElementById('wynik').innerHTML =
-            'Koniec gry Wynik: ' + wynik;
-        //clearInterval(klatka);
-    }
 
     //wyświetlanie nicków
     context.fillStyle = 'white';
