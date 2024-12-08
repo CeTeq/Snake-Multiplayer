@@ -418,6 +418,8 @@ document.getElementById('ppomoc').addEventListener('click', (event) => {
 document.addEventListener('click', () => {
     document.getElementById('trwaleWyniki').style.display = 'none';
     document.getElementById('pomoc').style.display = 'none';
+    tpom = false;
+    twyn = false;
 });
 
 
@@ -434,7 +436,7 @@ let dfps =  document.getElementById("fps");
 let dtps = document.getElementById("tps");
 let dogracze = document.getElementById("ogracze");
 let drestart = document.getElementById("restart");
-
+let dtryb = document.getElementById("tryb");
 
 let lastX
 let lastY
@@ -535,7 +537,7 @@ function loop() {
         }    
 
 
-        if(klawisz == 'KeyE')
+        if(klawisz == 'KeyE' && cooldown2 == 0)
         {
             if(dodatkoweInfo == false)
             {
@@ -543,6 +545,7 @@ function loop() {
                 dfps.style.display = 'block';
                 dtps.style.display = 'block';
                 dogracze.style.display = 'block';
+                dtryb.style.display = 'block';
                 drestart.style.top = "18%";
             }
             else
@@ -551,8 +554,10 @@ function loop() {
                 dfps.style.display = 'none';
                 dtps.style.display = 'none';
                 dogracze.style.display = 'none';
+                dtryb.style.display = 'none';
                 drestart.style.top = "7%";
             }
+            cooldown2 = 1;
         }           
 
         /*else if (klawisz == 'KeyO')

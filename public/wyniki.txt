@@ -8,6 +8,7 @@ ddd: 2
 Kr: 2
 Kr: 2
 Kr: 2
+sddd: 2
 ddd: 1
 ddd: 1
 ddd: 1
@@ -16,3 +17,4 @@ Kr: 1
 Kr: 1
 Kr: 1
 Kr: 1
+sddd: 1
