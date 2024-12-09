@@ -420,12 +420,6 @@ document.addEventListener('click', () => {
     document.getElementById('pomoc').style.display = 'none';
 });
 
-
-
-
-
-
-
 /*sendMsg.addEventListener('click', () => {
     wyslijWiadomosc();
 });*/
@@ -434,7 +428,6 @@ let dfps =  document.getElementById("fps");
 let dtps = document.getElementById("tps");
 let dogracze = document.getElementById("ogracze");
 let drestart = document.getElementById("restart");
-
 
 let lastX
 let lastY
@@ -446,7 +439,7 @@ function loop() {
         firstLoop = false
     }
     else if(Math.abs(snakeX - lastX) > 1) canvas.style.transitionDuration = '220ms'
-    else canvas.style.transitionDuration = '1s'
+    else canvas.style.transitionDuration = '0.6s'
 
     if(snakeX !== lastX) 
     canvas.style.transform = 'translateX(' + (-1) * snakeX*grid + 'px)'

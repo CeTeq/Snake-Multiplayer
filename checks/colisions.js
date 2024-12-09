@@ -62,9 +62,12 @@ export function colisions(obiekt, klient) {
 
             snake.gameover = true;
         } else if (obiekt.typ === 'jablko') {
-            ateApple(klient, obiekt, false)
+            ateApple(klient, obiekt, false, false)
         } else if (obiekt.typ === 'zloteJablko') {
-            ateApple(klient, obiekt, true)
+            ateApple(klient, obiekt, true, false)
+        }
+        else if(obiekt.typ === 'niebieskieJablko') {
+            ateApple(klient, obiekt, false, true)
         }
         else if(obiekt.typ === 'tarcza')
         {
