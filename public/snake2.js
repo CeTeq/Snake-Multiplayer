@@ -282,7 +282,8 @@ function joinToGame()
                     el.y += przesuniecie;
                     plansza.set(el,el);
                 });
-                
+                snakeDX = wiad.snakeDX;
+                snakeDY = wiad.snakeDY;
                 snakeX = wiad.snakeX+(przesuniecie/16) - screen.width/34
                 snakeY = wiad.snakeY+(przesuniecie/16) - screen.height/34
 
@@ -440,24 +441,45 @@ let dtryb = document.getElementById("tryb");
 
 let lastX
 let lastY
+let lastDX
+let lastDY
 let firstLoop = true
 let dodatkoweInfo = false;
 function loop() {
-    if(firstLoop){
-        canvas.style.transitionDuration = '220ms'
+
+    if(firstLoop && snakeX && snakeY){
+        canvas.style.transitionDuration = '500ms'
         firstLoop = false
+        lastX = snakeX
+        lastY = snakeY
     }
-    else if(Math.abs(snakeX - lastX) > 1) canvas.style.transitionDuration = '220ms'
-    else canvas.style.transitionDuration = '1s'
+    console.log(snakeDX/16, snakeDY/16)
+    if(snakeDX) {
+        lastDX = snakeDX/16
+        lastX += snakeDX/16
+        canvas.style.transform = `translate(${-lastX * grid}px, ${-lastY * grid}px)`;
+    }
+    else if(snakeDY) {
+        lastDY = snakeDY/16
+        lastY += snakeDY / 16
+        canvas.style.transform = `translate(${-lastX * grid}px, ${-lastY * grid}px)`;
+    }
+    // else if(lastDX > 0 || lastDX < 0) lastX += lastDX
+    // else if(lastDY > 0 || lastDY < 0) lastY += lastDY
+    // console.log(lastX, lastY)
+    canvas.style.transform = `translate(${-lastX * grid}px, ${-lastY * grid}px)`;
 
-    if(snakeX !== lastX) 
-    canvas.style.transform = 'translateX(' + (-1) * snakeX*grid + 'px)'
-
-    if(snakeY !== lastY)
-    canvas.style.transform += 'translateY(' + (-1) * snakeY*grid + 'px)'
-
-    lastY = snakeY
-    lastX = snakeX
+    // else if(Math.abs(snakeX - lastX) > 1) canvas.style.transitionDuration = '220ms'
+    // else canvas.style.transitionDuration = '1s'
+    //
+    // if(snakeX !== lastX)
+    // canvas.style.transform = 'translateX(' + (-1) * snakeX*grid + 'px)'
+    //
+    // if(snakeY !== lastY)
+    // canvas.style.transform += 'translateY(' + (-1) * snakeY*grid + 'px)'
+    //
+    // lastY = snakeY
+    // lastX = snakeX
 
     let czasTeraz = new Date();
     fps = Math.floor(1000 / (czasTeraz.getTime() - czas.getTime()), 1);

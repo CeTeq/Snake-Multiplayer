@@ -2,6 +2,9 @@ WWWWWWWWWWWW: 111
 fg: 20
 ddd: 17
 ds: 10
+: 3
+: 3
+: 3
 asd: 2
 ddd: 2
 ddd: 2
@@ -9,6 +12,8 @@ Kr: 2
 Kr: 2
 Kr: 2
 sddd: 2
+: 2
+: 2
 ddd: 1
 ddd: 1
 ddd: 1
@@ -18,3 +23,6 @@ Kr: 1
 Kr: 1
 Kr: 1
 sddd: 1
+: 1
+: 1
+: 1

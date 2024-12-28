@@ -118,6 +118,8 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
                 naboje: snake.naboje,
                 snakeX: snake.x/16,
                 snakeY: snake.y/16,
+                snakeDX: snake.dx,
+                snakeDY: snake.dy,
                 ogracze: liczba_klientow,
                 zgracze: liczba_graczy,
                 czy_lobby: czy_lobby,
