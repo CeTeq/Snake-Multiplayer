@@ -1,6 +1,8 @@
-import { chat, gracze, grid, plan, liczba_klientow, wymus_start, tps, privChat } from '../serwer-snake.js';
+import { apples, liczba_jablek } from '../items/apples.js';
+import { opoznienie, maks } from '../items/boosts.js';
+import { zasiegWidoku } from '../messages/gameUpdate.js';
+import { chat, gracze, grid, plan, liczba_klientow, wymus_start, tps, privChat, liczba_graczy, zmienRozmiarPlanszy } from '../serwer-snake.js';
 
-export let liczba_jablek = 100;
 export let kick = null;
 export let haslo = "k";
 export let admins = [];
@@ -8,8 +10,12 @@ export let oczekujacyAdmini = new Map;
 export let host = {
     h:undefined,
 };
+export let title = {
+    napis:"",
+    zywotnosc:0
+};
 
-const komendy = ['kill','clear','eff','ammo','cells','apl','start'];
+const komendy = ['kill','clear','eff','mapsize','cells','spawn','set','render','title'];
 
 export function clientMessage(wia, ws) {
     wia = JSON.parse(wia);
@@ -136,10 +142,10 @@ export function clientMessage(wia, ws) {
                     {
                         //kick = komenda[2];
                     }
-                    else if(komenda[0] == "/clr")
+                    else if(komenda[0] == "/clear")
                     {
                         plan.forEach(el => {
-                            if(el.typ != "elsnake")
+                            if(el.typ != "elsnake" && el.typ != "jablko")
                             {
                                 plan.delete(el);
                             }
@@ -225,51 +231,141 @@ export function clientMessage(wia, ws) {
         
                     }
 
-                    else if(komenda[0] == "/ammo")
+                    else if(komenda[0] == "/render")
                     {
                         if(komenda.length > 2)
                         {
-                            gracze.forEach(gr => {
+                            zasiegWidoku.x = parseInt(komenda[1]);
+                            zasiegWidoku.y = parseInt(komenda[2]);
+                        }
+                        else if(komenda.length == 2)
+                        {
+                            zasiegWidoku.x = parseInt(komenda[1]);
+                            zasiegWidoku.y = parseInt(komenda[1]);
+                        }
+                    }
 
-                            if(gr.nick == komenda[1])
+                    else if(komenda[0] == "/title")
+                    {
+                        title.napis = komenda[1];
+                        title.zywotnosc = komenda[2];
+                    }
+
+                    else if(komenda[0] == '/mapsize')
+                    {
+                        if(komenda.length == 2)
+                        {
+                            zmienRozmiarPlanszy(komenda[1],komenda[1]);
+                        }
+                        else if(komenda.length > 2)
+                        {
+                            zmienRozmiarPlanszy(komenda[1],komenda[2]);
+                        }
+                    }
+                    else if(komenda[0] == '/spawn')
+                    {
+                        if(komenda[1] == 'apl')
+                        {
+                            let jablkaDoDodania;
+                        
+                            if(komenda[2] == 'g')
                             {
-                                gr.naboje = komenda[2];
+                                jablkaDoDodania = liczba_graczy - liczba_jablek;
+                
                             }
-                            });
-                        }
-                        else
-                        {
-                            sn.naboje = komenda[1];
-                        }
-        
-                    }
+                            else
+                            {
+                                jablkaDoDodania = parseInt(komenda[2]) - liczba_jablek;
+                            }
 
-                    else if(komenda[0] == '/bsize')
-                    {
-                        //wymiaryPlanszy.szerokosc = komenda[2];
-                       // wymiaryPlanszy.wysokosc = komenda[3];
-                    }
-                    else if(komenda[0] == '/apl')
-                    {
-                        let temp = liczba_jablek;
-                        
-                        if(komenda[1] == 'g')
-                        {
-                            liczba_jablek = liczba_graczy - temp;
-            
+                
+                            apples(jablkaDoDodania);
                         }
-                        else if(typeof komenda[1] == 'int')
+
+                        else if(komenda[1] == 'ammo')
                         {
-                            liczba_jablek = komenda[1] - temp;
+                           opoznienie.naboji = parseInt(komenda[2]);
+                           if(komenda.length > 3)
+                           {
+                                maks.naboji = parseInt(komenda[3]);
+                           }
                         }
-            
-                        if(liczba_jablek > 0) apples();
-                        liczba_jablek += temp;
+                        else if(komenda[1] == 'shield')
+                        {
+                            opoznienie.tarcz = parseInt(komenda[2]);
+                           if(komenda.length > 3)
+                           {
+                                maks.tarcz = parseInt(komenda[3]);
+                           }
+                        }
+                        else if(komenda[1] == 'speed')
+                        {
+                             opoznienie.przysp = parseInt(komenda[2]);
+                           if(komenda.length > 3)
+                           {
+                                maks.przysp = parseInt(komenda[3]);
+                           }
+                        }
                     }
+                    else if(komenda[0] == '/set')
+                    {
+                        if(komenda[1] == 'ammo')
+                        {
+                            if(komenda.length > 3)
+                            {
+                                gracze.forEach(gr => {
+
+                                if(gr.nick == komenda[2])
+                                {
+                                    gr.naboje = komenda[3];
+                                }
+                                });
+                            }
+                            else
+                            {
+                                sn.naboje = parseInt(komenda[2]);
+                            }
+                        }
+                        else if(komenda[1] == 'shield')
+                        {
+                            if(komenda.length > 3)
+                            {
+                                gracze.forEach(gr => {
+
+                                if(gr.nick == komenda[2])
+                                {
+                                    gr.tarcze = komenda[3];
+                                }
+                                });
+                            }
+                            else
+                            {
+                                sn.tarcze = parseInt(komenda[2]);
+                            }
+                        }
+                        else if(komenda[1] == 'speed')
+                        {
+                            if(komenda.length > 3)
+                            {
+                                gracze.forEach(gr => {
+
+                                if(gr.nick == komenda[2])
+                                {
+                                    gr.przysp = komenda[3];
+                                }
+                                });
+                            }
+                            else
+                            {
+                                sn.przysp = parseInt(komenda[2]);
+                            }
+                        }
+                    }
+                       
                         
-                    
-                    //console.log(komenda[1]);
                 }
+                
+
                 else if(komenda[0] == '/adm')
                 {
                     oczekujacyAdmini.set(ws,ws);

@@ -6,9 +6,21 @@ export let liczba = {
     naboji: 0,
 };
 
+export let opoznienie = {
+    tarcz: 2000,
+    przysp: 2000,
+    naboji: 2000,
+};
+
+export let maks = {
+    tarcz: 100,
+    przysp: 100,
+    naboji: 100,
+};
+
 export function generuj_boosty()
 {
-    if(getRandomInt(0,2000) == 1 && liczba.tarcz < 100) //Generowanie tarcz
+    if(getRandomInt(0,opoznienie.tarcz) == 1 && liczba.tarcz < maks.tarcz) //Generowanie tarcz
     {
         let tarcza = {
             typ: 'tarcza',
@@ -20,7 +32,7 @@ export function generuj_boosty()
         liczba.tarcz++;
     }
 
-    if(getRandomInt(0,2000) == 1 && liczba.przysp < 100) //Generowanie przyśpieszeń
+    if(getRandomInt(0,opoznienie.przysp) == 1 && liczba.przysp < maks.przysp) //Generowanie przyśpieszeń
     {
         let przy = {
             typ: 'przysp',
@@ -32,7 +44,7 @@ export function generuj_boosty()
         liczba.przysp++;
     }
 
-    if(getRandomInt(0,2000) == 1 && liczba.naboji < 100) //Generowanie naboji
+    if(getRandomInt(0,opoznienie.naboji) == 1 && liczba.naboji < maks.naboji) //Generowanie naboji
     {
         let nab = {
             typ: 'naboje',

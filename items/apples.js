@@ -1,5 +1,6 @@
 import { getRandomInt, gracze, grid, plan, szerokosc_planszy, wysokosc_planszy } from '../serwer-snake.js';
-import { liczba_jablek } from '../events/clientMessage.js';
+
+export let liczba_jablek = 100;
 let zlote = 0
 function goldenApple(eaten, klient) {
     let snake = gracze.get(klient)
@@ -23,8 +24,11 @@ function goldenApple(eaten, klient) {
         }
     }
 }
-export function apples() {
-    for (let i = 0; i < liczba_jablek; i++) {
+export function apples(liczbaDodania, czyZmiana=true) 
+{
+    if(liczbaDodania > 0)
+    {
+        for (let i = 0; i < liczbaDodania; i++) {
         let jablko = {
             typ: 'jablko',
             kolor: 'red',
@@ -32,8 +36,31 @@ export function apples() {
             y: getRandomInt(0, wysokosc_planszy) * grid,
         };
         plan.set(jablko, jablko);
+        }
+    }
+    else if(liczbaDodania < 0)
+    {
+        let i = 0;
+        plan.forEach(el => {
+            if(el.typ == "jablko")
+            {
+                plan.delete(el);
+                i--;
+            }
+
+            if(i == liczbaDodania)
+            {
+                return;
+            }
+        })
+    }
+
+    if(czyZmiana)
+    {
+        liczba_jablek += liczbaDodania;
     }
 }
+
 
 export function ateApple(klient, obiekt, isZlote) {
     let snake = gracze.get(klient)

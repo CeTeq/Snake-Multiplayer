@@ -35,13 +35,29 @@ let czyWynik = false;
 let haslo;
 let przesuniecie = 0;
 let fps = 0;
+let fpsSuma = 0;
+let fpsIle = 0;
 let czas = new Date();
 let wpisywanieHasla = false;
 //let sendMsg = document.getElementById('sendMsg');
 const msg  = document.getElementById('msg');
 const URL = 'ws://' + document.URL.slice(7, -3);
 const ranking = document.getElementById('ranking');
+
+const oczyP = new Image();
+oczyP.src = "grafika/oczyP.png";
+const oczyL = new Image();
+oczyL.src = "grafika/oczyL.png";
+const oczyG = new Image();
+oczyG.src = "grafika/oczyG.png";
+const oczyD = new Image();
+oczyD.src = "grafika/oczyD.png";
 // console.log(URL);
+
+/*const rysunek = document.createElement('canvas');
+rysunek.height = grid;
+rysunek.width = grid;
+const context2 = rysunek.getContext('2d');*/
 
 function siatka() {
     context.lineWidth = 1;
@@ -83,14 +99,18 @@ function Ustaw()
     .catch((e) => console.error(e));
 }
 
+function gameLoop() {
+    loop();
+    requestAnimationFrame(gameLoop);
+}
+
 function init() {
     //inicjalizacja gry
     ruch =  undefined;
     gameover = false;
     document.getElementById('wynik').innerHTML = 'Wynik: 0';
 
-    clearInterval(klatka);
-    klatka = setInterval(loop, 20); //10fps
+    requestAnimationFrame(gameLoop);
     //console.log('Uruchomiono gre');
 
     document.getElementById('nick').innerHTML = 'Nick: ' + document.getElementById('nickname').value;
@@ -131,6 +151,7 @@ function joinToGame()
 
 
     document.getElementById("wynik").style.display = 'flex';
+    document.getElementById("ppomoc").style.display = 'block';
     document.getElementById("ranking").style.display = 'block';
     document.getElementById("tranking").style.display = 'block';
     document.getElementById("wiadomosci").style.display = 'block';
@@ -213,8 +234,6 @@ function joinToGame()
                     document.getElementById('fps').innerHTML = 'Fps: ' + fps;
 
                     wiad.chat.forEach((n) => {
-
-                        
                         n.forEach(czesc =>{
 
                             document.getElementById('chat').innerHTML += `<span style="color:${czesc.kolor};">${czesc.tekst}</span>`;
@@ -442,25 +461,43 @@ let lastX
 let lastY
 let firstLoop = true
 let dodatkoweInfo = false;
+let lastTransition = '';
+let animationFrame;
+let isAnimating = false;
 function loop() {
-    if(firstLoop){
-        canvas.style.transitionDuration = '220ms'
-        firstLoop = false
+    const targetX = -snakeX * grid;
+    const targetY = -snakeY * grid;
+    
+    // Ustal czas trwania animacji
+    let newTransition = '1s';
+    if (firstLoop || Math.abs(snakeX - lastX) > 1) {
+        newTransition = '220ms';
     }
-    else if(Math.abs(snakeX - lastX) > 1) canvas.style.transitionDuration = '220ms'
-    else canvas.style.transitionDuration = '1s'
-
-    if(snakeX !== lastX) 
-    canvas.style.transform = 'translateX(' + (-1) * snakeX*grid + 'px)'
-
-    if(snakeY !== lastY)
-    canvas.style.transform += 'translateY(' + (-1) * snakeY*grid + 'px)'
-
-    lastY = snakeY
-    lastX = snakeX
+    
+    // Aktualizuj transitionDuration TYLKO gdy się zmienia
+    if (newTransition !== lastTransition) {
+        canvas.style.transitionDuration = newTransition;
+        lastTransition = newTransition;
+    }
+    
+    // Zastosuj transformację (użyj translate3d)
+    canvas.style.transform = `translate3d(${targetX}px, ${targetY}px, 0)`;
+    
+    // Zapisz poprzednie pozycje
+    lastY = snakeY;
+    lastX = snakeX;
+    firstLoop = false;
 
     let czasTeraz = new Date();
-    fps = Math.floor(1000 / (czasTeraz.getTime() - czas.getTime()), 1);
+    fpsSuma += Math.floor(1000 / (czasTeraz.getTime() - czas.getTime()), 1);
+    fpsIle++;
+
+    if(fpsIle > 60)
+    {
+        fps = Math.floor(fpsSuma/fpsIle,1);
+        fpsIle=0;
+        fpsSuma=0;
+    }
     czas = new Date();
 
 
@@ -537,7 +574,7 @@ function loop() {
         }    
 
 
-        if(klawisz == 'KeyE' && cooldown2 == 0)
+        if(klawisz == 'KeyE' && cooldown2 == 0 && document.activeElement != msg)
         {
             if(dodatkoweInfo == false)
             {
@@ -652,6 +689,28 @@ function loop() {
             context.fillStyle = kwadrat.kolor;
             context.fill();
            // context.stroke()
+        }
+        else if(kwadrat.rodzaj == "oczy")
+        {
+            switch (kwadrat.obrot) {
+                case "prawo":
+                     context.drawImage(oczyP, kwadrat.x, kwadrat.y);
+                    break;
+               case "lewo":
+                     context.drawImage(oczyL, kwadrat.x, kwadrat.y);
+                    break;
+                case "gora":
+                     context.drawImage(oczyG, kwadrat.x, kwadrat.y);
+                    break;
+                case "dol":
+                     context.drawImage(oczyD, kwadrat.x, kwadrat.y);
+                    break;
+            }
+            
+            
+            /*context2.drawImage(oczy, 0, 0);
+            context2.rotate((45 * Math.PI) / 180);
+            context.drawImage(rysunek, kwadrat.x, kwadrat.y);*/
         }
     });
 

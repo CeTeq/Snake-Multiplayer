@@ -34,9 +34,9 @@ export function colisions(obiekt, klient) {
                 let temp = [];
                 temp.push({tekst:'Gracze ', kolor:"red"});
                 temp.push({tekst:snake.nick, kolor:snake.kolor});
-                temp.push({tekst:'i', kolor:'red'});
+                temp.push({tekst:' i ', kolor:'red'});
                 temp.push({tekst:obiekt.snake.nick, kolor:obiekt.snake.kolor});
-                temp.push({tekst:'  zremisowali', kolor:"red"});
+                temp.push({tekst:'  zderzyli się', kolor:"red"});
 
                 chat.push(temp);
                 //kolizje.push('<span style="color: red;">Gracze ' + snake.nick + ' i ' + obiekt.snake.nick + ' zderzyli się</span>');

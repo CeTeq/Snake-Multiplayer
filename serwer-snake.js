@@ -8,7 +8,7 @@ import { clientMessage, host } from './events/clientMessage.js';
 import { colisions, czolowe_zderzenia } from './checks/colisions.js';
 import { isInGrid } from './checks/isInGrid.js';
 import { gameUpdateMsg } from './messages/gameUpdate.js';
-import { apples } from './items/apples.js';
+import { apples, liczba_jablek } from './items/apples.js';
 import { generuj_boosty } from './items/boosts.js';
 
 let portGry = 8080;
@@ -35,6 +35,28 @@ export let plan = new Map();
 export let wysokosc_planszy = 200;
 export let szerokosc_planszy = 200;
 
+export function zmienRozmiarPlanszy(x, y)
+{
+    szerokosc_planszy = x;
+    wysokosc_planszy = y;
+
+    let ileUsunieto = 0;
+
+    plan.forEach( el => {
+        if(el.typ == "jablko" || el.typ == "naboje" || el.typ =="przysp" || el.typ == "tarcze")
+        {
+            if(el.typ == "jablko")
+            {
+                ileUsunieto++;
+            }
+            plan.delete(el);
+        }
+    });
+
+    apples(ileUsunieto,false);
+}
+
+
 export let battle_royal = false;
 
 if(argument == 'b')
@@ -60,6 +82,9 @@ export let zrespawnuj = false;
 export let przesuniecie = 0;
 export let realneTps = 0;
 let min_graczy = 100;
+
+let tpsSuma = 0;
+let tpsIle = 0;
 
 let size = 200;
 let czas = new Date();
@@ -88,7 +113,7 @@ export function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
-apples()
+apples(liczba_jablek);
 
 function randColor() {
     return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
@@ -251,7 +276,16 @@ function loop() {
     let napisy = [];
 
     let czasTeraz = new Date();
-    realneTps = Math.floor(1000 / (czasTeraz.getTime() - czas.getTime()), 1);
+    tpsSuma += Math.floor(1000 / (czasTeraz.getTime() - czas.getTime()), 1);
+    tpsIle++;
+
+    if(tpsIle > 30)
+    {
+        realneTps = Math.floor(tpsSuma/tpsIle,1);
+        tpsIle=0;
+        tpsSuma=0;
+    }
+
     czas = new Date();
 
     if(odliczanie_zmniejszania == 1)
@@ -362,9 +396,9 @@ function loop() {
             let temp = [];
             temp.push({tekst:'Gracze ', kolor:"yellow"});
             temp.push({tekst:czolowe_zderzenia.snake1.nick, kolor:czolowe_zderzenia.snake1.kolor});
-            temp.push({tekst:'i', kolor:'yellow'});
+            temp.push({tekst:' i ', kolor:'yellow'});
             temp.push({tekst:czolowe_zderzenia.snake2.nick, kolor:czolowe_zderzenia.snake2.kolor});
-            temp.push({tekst:'  zremisowali', kolor:"yellow"});
+            temp.push({tekst:' zremisowali', kolor:"yellow"});
 
             chat.push(temp);
 
@@ -438,7 +472,9 @@ function loop() {
         gracze.set(klient, snake);
     });
 
+
     let jakieWyslanie = null;
+
     plan.forEach(function (el) {
         if(i == predkosc_ruchu) // raz na predkosc_ruchu tickow, raz na 8 ticków
         {
@@ -450,6 +486,31 @@ function loop() {
                 {
                     let t2 = {x:el.x, y:el.y, kolor:"white", rodzaj:"strokeRect", kolor2:"cyan"};
                     plansz8.push(t2);
+                }
+
+                if(el == el.snake.cells[0])
+                {
+                    let kierunek;
+
+                    if(el.snake.dirX > 0)
+                    {
+                        kierunek = "prawo";
+                    }
+                    else if(el.snake.dirX < 0)
+                    {
+                         kierunek = "lewo";
+                    }
+                    else if(el.snake.dirY > 0)
+                    {
+                         kierunek = "dol";
+                    }
+                    else if(el.snake.dirY < 0)
+                    {
+                         kierunek = "gora";
+                    }
+
+                    let t = {x:el.x, y:el.y, rodzaj:"oczy", obrot:kierunek};
+                    plansz8.push(t);
                 }
             }
             else if(el.typ != "elsnake" && el.typ != 'pocisk')

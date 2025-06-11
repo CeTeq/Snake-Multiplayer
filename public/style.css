@@ -4,6 +4,7 @@ body {
 	font-style: inherit;
 	font-family: Arial, Helvetica, sans-serif;
 	color: white;
+	overflow: hidden;
 }
 #game {
 	position: fixed;
@@ -56,8 +57,6 @@ body {
 
 
 #joinLobby {
-	left: 45%;
-	top: 20%;
 	width: 100%;
 	height: 100%;
 	display: flex;
@@ -114,6 +113,7 @@ body {
 	word-wrap: break-word;
 	display: none;
 	background-color: black;
+	overflow: auto;
 }
 
 #ptrwaleWyniki {
@@ -225,11 +225,20 @@ body {
 	word-wrap: break-word;
 	border-radius: 6px;
 	padding: 4px;
-	width: 300px;
-	height: 200px;
+	width: 12vw;
+	height: 21vh;
 	overflow-x: hidden;
 	overflow-y: auto;
-	text-align: justify;
+	text-align: left;
+}
+
+#wiadomosci {
+	right: 0.7%;
+	top: 70%;
+	width: 12vw;
+	height: 21vh;
+	position: fixed;
+	display: none;
 }
 
 #tranking {
@@ -251,16 +260,8 @@ body {
 	width: 300px;
 	height: 200px;
 	overflow-x: hidden;
-	overflow-y: auto;
-	text-align: justify;
-	display: none;
-}
-#wiadomosci {
-	right: 0%;
-	top: 70%;
-	width: 225px;
-	height: 100px;
-	position: fixed;
+	overflow-y: hidden;
+	text-align: left;
 	display: none;
 }
 
@@ -302,14 +303,16 @@ body {
 #plansza {
 	position: relative;
 	transition-property: all;
-	transition-duration: 1s;
+	transition-duration: 220ms;
 	transform-style: initial;
+	will-change: transform;
+	transition-timing-function: linear;
 }
 
 #minimapa {
 	position: absolute;
 	bottom: 3%;
-	left: 0.5%;
+	left: 0.3%;
 	border: 1px solid white;
 }
 /*html,body {
