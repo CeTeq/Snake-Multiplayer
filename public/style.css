@@ -310,8 +310,8 @@ body {
 }
 
 #minimapa {
-	position: absolute;
-	bottom: 3%;
+	position: fixed;
+	bottom: 0.8%;
 	left: 0.3%;
 	border: 1px solid white;
 }

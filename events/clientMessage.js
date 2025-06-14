@@ -1,5 +1,5 @@
 import { apples, liczba_jablek } from '../items/apples.js';
-import { opoznienie, maks } from '../items/boosts.js';
+import { opoznienie, maks, liczba } from '../items/boosts.js';
 import { zasiegWidoku } from '../messages/gameUpdate.js';
 import { chat, gracze, grid, plan, liczba_klientow, wymus_start, tps, privChat, liczba_graczy, zmienRozmiarPlanszy } from '../serwer-snake.js';
 
@@ -148,6 +148,19 @@ export function clientMessage(wia, ws) {
                             if(el.typ != "elsnake" && el.typ != "jablko")
                             {
                                 plan.delete(el);
+
+                                if(el.typ == "przysp")
+                                {
+                                    liczba.przysp--;
+                                }
+                                else if(el.typ == "tarcza")
+                                {
+                                    liczba.tarcz--;
+                                }
+                                else if(el.typ == "naboje")
+                                {
+                                    liczba.naboji--;
+                                }
                             }
                         });
                     }

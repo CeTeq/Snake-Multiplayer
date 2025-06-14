@@ -21,7 +21,7 @@ if(argument == 'b')
     portGry = 8090;
 }
 
-const wss = new WebSocketServer({ port: portGry, host: '0.0.0.0' });
+const wss = new WebSocketServer({ port: portGry, host: '192.168.0.241' });
 
 const app = express();
 const port = 8000;

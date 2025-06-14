@@ -39,6 +39,7 @@ let fpsSuma = 0;
 let fpsIle = 0;
 let czas = new Date();
 let wpisywanieHasla = false;
+let id_napisow = 0;
 //let sendMsg = document.getElementById('sendMsg');
 const msg  = document.getElementById('msg');
 const URL = 'ws://' + document.URL.slice(7, -3);
@@ -92,7 +93,10 @@ function Ustaw()
         tekst.pop();
         let ind = 1;
         tekst.forEach( t => {
-            document.getElementById("trwaleWyniki").innerHTML += `<span style="font-size: 20px;">${ind}</span>. ${t}<br>`;
+            document.getElementById("trwaleWyniki").innerHTML += `<span style="font-size: 20px;">${ind}</span>. <span id="n${id_napisow}"></span><br>`;
+            document.getElementById(`n${id_napisow}`).textContent = t;
+            // console.log(document.getElementById(`n${id_napisow}`).innerHTML);
+            id_napisow++;
             ind++;
         })
      })
@@ -113,11 +117,11 @@ function init() {
     requestAnimationFrame(gameLoop);
     //console.log('Uruchomiono gre');
 
-    document.getElementById('nick').innerHTML = 'Nick: ' + document.getElementById('nickname').value;
+    document.getElementById('nick').innerText = 'Nick: ' + document.getElementById('nickname').value;
 
     if(admin)
     {
-        document.getElementById('nick').innerHTML += ' (admin)';
+        document.getElementById('nick').innerText += ' (admin)';
     }
 
     // Renderowanie efektu poświaty na pomocniczym canvas żeby przyspieszyc czas gdyż generowanie poswiaty jest bardzo kosztowne
@@ -236,7 +240,9 @@ function joinToGame()
                     wiad.chat.forEach((n) => {
                         n.forEach(czesc =>{
 
-                            document.getElementById('chat').innerHTML += `<span style="color:${czesc.kolor};">${czesc.tekst}</span>`;
+                            document.getElementById('chat').innerHTML += `<span style="color:${czesc.kolor};" id="n${id_napisow}"></span>`;
+                            document.getElementById(`n${id_napisow}`).innerText = czesc.tekst;
+                            id_napisow++;
                         })
                         document.getElementById('chat').innerHTML +=  '<br>';
 
@@ -644,7 +650,9 @@ function loop() {
 
     let ind = 1;
     napisy.forEach((element) => {
-        ranking.innerHTML += `<span style="font-size: 20px;">${ind}</span>` + '. ' + element.n + ': ' + element.wynik + '<br>';
+        ranking.innerHTML += `<span style="font-size: 20px;">${ind}</span>` + `. <span id=n${id_napisow}></span>: ` + element.wynik + '<br>';
+        document.getElementById(`n${id_napisow}`).textContent = element.n;
+        id_napisow++;
         ind++;
     });
 
