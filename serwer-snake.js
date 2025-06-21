@@ -232,7 +232,7 @@ wss.on('connection', (ws) => {
 
     ws.on('close', () => {
         let snake = gracze.get(ws);
-        console.log('Gracz ' + snake.nick + ' się rozłączył');
+        console.log('Player ' + snake.nick + ' disconnected');
 
         if(host.h == ws)
         {
@@ -243,9 +243,9 @@ wss.on('connection', (ws) => {
         if(snake.gameover == false)
         {
             let temp = [];
-            temp.push({tekst:'Gracz ', kolor:"red"});
+            temp.push({tekst:'Player ', kolor:"red"});
             temp.push({tekst:snake.nick, kolor:snake.kolor});
-            temp.push({tekst:'  wyszedł z gry', kolor:"red"});
+            temp.push({tekst:'  left the game', kolor:"red"});
 
             chat.push(temp);
         }
@@ -379,9 +379,9 @@ function loop() {
             });
 
             let temp = [];
-            temp.push({tekst:'Gracz ', kolor:"yellow"});
+            temp.push({tekst:'Player ', kolor:"yellow"});
             temp.push({tekst:wygrany_gracz.nick, kolor:wygrany_gracz.kolor});
-            temp.push({tekst:'  wygrał gre', kolor:"yellow"});
+            temp.push({tekst:'  won the game', kolor:"yellow"});
 
             chat.push(temp);
 
@@ -394,11 +394,11 @@ function loop() {
             remis = true;
 
             let temp = [];
-            temp.push({tekst:'Gracze ', kolor:"yellow"});
+            temp.push({tekst:'Players ', kolor:"yellow"});
             temp.push({tekst:czolowe_zderzenia.snake1.nick, kolor:czolowe_zderzenia.snake1.kolor});
-            temp.push({tekst:' i ', kolor:'yellow'});
+            temp.push({tekst:' and ', kolor:'yellow'});
             temp.push({tekst:czolowe_zderzenia.snake2.nick, kolor:czolowe_zderzenia.snake2.kolor});
-            temp.push({tekst:' zremisowali', kolor:"yellow"});
+            temp.push({tekst:' tied', kolor:"yellow"});
 
             chat.push(temp);
 

@@ -112,7 +112,7 @@ function init() {
     //inicjalizacja gry
     ruch =  undefined;
     gameover = false;
-    document.getElementById('wynik').innerHTML = 'Wynik: 0';
+    document.getElementById('wynik').innerHTML = 'Score: 0';
 
     requestAnimationFrame(gameLoop);
     //console.log('Uruchomiono gre');
@@ -225,14 +225,14 @@ function joinToGame()
                     }
                     size = wiad.size;
 
-                    document.getElementById('tryb').innerHTML = 'Tryb gry: ' + wiad.tryb;
+                    document.getElementById('tryb').innerHTML = 'Game Mode: ' + wiad.tryb;
                     document.getElementById('tarcze').innerHTML = wiad.tarcze + ' ';
                     document.getElementById('przyspieszenia').innerHTML = wiad.przysp + ' ';
                     document.getElementById('naboje').innerHTML = wiad.naboje + ' ';
                     document.getElementById('wynik').innerHTML = wiad.tytul;
 
-                    document.getElementById('ogracze').innerHTML = 'Gracze online: ' + wiad.ogracze;
-                    document.getElementById('zgracze').innerHTML = 'Żywi gracze: ' + wiad.zgracze;
+                    document.getElementById('ogracze').innerHTML = 'Online Players: ' + wiad.ogracze;
+                    document.getElementById('zgracze').innerHTML = 'Players: ' + wiad.zgracze;
 
                     document.getElementById('tps').innerHTML = 'Tps: ' + wiad.tps;
                     document.getElementById('fps').innerHTML = 'Fps: ' + fps;

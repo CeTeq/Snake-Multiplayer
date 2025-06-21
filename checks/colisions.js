@@ -22,9 +22,9 @@ export function colisions(obiekt, klient) {
             if(obiekt.snake == snake)
             {
                 let temp = [];
-                temp.push({tekst:'Gracz ', kolor:"red"});
+                temp.push({tekst:'Player ', kolor:"red"});
                 temp.push({tekst:snake.nick, kolor:snake.kolor});
-                temp.push({tekst:' uderzył w swój ogon', kolor:"red"});
+                temp.push({tekst:' collided with his tall', kolor:"red"});
 
                 chat.push(temp);
                 //kolizje.push('<span style="color: red;">Gracz ' + snake.nick + ' uderzył w swój ogon</span>');
@@ -32,11 +32,11 @@ export function colisions(obiekt, klient) {
             else if(obiekt == obiekt.snake.cells[0]) //Czołowe zdarzenie - obaj gracze giną
             {
                 let temp = [];
-                temp.push({tekst:'Gracze ', kolor:"red"});
+                temp.push({tekst:'Players ', kolor:"red"});
                 temp.push({tekst:snake.nick, kolor:snake.kolor});
-                temp.push({tekst:' i ', kolor:'red'});
+                temp.push({tekst:' and ', kolor:'red'});
                 temp.push({tekst:obiekt.snake.nick, kolor:obiekt.snake.kolor});
-                temp.push({tekst:'  zderzyli się', kolor:"red"});
+                temp.push({tekst:'  collided', kolor:"red"});
 
                 chat.push(temp);
                 //kolizje.push('<span style="color: red;">Gracze ' + snake.nick + ' i ' + obiekt.snake.nick + ' zderzyli się</span>');
@@ -47,9 +47,9 @@ export function colisions(obiekt, klient) {
             else
             {
                 let temp = [];
-                temp.push({tekst:'Gracz ', kolor:"red"});
+                temp.push({tekst:'Player ', kolor:"red"});
                 temp.push({tekst:snake.nick, kolor:snake.kolor});
-                temp.push({tekst:' uderzył w gracza: ', kolor:'red'});
+                temp.push({tekst:' collided with player: ', kolor:'red'});
                 temp.push({tekst:obiekt.snake.nick, kolor:obiekt.snake.kolor});
 
                 chat.push(temp);
@@ -87,9 +87,9 @@ export function colisions(obiekt, klient) {
         else if(obiekt.typ == 'pocisk' && obiekt.snake != snake && snake.ochrona == 0)
         {
             let temp = [];
-            temp.push({tekst:'Gracz ', kolor:"red"});
+            temp.push({tekst:'Player ', kolor:"red"});
             temp.push({tekst:obiekt.snake.nick, kolor:obiekt.snake.kolor});
-            temp.push({tekst:' zastrzelił gracza: ', kolor:'red'});
+            temp.push({tekst:' shot player: ', kolor:'red'});
             temp.push({tekst:snake.nick, kolor:snake.kolor});
 
             chat.push(temp);
@@ -107,9 +107,9 @@ export function colisions(obiekt, klient) {
         if(obiekt.typ == 'pocisk' && obiekt.snake != snake && snake.ochrona == 0)
         {
             let temp = [];
-            temp.push({tekst:'Gracz ', kolor:"red"});
+            temp.push({tekst:'Player ', kolor:"red"});
             temp.push({tekst:obiekt.snake.nick, kolor:obiekt.snake.kolor});
-            temp.push({tekst:' zastrzelił gracza: ', kolor:'red'});
+            temp.push({tekst:' shot player: ', kolor:'red'});
             temp.push({tekst:snake.nick, kolor:snake.kolor});
 
             chat.push(temp);

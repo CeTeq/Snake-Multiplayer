@@ -35,9 +35,9 @@ export function clientMessage(wia, ws) {
     
         gracze.set(ws, sn);
         let t = [];
-        t.push({tekst:'Gracz ', kolor:"green"});
+        t.push({tekst:'Player ', kolor:"green"});
         t.push({tekst:sn.nick, kolor:sn.kolor});
-        t.push({tekst:' dołączył do gry', kolor:"green"});
+        t.push({tekst:' joined to the game', kolor:"green"});
 
         chat.push(t);
        // chat.push('<span style="color: green;">Gracz ', + sn.nick + ' dołączył do gry</span>');
@@ -97,9 +97,9 @@ export function clientMessage(wia, ws) {
                             if(gr.gameover == false)
                             {
                                 let temp = [];
-                                temp.push({tekst:'Gracz ', kolor:"red"});
+                                temp.push({tekst:'Player ', kolor:"red"});
                                 temp.push({tekst:sn.nick, kolor:sn.kolor});
-                                temp.push({tekst:' został zabity komendą', kolor:"red"});
+                                temp.push({tekst:' was slain', kolor:"red"});
 
                                 chat.push(temp);
                                 
@@ -116,9 +116,9 @@ export function clientMessage(wia, ws) {
                                 if(gr.nick == komenda[1])
                                 {
                                     let temp = [];
-                                    temp.push({tekst:'Gracz ', kolor:"red"});
+                                    temp.push({tekst:'Player ', kolor:"red"});
                                     temp.push({tekst:sn.nick, kolor:sn.kolor});
-                                    temp.push({tekst:' został zabity komendą', kolor:"red"});
+                                    temp.push({tekst:' was slain', kolor:"red"});
 
                                     chat.push(temp);
                                     //chat.push('<span style="color: red;">Gracz ' + gr.nick + ' zginął</span>');

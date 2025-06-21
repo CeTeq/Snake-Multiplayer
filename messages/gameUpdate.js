@@ -81,26 +81,26 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
     
     if(czy_lobby)
     {
-        t = "Oczekiwanie na graczy...";
+        t = "Waiting for players...";
     }
     else if(snake.gameover == false)
     {
-        t = 'Wynik: ' + snake.wynik;
+        t = 'Score: ' + snake.wynik;
     }
     else if(snake.gameover == true)
     {
-        t = 'Koniec gry!' + '<br>' + 'Wynik: ' + snake.wynik;
+        t = 'Game over!' + '<br>' + 'Score: ' + snake.wynik;
     }
 
     if(battle_royal && zakonczenie_gry == true)
     {
         if(remis)
         {
-            t = 'Gracze ' + czolowe_zderzenia.snake1.nick + ' i ' + czolowe_zderzenia.snake2.nick + ' zremisowali!';
+            t = 'Players ' + czolowe_zderzenia.snake1.nick + ' and ' + czolowe_zderzenia.snake2.nick + ' tied!';
         }
         else
         {
-            t = 'Gracz ' + wygrany_gracz.nick + ' Wygrał gre!';
+            t = 'Player ' + wygrany_gracz.nick + ' won the game!';
         }
     }
     
@@ -111,7 +111,7 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
 
     if(battle_royal && odliczanie_rozpoczecia < czas_odli_rozp)
     {
-        t = 'Gra rozpocznie sie za ' + Math.floor(odliczanie_rozpoczecia/(tps*5) + 1) + 's';
+        t = 'The game will start in ' + Math.floor(odliczanie_rozpoczecia/(tps*5) + 1) + 's';
     }
 
     if(title.napis != "")
