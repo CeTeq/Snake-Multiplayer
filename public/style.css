@@ -214,8 +214,8 @@ body {
 
 
 #msg{
-	background-color: rgb(34, 34, 34, 0);
-	border: 1px solid grey;
+	background-color: rgba(34, 34, 34, 0);
+	border: 1px solid rgba(128,128,128,0.5);
 	color: white;
 	width: 100%;
 }
@@ -223,20 +223,28 @@ body {
 #chat {
 	background-color: rgb(34, 34, 34, 0);
 	word-wrap: break-word;
-	border-radius: 6px;
 	padding: 4px;
 	width: 12vw;
 	height: 21vh;
 	overflow-x: hidden;
 	overflow-y: auto;
 	text-align: left;
+	opacity: 100%;
+}
+
+#chat:hover {
+	opacity: 100%;
+}
+
+#chat::-webkit-scrollbar {
+	display: none;
 }
 
 #wiadomosci {
 	right: 0.7%;
 	top: 70%;
 	width: 12vw;
-	height: 21vh;
+	height: 25vh;
 	position: fixed;
 	display: none;
 }

@@ -362,8 +362,23 @@ function wyslijWiadomosc()
     //sendMsg.blur();
 }
 
+function NacisniecieEnter(e)
+{
+     if(e.code == 'Enter')
+    {
+        window.removeEventListener('keydown', NacisniecieEnter);
+        joinToGame();
+    }
+}
+
+window.addEventListener('keydown', NacisniecieEnter); 
+
+
 document.getElementById('connect').addEventListener('click', () => {
-    joinToGame();
+    let e = {
+        code: "Enter",
+    }
+    NacisniecieEnter(e);
 });
 
 document.getElementById('restart').addEventListener('click', () => {
@@ -650,7 +665,7 @@ function loop() {
 
     let ind = 1;
     napisy.forEach((element) => {
-        ranking.innerHTML += `<span style="font-size: 20px;">${ind}</span>` + `. <span id=n${id_napisow}></span>: ` + element.wynik + '<br>';
+        ranking.innerHTML += `<span style="font-size: 20px; color: ${element.kolor}">${ind}</span>` + `. <span id=n${id_napisow} style="color: ${element.kolor}"></span>` +  `<span style="color: ${element.kolor}">: ${element.wynik}</span><br>`;
         document.getElementById(`n${id_napisow}`).textContent = element.n;
         id_napisow++;
         ind++;

@@ -116,7 +116,11 @@ export function getRandomInt(min, max) {
 apples(liczba_jablek);
 
 function randColor() {
-    return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+    let r = Math.floor(Math.random() * 200 + 55).toString(16).padStart(2, '0');
+    let g = Math.floor(Math.random() * 200 + 55).toString(16).padStart(2, '0');
+    let b = Math.floor(Math.random() * 200 + 55).toString(16).padStart(2, '0');
+
+    return '#' + r + g + b;
 }
 
 
@@ -576,6 +580,7 @@ function loop() {
                 n: el.nick,
                 x: el.x,
                 y: el.y,
+                kolor: el.kolor,
                 wynik: el.wynik,
                 kierunekX: el.dx,
                 kierunekY: el.dy,
