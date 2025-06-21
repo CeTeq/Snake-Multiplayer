@@ -306,7 +306,7 @@ function loop() {
 
         if(szerokosc_planszy > 50)
         {
-            odliczanie_zmniejszania = 100 * tps;
+            odliczanie_zmniejszania = 500 * tps;
         }
     }
 
@@ -339,7 +339,7 @@ function loop() {
         czy_lobby = false;
         wymus_start.st = false;
         odliczanie_rozpoczecia = czas_odli_rozp;
-        odliczanie_zmniejszania = 100 * tps;
+        odliczanie_zmniejszania = 500 * tps;
     }
 
     if(odliczanie_restartowania > 0)

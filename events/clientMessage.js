@@ -1,3 +1,4 @@
+import { Filter } from 'bad-words';
 import { apples, liczba_jablek } from '../items/apples.js';
 import { opoznienie, maks, liczba } from '../items/boosts.js';
 import { zasiegWidoku } from '../messages/gameUpdate.js';
@@ -23,7 +24,9 @@ export function clientMessage(wia, ws) {
 
     if (sn.czy_pierwszy) 
     {
-        sn.nick = wia.nick;
+        let filtr = new Filter();
+        sn.nick = filtr.clean(wia.nick);
+        console.log(filtr.clean(wia.nick));
         sn.czy_pierwszy = false;
         if(wia.haslo == haslo)
         {
@@ -389,14 +392,17 @@ export function clientMessage(wia, ws) {
                     privChat.push({gr:sn, wiad:temp});
                 }
 
-                else
+                else //wysłanie wiadomości przez gracza na chat
                 {
                     let temp = [];
+                    let filtr = new Filter();
+
                     temp.push({tekst:sn.nick, kolor:sn.kolor});
+
+                    wiadomosc = filtr.clean(wiadomosc);
                     temp.push({tekst:`: ${wiadomosc}`, kolor:"white"});
 
                     chat.push(temp);
-                    //chat.push(wiadomosc);
                 }
         } 
 
