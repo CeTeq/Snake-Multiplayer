@@ -2,12 +2,16 @@ import { Filter } from 'bad-words';
 import { apples, liczba_jablek } from '../items/apples.js';
 import { opoznienie, maks, liczba } from '../items/boosts.js';
 import { zasiegWidoku } from '../messages/gameUpdate.js';
-import { chat, gracze, grid, plan, liczba_klientow, wymus_start, tps, privChat, liczba_graczy, zmienRozmiarPlanszy } from '../serwer-snake.js';
+import { chat, gracze, grid, plan, liczba_klientow, wymus_start, privChat, liczba_graczy, zmienRozmiarPlanszy, realneTps } from '../serwer-snake.js';
+import { dodajBota } from '../bots.js';
 
 export let kick = null;
 export let haslo = "k";
 export let admins = [];
+export let opoznienieBot = 500;
+export let maksGraczyBot = 15;
 export let oczekujacyAdmini = new Map;
+export let czasDoZmiejszaniaPlanszy = 500; // w sekundach
 export let host = {
     h:undefined,
 };
@@ -16,7 +20,7 @@ export let title = {
     zywotnosc:0
 };
 
-const komendy = ['kill','clear','eff','mapsize','cells','spawn','set','render','title'];
+const komendy = ['broyal','kill','clear','effect','mapsize','cells','spawn','set','render','title','bot'];
 
 export function clientMessage(wia, ws) {
     wia = JSON.parse(wia);
@@ -94,19 +98,34 @@ export function clientMessage(wia, ws) {
                         if(komenda[1] == "all")
                         {
                             gracze.forEach(gr => {
-                            if(gr.gameover == false)
+                            if(gr.gameover == false && gr != sn)
                             {
                                 let temp = [];
                                 temp.push({tekst:'Player ', kolor:"red"});
-                                temp.push({tekst:sn.nick, kolor:sn.kolor});
+                                temp.push({tekst:gr.nick, kolor:gr.kolor});
                                 temp.push({tekst:' was slain', kolor:"red"});
 
                                 chat.push(temp);
-                                
+                                gr.gameover = true;
                                 //chat.push('<span style="color: red;">Gracz ' + gr.nick + ' zginął</span>');
                             }
-                            gr.gameover = true;
                             
+                            });
+                        }
+                        else if(komenda[1] == "bot")
+                        {
+                            gracze.forEach(gr => {
+                            if(gr.gameover == false && gr.bot)
+                            {
+                                let temp = [];
+                                temp.push({tekst:'Player ', kolor:"red"});
+                                temp.push({tekst:gr.nick, kolor:gr.kolor});
+                                temp.push({tekst:' was slain', kolor:"red"});
+
+                                chat.push(temp);
+                                gr.gameover = true;
+                                //chat.push('<span style="color: red;">Gracz ' + gr.nick + ' zginął</span>');
+                            }                            
                             });
                         }
                         else
@@ -117,7 +136,7 @@ export function clientMessage(wia, ws) {
                                 {
                                     let temp = [];
                                     temp.push({tekst:'Player ', kolor:"red"});
-                                    temp.push({tekst:sn.nick, kolor:sn.kolor});
+                                    temp.push({tekst:gr.nick, kolor:gr.kolor});
                                     temp.push({tekst:' was slain', kolor:"red"});
 
                                     chat.push(temp);
@@ -172,7 +191,7 @@ export function clientMessage(wia, ws) {
                         wymus_start.st = true;
                     }
 
-                    else if(komenda[0] == "/eff")
+                    else if(komenda[0] == "/effect" || komenda[0] == "/ef")
                     {
                         if(komenda[1] == 'speed')
                         {
@@ -182,13 +201,13 @@ export function clientMessage(wia, ws) {
 
                                 if(gr.nick == komenda[2])
                                 {
-                                    gr.tprzysp = komenda[3]*tps;
+                                    gr.tprzysp = komenda[3]*realneTps;
                                 }
                                 });
                             }
                             else
                             {
-                                sn.tprzysp = komenda[2]*tps;
+                                sn.tprzysp = komenda[2]*realneTps;
                             }
                         }
                         else if(komenda[1] == 'shield')
@@ -199,13 +218,13 @@ export function clientMessage(wia, ws) {
 
                                 if(gr.nick == komenda[2])
                                 {
-                                    gr.ochrona = komenda[3]*tps;
+                                    gr.ochrona = komenda[3]*realneTps;
                                 }
                                 });
                             }
                             else
                             {
-                                sn.ochrona = komenda[2]*tps;
+                                sn.ochrona = komenda[2]*realneTps;
                             }
                         }
                     }
@@ -322,6 +341,14 @@ export function clientMessage(wia, ws) {
                                 maks.przysp = parseInt(komenda[3]);
                            }
                         }
+                        else if(komenda[1] == 'bot')
+                        {
+                             maksGraczyBot = parseInt(komenda[2]);
+                           if(komenda.length > 3)
+                           {
+                                opoznienieBot = parseInt(komenda[3]);
+                           }
+                        }
                     }
                     else if(komenda[0] == '/set')
                     {
@@ -377,7 +404,20 @@ export function clientMessage(wia, ws) {
                             }
                         }
                     }
-                       
+
+                    else if(komenda[0] == '/bot')
+                    {
+                        dodajBota();
+                    }
+
+                    else if(komenda[0] == '/broyal')
+                    {
+                        if(komenda.length > 1)
+                        {
+                            czasDoZmiejszaniaPlanszy = komenda[1];
+                            console.log(czasDoZmiejszaniaPlanszy);
+                        }
+                    }
                         
                 }
                 
@@ -391,6 +431,7 @@ export function clientMessage(wia, ws) {
 
                     privChat.push({gr:sn, wiad:temp});
                 }
+
 
                 else //wysłanie wiadomości przez gracza na chat
                 {

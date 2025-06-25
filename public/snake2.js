@@ -16,6 +16,7 @@ let socket;
 let ruch;
 let i = 0;
 let napisy = [];
+let stareNapisy = [];
 let plansza = new Map();
 let plansza8 = new Map();
 let plansza4 = new Map();
@@ -40,6 +41,8 @@ let fpsIle = 0;
 let czas = new Date();
 let wpisywanieHasla = false;
 let id_napisow = 0;
+let zakonczenie_gry = false;
+let odcisniety = true;
 //let sendMsg = document.getElementById('sendMsg');
 const msg  = document.getElementById('msg');
 const URL = 'ws://' + document.URL.slice(7, -3);
@@ -146,6 +149,16 @@ function init() {
     nZ.strokeRect(20, 20, grid, grid);
 }
 
+function odswiezGre() 
+{
+    gameover = false;
+    ruch =  undefined;
+    document.getElementById('wynik').style.fontSize = "";
+    document.getElementById('wynik').style.top = "";
+    document.getElementById('wynik').style.color = "";
+    document.getElementById("restart").style.display = "none";
+}
+
 function joinToGame()
 {
     // ipAddr = "ws://";
@@ -159,8 +172,6 @@ function joinToGame()
     document.getElementById("ranking").style.display = 'block';
     document.getElementById("tranking").style.display = 'block';
     document.getElementById("wiadomosci").style.display = 'block';
-    document.getElementById('restart').style.display = 'block';
-
     document.getElementById("dtarcze").style.display = 'block';
     document.getElementById("dprzyspieszenia").style.display = 'block';
     document.getElementById("dnaboje").style.display = 'block';
@@ -214,7 +225,9 @@ function joinToGame()
                     plansza2 = wiad.plansza2;
                     minimapa = wiad.minimapa;
                     wynik = wiad.wynik;
+                    stareNapisy = structuredClone(napisy);
                     napisy = wiad.napisy;
+
                     przesuniecie = wiad.przesuniecie;
                     let czy_lobby = wiad.czy_lobby;
 
@@ -225,14 +238,15 @@ function joinToGame()
                     }
                     size = wiad.size;
 
-                    document.getElementById('tryb').innerHTML = 'Game Mode: ' + wiad.tryb;
+                    //document.getElementById('tryb').innerHTML = 'Game Mode: ' + wiad.tryb;
                     document.getElementById('tarcze').innerHTML = wiad.tarcze + ' ';
                     document.getElementById('przyspieszenia').innerHTML = wiad.przysp + ' ';
                     document.getElementById('naboje').innerHTML = wiad.naboje + ' ';
                     document.getElementById('wynik').innerHTML = wiad.tytul;
 
-                    document.getElementById('ogracze').innerHTML = 'Online Players: ' + wiad.ogracze;
-                    document.getElementById('zgracze').innerHTML = 'Players: ' + wiad.zgracze;
+                    document.getElementById('gracze').innerHTML = wiad.gracze;
+                    document.getElementById('gracze2').innerHTML = wiad.gracze2;
+                    document.getElementById('gracze3').innerHTML = wiad.gracze3;
 
                     document.getElementById('tps').innerHTML = 'Tps: ' + wiad.tps;
                     document.getElementById('fps').innerHTML = 'Fps: ' + fps;
@@ -276,6 +290,7 @@ function joinToGame()
                 {
                     plansza4 = wiad.plansza4;
                     plansza2 = wiad.plansza2;
+                    stareNapisy = structuredClone(napisy);
                     napisy = wiad.napisy;
                 }
                 else if(wiad.jakieWyslanie == '2')
@@ -283,6 +298,47 @@ function joinToGame()
                     plansza2 = wiad.plansza2;
                 }
 
+
+                if(wiad.jakieWyslanie == '8' || wiad.jakieWyslanie == '4') //tworzenie rankingu
+                {
+                    napisy.sort((a, b) => b.wynik - a.wynik);
+
+                    let ind = 1;
+                    let czyZmiana = false;
+
+                    if(napisy.length != stareNapisy.length && (napisy.length <= 10 || stareNapisy.length <= 10))
+                    {
+                        czyZmiana = true;
+                        //console.log("zmiana dlugosci" + napisy.length + " " + stareNapisy.length)
+                    }
+                    else 
+                    {
+                        for (let i = 0; i < 10 && i < napisy.length; i++)
+                        {
+                            if(napisy[i].kolor != stareNapisy[i].kolor || napisy[i].n != stareNapisy[i].n || napisy[i].wynik != stareNapisy[i].wynik)
+                            {
+                                //console.log(napisy[i].wynik + " " + stareNapisy[i].wynik);
+                                czyZmiana = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if(czyZmiana)
+                    {
+                        ranking.innerHTML = '';
+                        napisy.forEach((element) => {
+                        if(ind > 10)
+                        {
+                            return;
+                        }
+                        ranking.innerHTML += `<span style="font-size: 20px; color: ${element.kolor}">${ind}.</span>` + ` <span id=n${id_napisow} style="color: ${element.kolor}"></span>` +  `<span style="color: ${element.kolor}">: ${element.wynik}</span><br>`;
+                        document.getElementById(`n${id_napisow}`).textContent = element.n;
+                        id_napisow++;
+                        ind++;
+                        });
+                    }
+                }
 
                 plansza.clear();
                 
@@ -311,9 +367,23 @@ function joinToGame()
                 snakeX = wiad.snakeX+(przesuniecie/16) - screen.width/34
                 snakeY = wiad.snakeY+(przesuniecie/16) - screen.height/34
 
+                if(wiad.zakonczenie_gry && !zakonczenie_gry)
+                {
+                    document.getElementById('wynik').style.fontSize = "40px";
+                    document.getElementById('wynik').style.top = "35%";
+                    document.getElementById('wynik').style.color = "yellow";
+                    document.getElementById("restart").style.display = "block";
+                    zakonczenie_gry = true;
+                }
+                else if(!wiad.zakonczenie_gry && zakonczenie_gry)
+                {
+                    zakonczenie_gry = false;
+                }
+
 
                 if(wiad.odswiez) //żądanie zrestartowania połączenia
                 {
+                    odswiezGre();
                     joinToGame();
                 }
 
@@ -322,6 +392,11 @@ function joinToGame()
                 //Wiadomośc specjalna, informacja o przegranej
                 gameover = true;
                 wynik = wiad.wynik;
+                document.getElementById('wynik').style.fontSize = "40px";
+                document.getElementById('wynik').style.top = "30%";
+                document.getElementById('wynik').style.color = "sandybrown";
+                document.getElementById("restart").style.display = "block";
+                //console.log("gameover");
             }
         });
     });
@@ -368,6 +443,7 @@ function NacisniecieEnter(e)
     {
         window.removeEventListener('keydown', NacisniecieEnter);
         joinToGame();
+        console.log("remove listener");
     }
 }
 
@@ -382,9 +458,10 @@ document.getElementById('connect').addEventListener('click', () => {
 });
 
 document.getElementById('restart').addEventListener('click', () => {
+
+    odswiezGre();
     joinToGame();
-    document.getElementById('restart').blur();
-    first = true;
+    //location.reload();
 });
 
 
@@ -474,7 +551,7 @@ document.addEventListener('click', () => {
 
 let dfps =  document.getElementById("fps");
 let dtps = document.getElementById("tps");
-let dogracze = document.getElementById("ogracze");
+let dnick = document.getElementById("nick");
 let drestart = document.getElementById("restart");
 let dtryb = document.getElementById("tryb");
 
@@ -490,7 +567,7 @@ function loop() {
     const targetY = -snakeY * grid;
     
     // Ustal czas trwania animacji
-    let newTransition = '1s';
+    let newTransition = '700ms';
     if (firstLoop || Math.abs(snakeX - lastX) > 1) {
         newTransition = '220ms';
     }
@@ -543,9 +620,10 @@ function loop() {
         cooldown2--;
     }
 
+
     window.addEventListener('keydown', (e) => {
         //Obłsuga klawiszy
-
+        odcisniety = false;
         let klawisz = e.code;
         let nruch;
         let akcja = false;
@@ -585,6 +663,42 @@ function loop() {
                 nruch = 'strzal';
                 akcja = true;
             }
+
+
+            else if(klawisz == 'KeyE' && cooldown2 == 0)
+            {
+                if(dodatkoweInfo == false)
+                {
+                    dodatkoweInfo = true;
+                    dfps.style.display = 'block';
+                    dtps.style.display = 'block';
+                    dnick.style.display = 'block';
+                    //dtryb.style.display = 'block';
+                }
+                else
+                {
+                    dodatkoweInfo = false;
+                    dfps.style.display = 'none';
+                    dtps.style.display = 'none';
+                    dnick.style.display = 'none';
+                    //dtryb.style.display = 'none';
+                }
+                cooldown2 = 1;
+            }           
+
+            else if(klawisz == 'KeyT' && cooldown2 == 0)
+            {
+                let c = document.getElementById("wiadomosci");
+                if(c.style.display == 'block')
+                {
+                    c.style.display = 'none';
+                }
+                else
+                {
+                    c.style.display = 'block';
+                }
+                cooldown2 = 1;
+            }           
             
         } 
         
@@ -595,28 +709,7 @@ function loop() {
         }    
 
 
-        if(klawisz == 'KeyE' && cooldown2 == 0 && document.activeElement != msg)
-        {
-            if(dodatkoweInfo == false)
-            {
-                dodatkoweInfo = true;
-                dfps.style.display = 'block';
-                dtps.style.display = 'block';
-                dogracze.style.display = 'block';
-                dtryb.style.display = 'block';
-                drestart.style.top = "18%";
-            }
-            else
-            {
-                dodatkoweInfo = false;
-                dfps.style.display = 'none';
-                dtps.style.display = 'none';
-                dogracze.style.display = 'none';
-                dtryb.style.display = 'none';
-                drestart.style.top = "7%";
-            }
-            cooldown2 = 1;
-        }           
+        
 
         /*else if (klawisz == 'KeyO')
         {
@@ -633,9 +726,9 @@ function loop() {
             document.getElementById("nick").style.display = 'none';
             document.getElementById("fps").style.display = 'none';
             document.getElementById("tps").style.display = 'none';
-            document.getElementById('ogracze').style.display = 'none';
+            document.getElementById('gracze2').style.display = 'none';
 
-            document.getElementById("zgracze").style.display = 'none';
+            document.getElementById("gracze").style.display = 'none';
             document.getElementById("minimapa").style.display = 'none';
             document.getElementById("tryb").style.display = 'none';
         }*/
@@ -659,16 +752,6 @@ function loop() {
         {
             wiadomosc = undefined;
         }
-    });
-    ranking.innerHTML = '';
-    napisy.sort((a, b) => b.wynik - a.wynik);
-
-    let ind = 1;
-    napisy.forEach((element) => {
-        ranking.innerHTML += `<span style="font-size: 20px; color: ${element.kolor}">${ind}</span>` + `. <span id=n${id_napisow} style="color: ${element.kolor}"></span>` +  `<span style="color: ${element.kolor}">: ${element.wynik}</span><br>`;
-        document.getElementById(`n${id_napisow}`).textContent = element.n;
-        id_napisow++;
-        ind++;
     });
 
         

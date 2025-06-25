@@ -4,12 +4,14 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path';
-import { clientMessage, host } from './events/clientMessage.js';
+import { clientMessage, host, maksGraczyBot, opoznienieBot, czasDoZmiejszaniaPlanszy } from './events/clientMessage.js';
 import { colisions, czolowe_zderzenia } from './checks/colisions.js';
 import { isInGrid } from './checks/isInGrid.js';
 import { gameUpdateMsg } from './messages/gameUpdate.js';
 import { apples, liczba_jablek } from './items/apples.js';
 import { generuj_boosty } from './items/boosts.js';
+import { dodajWeza } from './addSnakes.js';
+import { aktualizujBoty, dodajBota, liczba_botow, zmiejszLiczbeBotow } from './bots.js';
 
 let portGry = 8080;
 const __filename = fileURLToPath(import.meta.url);
@@ -81,7 +83,8 @@ export const tps = 10;
 export let zrespawnuj = false;
 export let przesuniecie = 0;
 export let realneTps = 0;
-let min_graczy = 100;
+export const klienci = new Map();
+let min_graczy = 16;
 
 let tpsSuma = 0;
 let tpsIle = 0;
@@ -89,7 +92,6 @@ let tpsIle = 0;
 let size = 200;
 let czas = new Date();
 let fl = false;
-const klienci = new Map();
 let pol = 0;
 const predkosc_ruchu = 8;
 
@@ -114,14 +116,6 @@ export function getRandomInt(min, max) {
 }
 
 apples(liczba_jablek);
-
-function randColor() {
-    let r = Math.floor(Math.random() * 200 + 55).toString(16).padStart(2, '0');
-    let g = Math.floor(Math.random() * 200 + 55).toString(16).padStart(2, '0');
-    let b = Math.floor(Math.random() * 200 + 55).toString(16).padStart(2, '0');
-
-    return '#' + r + g + b;
-}
 
 
 function zapiszWynik(snake)
@@ -180,63 +174,24 @@ function zapiszWynik(snake)
 }
 
 setInterval(loop, tps);
+
+export function zwiekszLiczbeGraczy() 
+{
+    liczba_graczy++;
+    liczba_klientow++;
+}
+
+
 wss.on('connection', (ws) => {
     console.log('Nowe połączenie WebSocket');
-    let nowykol = randColor();
-    let rx = getRandomInt(0, szerokosc_planszy) * grid; //lpsujemy pozycje startową wężowi
-    let ry = getRandomInt(0, wysokosc_planszy) * grid;
-    let snake = {
-        nick: 'nick',
-        typ: 'snake',
-        kolor: nowykol,
-        x: rx,
-        y: ry,
-        dx: grid,
-        dy: 0,
-        dirX: grid,
-        dirY: 0,
-        cells: [
-            { x: rx, y: ry, typ: 'elsnake', snake:undefined},
-            { x: rx-grid, y: ry, typ: 'elsnake', snake:undefined},
-        ], //cialo węża
-        maxCells: 2, //bierząca długość węża
-        wynik: 0,
-        ochrona: 20 * tps, 
-        tarcze: 0,
-        przysp: 0,
-        tprzysp: 0,
-        naboje: 0,
-        gameover: false,
-        czy_pierwszy: true,
-    };
 
-    gracze.set(ws, snake);
-    klienci.set(ws, ws);
-
-    if(battle_royal == false || czy_lobby == true)
-    {
-        liczba_graczy++;
-
-        snake.cells.forEach((c) => {
-            c.snake = snake;
-            plan.set(c, c);
-        });
-    }
-
-    else
-    {
-        snake.gameover = true;
-        snake.cells = [];
-    }
-
-    liczba_klientow++;
-
+    dodajWeza(ws);
 
     ws.on('message', (wia) => clientMessage(wia, ws)); // Obsługa wiadomości otrzymanych od klienta
 
     ws.on('close', () => {
         let snake = gracze.get(ws);
-        console.log('Player ' + snake.nick + ' disconnected');
+        console.log('Gracz ' + snake.nick + ' wyszedł z gry');
 
         if(host.h == ws)
         {
@@ -278,6 +233,7 @@ function loop() {
     let plansz4 = [];
     let plansz2 = [];
     let napisy = [];
+    let nickiAdmina = [];
 
     let czasTeraz = new Date();
     tpsSuma += Math.floor(1000 / (czasTeraz.getTime() - czas.getTime()), 1);
@@ -310,7 +266,7 @@ function loop() {
 
         if(szerokosc_planszy > 50)
         {
-            odliczanie_zmniejszania = 500 * tps;
+            odliczanie_zmniejszania = czasDoZmiejszaniaPlanszy * realneTps;
         }
     }
 
@@ -343,7 +299,7 @@ function loop() {
         czy_lobby = false;
         wymus_start.st = false;
         odliczanie_rozpoczecia = czas_odli_rozp;
-        odliczanie_zmniejszania = 500 * tps;
+        odliczanie_zmniejszania = czasDoZmiejszaniaPlanszy * realneTps;
     }
 
     if(odliczanie_restartowania > 0)
@@ -351,13 +307,10 @@ function loop() {
         odliczanie_restartowania--;
     }
 
-    if(odliczanie_restartowania == 2)
-    {
-        wygrany_gracz.gameover = true;
-    }
         
     if(odliczanie_restartowania == 1)
     {
+        wygrany_gracz.gameover = true;
         wygrany_gracz = undefined;
         zakonczenie_gry = false;
         czy_lobby = true;
@@ -366,6 +319,7 @@ function loop() {
         szerokosc_planszy = size;
         wysokosc_planszy = size;
         przesuniecie = 0;
+        remis = false;
     }
 
     if(battle_royal && czy_lobby == false && zakonczenie_gry == false)
@@ -374,6 +328,7 @@ function loop() {
         if(liczba_graczy == 1)
         {
             zakonczenie_gry = true;
+            odliczanie_zmniejszania = 0;
 
             gracze.forEach(gr => {
                 if(gr.gameover == false)
@@ -395,6 +350,7 @@ function loop() {
         else if(liczba_graczy == 0)
         {
             zakonczenie_gry = true;
+            odliczanie_zmniejszania = 0;
             remis = true;
 
             let temp = [];
@@ -417,6 +373,16 @@ function loop() {
         chat.push(element);
     });
     kolizje = [];
+
+
+    if(liczba_graczy < maksGraczyBot && (battle_royal == false || czy_lobby == true))
+    {
+        let czy = getRandomInt(1,opoznienieBot);
+        if(czy == 1)
+        {
+            dodajBota();
+        }
+    }
 
 
     klienci.forEach((klient) => {
@@ -567,6 +533,7 @@ function loop() {
     if(i == predkosc_ruchu)
     {
         jakieWyslanie = '8';
+        aktualizujBoty();
 
     }
     else if(i%4 == 0) jakieWyslanie = '4';
@@ -585,6 +552,21 @@ function loop() {
                 kierunekX: el.dx,
                 kierunekY: el.dy,
             });
+            
+            let t = "";
+            if(el.bot)
+            {
+                t = "(bot)";
+            }
+            nickiAdmina.push({ //Napisy admina; admin widzi kto jest botem
+                n: t + el.nick,
+                x: el.x,
+                y: el.y,
+                kolor: el.kolor,
+                wynik: el.wynik,
+                kierunekX: el.dx,
+                kierunekY: el.dy,
+            });
         }
     });
 
@@ -592,12 +574,23 @@ function loop() {
     klienci.forEach((kl) => {
         let snake = gracze.get(kl);
         if (snake.gameover) {
-            kl.send(
-                JSON.stringify({
+           
+            if(!Number.isInteger(kl) && odliczanie_restartowania == 0 && czy_lobby == false)
+            {
+                 kl.send(
+                    JSON.stringify({
                     typ: 'gameover',
                     wynik: snake.wynik,
-                }),
-            );
+                }),);
+                
+            }
+            else if(Number.isInteger(kl)) //to jest bot
+            {
+                gracze.delete(kl);
+                klienci.delete(kl);
+                liczba_klientow--;
+                zmiejszLiczbeBotow();
+            }
             
             snake.cells.forEach(function (el) {
                 // Usuwanie wszystkich części gracza
@@ -616,7 +609,7 @@ function loop() {
         {
             host.h = kl;
         }
-        gameUpdateMsg(kl, plansz8, plansz4, plansz2, napisy, jakieWyslanie);
+        gameUpdateMsg(kl, plansz8, plansz4, plansz2, napisy, nickiAdmina, jakieWyslanie);
         });
 
 

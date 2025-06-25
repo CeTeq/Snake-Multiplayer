@@ -1,6 +1,7 @@
 import { chat, privChat, realneTps, grid, gracze, odliczanie_zmniejszania, battle_royal, czy_lobby, zakonczenie_gry, remis, wygrany_gracz, zrespawnuj, odliczanie_rozpoczecia, czas_odli_rozp, tps, liczba_klientow, liczba_graczy, szerokosc_planszy, wysokosc_planszy, przesuniecie } from '../serwer-snake.js';
 import { kick, admins, host, title } from '../events/clientMessage.js';
 import { czolowe_zderzenia } from '../checks/colisions.js';
+import { liczba_botow } from '../bots.js';
 
 
 export let zasiegWidoku = {
@@ -8,14 +9,19 @@ export let zasiegWidoku = {
     y: 1000
 };
 
-export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWyslanie) {
+export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, nickiAdmina, jakieWyslanie) {
+    if(Number.isInteger(klient)) //Zapobieganie próbie wysyłaniu botom danych tak jakby to byli gracze
+    {
+        return;
+    }
+
     let snake = gracze.get(klient);
     let t;
     let od = false;
     let h = false;
     let a = false;
     let tr;
-
+    let nickiDoWyslania = [];                  
 
     let planszaDoWyslania8 = [];
     let planszaDoWyslania4 = [];
@@ -24,6 +30,13 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
     let y1 = snake.y - zasiegWidoku.y;
     let x2 = snake.x + zasiegWidoku.x;
     let y2 = snake.y + zasiegWidoku.y;
+
+    admins.forEach(ad => { //sprawdzamy czy aktualny gracz jest adminem
+        if(ad == klient)
+        {                                                                                       
+            a = true;
+        }
+    });
 
 
     plansz8.forEach(function (el) {
@@ -56,7 +69,19 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
     });*/
 
 
+    let gr="", gr2="", gr3="";
+    if(a)
+    {
+        nickiDoWyslania = nickiAdmina;
+        gr = "Żywi Gracze: " + (liczba_graczy-liczba_botow);
+        gr2 = "Gracze: " + liczba_graczy;
+        gr3 = "Boty: " + liczba_botow;
 
+    }
+    else
+    {
+        nickiDoWyslania = napisy;
+    }
 
     if(battle_royal)
     {
@@ -67,12 +92,6 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
         tr = "Sandbox";
     }
 
-    admins.forEach(ad => {
-        if(ad == klient)
-        {
-            a = true;
-        }
-    });
 
     if(host.h == klient)
     {
@@ -96,11 +115,11 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
     {
         if(remis)
         {
-            t = 'Players ' + czolowe_zderzenia.snake1.nick + ' and ' + czolowe_zderzenia.snake2.nick + ' tied!';
+            t = czolowe_zderzenia.snake1.nick + ' and ' + czolowe_zderzenia.snake2.nick + ' tied!';
         }
         else
         {
-            t = 'Player ' + wygrany_gracz.nick + ' won the game!';
+            t = wygrany_gracz.nick + ' won the game!';
         }
     }
     
@@ -111,7 +130,7 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
 
     if(battle_royal && odliczanie_rozpoczecia < czas_odli_rozp)
     {
-        t = 'The game will start in ' + Math.floor(odliczanie_rozpoczecia/(tps*5) + 1) + 's';
+        t = 'The game will start in ' + Math.floor(odliczanie_rozpoczecia/realneTps+1.5) + 's';
     }
 
     if(title.napis != "")
@@ -146,12 +165,12 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
             mapa.push({x: snake2.x, y: snake2.y, kolor: snake2.kolor, czyJa: czy, rodzaj:"fillRect"});
         })
 
-        if(odliczanie_zmniejszania < 200*tps && odliczanie_zmniejszania != 0) //czerwona linia na minimapie
+        if(odliczanie_zmniejszania < 200*realneTps && odliczanie_zmniejszania != 0) //czerwona linia na minimapie
         {
             mapa.push({x: szerokosc_planszy/4, y: wysokosc_planszy/4, kolor: "red", rodzaj:"strokeRect"});
         }
 
-        if(odliczanie_zmniejszania < 200*tps && odliczanie_zmniejszania != 0) //czerwona linia na planszy
+        if(odliczanie_zmniejszania < 200*realneTps && odliczanie_zmniejszania != 0) //czerwona linia na planszy
         {
             planszaDoWyslania8.push({x: szerokosc_planszy*grid/4, y: wysokosc_planszy*grid/4, kolor: "red", rodzaj:"strokeRect", roz:szerokosc_planszy/2*grid});
         }
@@ -168,15 +187,16 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
                 plansza2: planszaDoWyslania2,
                 chat: chatDo,
                 odswiez: od,
-                napisy: napisy,
+                napisy: nickiDoWyslania,
                 wynik: snake.wynik,
                 tarcze: snake.tarcze,
                 przysp: snake.przysp,
                 naboje: snake.naboje,
                 snakeX: snake.x/16,
                 snakeY: snake.y/16,
-                ogracze: liczba_klientow,
-                zgracze: liczba_graczy,
+                gracze: gr,
+                gracze2: gr2,
+                gracze3: gr3,
                 czy_lobby: czy_lobby,
                 minimapa: mapa,
                 size: szerokosc_planszy,
@@ -184,6 +204,7 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
                 admin: a,
                 host: h,
                 tryb: tr,
+                zakonczenie_gry: zakonczenie_gry,
                 tps: realneTps,
             }),
         );
@@ -196,7 +217,7 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, jakieWy
                 jakieWyslanie: jakieWyslanie,
                 plansza4: planszaDoWyslania4,
                 plansza2: planszaDoWyslania2,
-                napisy: napisy,
+                napisy: nickiDoWyslania,
             }),
         );
     }

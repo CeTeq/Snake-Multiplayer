@@ -13,9 +13,9 @@ export let opoznienie = {
 };
 
 export let maks = {
-    tarcz: 100,
-    przysp: 100,
-    naboji: 100,
+    tarcz: 20,
+    przysp: 20,
+    naboji: 20,
 };
 
 export function generuj_boosty()

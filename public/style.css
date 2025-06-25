@@ -40,8 +40,8 @@ body {
 }
 
 #wynik {
-	position: absolute;
-	font-size: 34px;
+	position: fixed;
+	font-size: 26px;
 	top: 1%;
 	display: none;
 }
@@ -51,7 +51,7 @@ body {
 	width: auto;
 	height: auto;
 	font-size: 20px;
-	position: absolute;
+	position: fixed;
 	display: none;
 }
 
@@ -170,6 +170,7 @@ body {
 	top: 3%;
 	position: absolute;
 	font-size: 17px;
+	display: none;
 }
 
 #tryb {
@@ -181,32 +182,41 @@ body {
 }
 
 
-#zgracze {
-	right: 2%;
-	top: 3%;
+#gracze {
+	right: 1%;
+	top: 13%;
 	position: absolute;
-	font-size: 17px;
+	font-size: 15px;
+	color: yellowgreen;
 }
 
-#ogracze {
-	right: 2%;
+#gracze2 {
+	right: 1%;
+	top: 15.5%;
+	position: absolute;
+	font-size: 15px;
+	color: grey;
+}
+
+#gracze3 {
+	right: 1%;
+	top: 18%;
+	position: absolute;
+	font-size: 15px;
+	color: grey;
+}
+
+#fps {
+	right: 1%;
 	top: 8%;
 	position: absolute;
 	font-size: 10px;
 	display: none;
 }
 
-#fps {
-	right: 2%;
-	top: 12%;
-	position: absolute;
-	font-size: 10px;
-	display: none;
-}
-
 #tps {
-	right: 2%;
-	top: 14%;
+	right: 1%;
+	top: 10%;
 	position: absolute;
 	font-size: 10px;
 	display: none;
@@ -261,22 +271,21 @@ body {
 	left: 1.5%;
 	top: 20%;
 	position: absolute;
+	font-size: small;
 	word-wrap: break-word;
 	border-radius: 6px;
 	padding: 4px;
 	background-color: rgb(34, 34, 34, 0);
 	width: 300px;
 	height: 200px;
-	overflow-x: hidden;
-	overflow-y: hidden;
 	text-align: left;
 	display: none;
 }
 
 #restart {
-	right: 2%;
-	top: 7%;
-	position: absolute;
+	top: 46%;
+	font-size: 30px;
+	position: fixed;
 	display: none;
 }
 
@@ -284,19 +293,19 @@ body {
 
 #dtarcze {
 	left: 37%;
-	bottom: 5%;
+	bottom: 4%;
 	position: absolute;
 	display: none;
 }
 #dprzyspieszenia {
 	left: 47%;
-	bottom: 5%;
+	bottom: 4%;
 	position: absolute;
 	display: none;
 }
 #dnaboje {
 	left: 57%;
-	bottom: 5%;
+	bottom: 4%;
 	position: absolute;
 	display: none;
 }
