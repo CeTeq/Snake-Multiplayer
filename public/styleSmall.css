@@ -230,6 +230,7 @@ body {
 	border: 1px solid rgba(128,128,128,0.5);
 	color: white;
 	width: 100%;
+    font-size: 12px;
 }
 
 #chat {
@@ -242,6 +243,7 @@ body {
 	overflow-y: auto;
 	text-align: left;
 	opacity: 100%;
+    font-size: 12px;
 }
 
 #chat:hover {
@@ -264,15 +266,15 @@ body {
 #tranking {
 	left: 1.5%;
 	top: 9%;
-	position: absolute;
+	position: fixed;
 	font-size: 15px;
 	display: none;
 }
 
 #ranking {
-	right: 69.5%;
+	left: 1%;
 	top: 9%;
-	position: absolute;
+	position: fixed;
 	font-size: small;
 	word-wrap: break-word;
 	border-radius: 6px;
@@ -282,7 +284,7 @@ body {
 	height: 200px;
 	text-align: left;
 	display: none;
-    transform: scale(0.8);
+    transform: scale(0.8) translateX(-40px);
 }
 
 #restart {
@@ -331,8 +333,8 @@ body {
 
 #minimapa {
 	position: fixed;
-    transform: scale(0.6);
-	top: 65%;
-	right: 82%;
+	bottom: 0.8%;
+	left: 0.3%;
 	border: 1px solid white;
+    transform: scale(0.6) translate(-65px,65px);
 }
