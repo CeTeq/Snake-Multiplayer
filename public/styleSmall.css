@@ -17,14 +17,14 @@ body {
 }
 
 #nickname {
-	top: 26%;
+	top: 31%;
 	position: fixed;
 	font-size: 22px;
 	width: 168.96px;
 }
 
 #connect {
-	top: 33%;
+	top: 40%;
 	width: 176.64px;
 	height: 76.45px;
 	position: fixed;
@@ -79,21 +79,21 @@ body {
 }
 
 #nnick {
-	top: 21.5%;
+	top: 26%;
 	position: fixed;
 	font-size: 22px;
 }
 
 
 #ntryb {
-	top: 55%;
+	top: 62%;
 	position: fixed;
 	font-size: 25px;
 	color: yellow;
 }
 
 #zmienTryb {
-	top: 60%;
+	top: 69%;
 	width: 176.64px;
 	height: 55.6px;
 	position: fixed;
@@ -101,7 +101,7 @@ body {
 }
 
 #trwaleWyniki {
-	top: 8%;
+	top: 11%;
 	right: 1%;
 	width: 250px;
 	height: 300px;
@@ -117,7 +117,7 @@ body {
 }
 
 #ptrwaleWyniki {
-	right: 3%;
+	right: 5%;
 	top: 1%;
 	position: fixed;
 	user-select: none;
@@ -127,7 +127,7 @@ body {
 
 #ptrwaleWyniki:hover {
 	content: url('grafika/wyniki2.png');
-	right: 3.2%;
+	right: 5%;
 	top: 0.7%;
 }
 
@@ -151,7 +151,7 @@ body {
 
 
 #pomoc {
-	top: 8%;
+	top: 11%;
 	right: 1%;
 	width: 250px;
 	height: 300px;
@@ -169,9 +169,9 @@ body {
 
 #nick {
 	left: 1.5%;
-	top: 3%;
+	top: 2%;
 	position: absolute;
-	font-size: 17px;
+	font-size: 12px;
 	display: none;
 }
 
@@ -194,7 +194,7 @@ body {
 
 #gracze2 {
 	right: 1%;
-	top: 15.5%;
+	top: 16.5%;
 	position: absolute;
 	font-size: 15px;
 	color: grey;
@@ -202,7 +202,7 @@ body {
 
 #gracze3 {
 	right: 1%;
-	top: 18%;
+	top: 20%;
 	position: absolute;
 	font-size: 15px;
 	color: grey;
@@ -236,7 +236,7 @@ body {
 	background-color: rgb(34, 34, 34, 0);
 	word-wrap: break-word;
 	padding: 4px;
-	width: 12vw;
+	width: 14vw;
 	height: 21vh;
 	overflow-x: hidden;
 	overflow-y: auto;
@@ -253,9 +253,9 @@ body {
 }
 
 #wiadomosci {
-	right: 0.7%;
-	top: 70%;
-	width: 12vw;
+	right: 1.5%;
+	top: 68%;
+	width: 14vw;
 	height: 25vh;
 	position: fixed;
 	display: none;
@@ -263,15 +263,15 @@ body {
 
 #tranking {
 	left: 1.5%;
-	top: 16%;
+	top: 9%;
 	position: absolute;
-	font-size: 25px;
+	font-size: 15px;
 	display: none;
 }
 
 #ranking {
-	left: 1.5%;
-	top: 20%;
+	right: 69.5%;
+	top: 9%;
 	position: absolute;
 	font-size: small;
 	word-wrap: break-word;
@@ -282,10 +282,11 @@ body {
 	height: 200px;
 	text-align: left;
 	display: none;
+    transform: scale(0.8);
 }
 
 #restart {
-	top: 46%;
+	top: 52%;
 	font-size: 30px;
 	position: fixed;
 	display: none;
@@ -330,7 +331,8 @@ body {
 
 #minimapa {
 	position: fixed;
-	bottom: 0.8%;
-	left: 0.3%;
+    transform: scale(0.6);
+	top: 65%;
+	right: 82%;
 	border: 1px solid white;
 }
