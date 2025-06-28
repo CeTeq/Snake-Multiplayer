@@ -364,9 +364,9 @@ function joinToGame()
                     plansza.set(el,el);
                 });
                 
-                snakeX = wiad.snakeX+(przesuniecie/16) - screen.width/34
-                snakeY = wiad.snakeY+(przesuniecie/16) - screen.height/34
-                }
+                snakeX = wiad.snakeX+(przesuniecie/16) - window.innerWidth/34;
+                snakeY = wiad.snakeY+(przesuniecie/16) - window.innerHeight/34;
+
 
                 if(wiad.zakonczenie_gry && !zakonczenie_gry)
                 {
