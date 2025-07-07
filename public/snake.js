@@ -43,9 +43,14 @@ let wpisywanieHasla = false;
 let id_napisow = 0;
 let zakonczenie_gry = false;
 let odcisniety = true;
-//let sendMsg = document.getElementById('sendMsg');
+let ktoryPokojGry = 0;
+
+console.log(screen.width);
+console.log(screen.height);
+console.log(window.innerWidth);
+console.log(window.innerHeight);
 const msg  = document.getElementById('msg');
-const URL = 'ws://' + document.URL.slice(7, -3);
+const URL = 'wss://' + document.URL.slice(8, -3);
 const ranking = document.getElementById('ranking');
 
 const oczyP = new Image();
@@ -58,10 +63,6 @@ const oczyD = new Image();
 oczyD.src = "grafika/oczyD.png";
 // console.log(URL);
 
-/*const rysunek = document.createElement('canvas');
-rysunek.height = grid;
-rysunek.width = grid;
-const context2 = rysunek.getContext('2d');*/
 
 function siatka() {
     context.lineWidth = 1;
@@ -104,6 +105,22 @@ function Ustaw()
         })
      })
     .catch((e) => console.error(e));
+
+    /*fetch("wynikiWins.txt")
+    .then((res) => res.text())
+    .then((text) => {
+        let tekst = text.split("\n");
+        tekst.pop();
+        let ind = 1;
+        tekst.forEach( t => {
+            document.getElementById("topwins").innerHTML += `<span style="font-size: 20px;">${ind}</span>. <span id="n${id_napisow}"></span><br>`;
+            document.getElementById(`n${id_napisow}`).textContent = t;
+            // console.log(document.getElementById(`n${id_napisow}`).innerHTML);
+            id_napisow++;
+            ind++;
+        })
+     })
+    .catch((e) => console.error(e));*/
 }
 
 function gameLoop() {
@@ -113,8 +130,12 @@ function gameLoop() {
 
 function init() {
     //inicjalizacja gry
-    ruch =  undefined;
-    gameover = false;
+    canvas.height = size*grid;
+    canvas.width = size*grid;
+
+    canvasMapa.height = size;
+    canvasMapa.width = size;
+
     document.getElementById('wynik').innerHTML = 'Score: 0';
 
     requestAnimationFrame(gameLoop);
@@ -122,10 +143,6 @@ function init() {
 
     document.getElementById('nick').innerText = 'Nick: ' + document.getElementById('nickname').value;
 
-    if(admin)
-    {
-        document.getElementById('nick').innerText += ' (admin)';
-    }
 
     // Renderowanie efektu poświaty na pomocniczym canvas żeby przyspieszyc czas gdyż generowanie poswiaty jest bardzo kosztowne
     niebieskaPoswiata.width = grid+40;
@@ -147,56 +164,139 @@ function init() {
     nZ.shadowColor = "green"; 
     nZ.shadowBlur = 15;
     nZ.strokeRect(20, 20, grid, grid);
-}
 
-function odswiezGre() 
-{
-    gameover = false;
-    ruch =  undefined;
-    document.getElementById('wynik').style.fontSize = "";
-    document.getElementById('wynik').style.top = "";
-    document.getElementById('wynik').style.color = "";
-    document.getElementById("restart").style.display = "none";
+
+
+
+    window.addEventListener('keydown', (e) => {
+        //Obłsuga klawiszy
+        odcisniety = false;
+        let klawisz = e.code;
+        let nruch;
+        let akcja = false;
+
+        if(document.activeElement != msg)
+        {
+            if (klawisz == 'KeyD' || klawisz == "ArrowRight")
+            {
+                nruch = "p";
+            } 
+            else if (klawisz == 'KeyA' || klawisz == "ArrowLeft")
+            {
+                nruch = "l";
+            } 
+            else if (klawisz == 'KeyW' || klawisz == "ArrowUp") 
+            {
+                nruch = "g";
+            }
+            else if (klawisz == 'KeyS' || klawisz == "ArrowDown") 
+            {
+                nruch = "d";
+            }
+
+            else if (klawisz == 'ShiftLeft' || klawisz == 'ShiftRight')
+            {
+                nruch = 'tarcza';
+                akcja = true;
+            }
+
+            else if (klawisz == 'KeyQ')
+            {
+                nruch = 'przysp';
+                akcja = true;
+            }
+            else if (klawisz == 'Space')
+            {
+                nruch = 'strzal';
+                akcja = true;
+            }
+
+
+            else if(klawisz == 'KeyE' && cooldown2 == 0)
+            {
+                if(dodatkoweInfo == false)
+                {
+                    dodatkoweInfo = true;
+                    dfps.style.display = 'block';
+                    dtps.style.display = 'block';
+                    dnick.style.display = 'block';
+                    //dtryb.style.display = 'block';
+                }
+                else
+                {
+                    dodatkoweInfo = false;
+                    dfps.style.display = 'none';
+                    dtps.style.display = 'none';
+                    dnick.style.display = 'none';
+                    //dtryb.style.display = 'none';
+                }
+                cooldown2 = 1;
+            }           
+
+            else if(klawisz == 'KeyT' && cooldown2 == 0)
+            {
+                let c = document.getElementById("wiadomosci");
+                if(c.style.display == 'block')
+                {
+                    c.style.display = 'none';
+                }
+                else
+                {
+                    c.style.display = 'block';
+                }
+                cooldown2 = 1;
+            }           
+            
+        } 
+        
+        else if (klawisz == 'Enter' && cooldown2 == 0)
+        {
+            wyslijWiadomosc();
+            cooldown2 = 1;
+        }    
+
+        if(nruch != ruch || (akcja == true && cooldown == 0))
+        {   
+            cooldown = 25;
+            socket.send(
+                JSON.stringify({
+                    ruch: nruch,
+                }),
+            );
+        }
+
+        ruch = nruch;
+
+        if (wiadomosc)
+        {
+            wiadomosc = undefined;
+        }
+    });
 }
 
 function joinToGame()
 {
-    // ipAddr = "ws://";
-    // ipAddr += document.getElementById('ip').value
-    document.getElementById('joinLobby').style.display = 'none';
-    document.getElementById('game').style.display = 'initial';  
-
-
-    document.getElementById("wynik").style.display = 'flex';
-    document.getElementById("ppomoc").style.display = 'block';
-    document.getElementById("ranking").style.display = 'block';
-    document.getElementById("tranking").style.display = 'block';
-    document.getElementById("wiadomosci").style.display = 'block';
-    document.getElementById("dtarcze").style.display = 'block';
-    document.getElementById("dprzyspieszenia").style.display = 'block';
-    document.getElementById("dnaboje").style.display = 'block';
-
-    canvas.height = size*grid;
-    canvas.width = size*grid;
-
-    canvasMapa.height = size;
-    canvasMapa.width = size;
-
     if (socket) 
     {
         socket.close();
     }
     
-
+    //let ip = "wss://89.73.44.51:80";
+    let ip = "wss://89.73.44.51:80";
     if(document.getElementById("ntryb").innerHTML == 'Battle Royal')
     {
-        ipAddr = URL + '90';
+       let temp = 80 + ktoryPokojGry;
+       ip = ip + temp.toString();
     }
     else
     {
-        ipAddr = URL + '80';
+        ip = ip + '00';
     }
-    socket = new WebSocket(ipAddr);
+    console.log(ipAddr);
+    console.log(URL);
+    console.log(document.URL)
+    socket = new WebSocket(ip);
+
 
     socket.addEventListener('open', () => {
         // console.log('Połączono z WebSocket');
@@ -210,13 +310,53 @@ function joinToGame()
             //Obsługa danych przesyłanych przez serwer
             let wiad = JSON.parse(wia.data);
             // console.log(wiad)
-            if (wiad.typ === 'plansza') {
-                //Wiadomośc standardowa, czyli przesyłanie klatki gry
-                if (first) {
-                    init();
-                    first = false;
+
+            if(wiad.typ === 'pierwsza')
+            {
+                if(wiad.czyTrwaGra)
+                {
+                    if(ktoryPokojGry < 0) //szukamy pokoju gry który jeszcze nie wystartował
+                    {
+                        ktoryPokojGry++;
+                        socket.close();
+                        joinToGame();
+                        return;
+                    }
                 }
 
+                ruch =  undefined;
+                gameover = false;
+
+                document.getElementById('wynik').style.fontSize = "";
+                document.getElementById('wynik').style.top = "";
+                document.getElementById('wynik').style.color = "";
+                document.getElementById("restart").style.display = "none";
+
+                document.getElementById('joinLobby').style.display = 'none';
+                document.getElementById('game').style.display = 'initial';  
+
+
+                document.getElementById("wynik").style.display = 'flex';
+                document.getElementById("ppomoc").style.display = 'block';
+                document.getElementById("ranking").style.display = 'block';
+                document.getElementById("tranking").style.display = 'block';
+                document.getElementById("wiadomosci").style.display = 'block';
+                document.getElementById("dtarcze").style.display = 'block';
+                document.getElementById("dprzyspieszenia").style.display = 'block';
+                document.getElementById("dnaboje").style.display = 'block';
+                 document.getElementById("wyjdz").style.display = 'block';
+
+                if(wiad.czyTrwaGra)
+                {
+                    gameover = true;
+                    document.getElementById('wynik').style.fontSize = "40px";
+                    document.getElementById('wynik').style.top = "30%";
+                    document.getElementById('wynik').style.color = "white";
+                }
+            }
+
+            else if (wiad.typ === 'plansza') {
+                //Wiadomośc standardowa, czyli przesyłanie klatki gry
 
                 if(wiad.jakieWyslanie == '8')
                 {
@@ -230,6 +370,19 @@ function joinToGame()
 
                     przesuniecie = wiad.przesuniecie;
                     let czy_lobby = wiad.czy_lobby;
+
+
+                    if(wiad.wpisywanie == false)
+                    {
+                        wpisywanieHasla = false;
+                        document.getElementById('msg').type = 'text';
+                    }
+
+                    if(wiad.wpisywanie)
+                    {
+                        document.getElementById('msg').type = 'password';
+                        wpisywanieHasla = true;
+                    }
 
                     if(wiad.size != size)
                     {
@@ -373,8 +526,9 @@ function joinToGame()
                     document.getElementById('wynik').style.fontSize = "40px";
                     document.getElementById('wynik').style.top = "35%";
                     document.getElementById('wynik').style.color = "yellow";
-                    document.getElementById("restart").style.display = "block";
+                    document.getElementById("restart").style.display = "none";
                     zakonczenie_gry = true;
+                    gameover = true;
                 }
                 else if(!wiad.zakonczenie_gry && zakonczenie_gry)
                 {
@@ -384,12 +538,11 @@ function joinToGame()
 
                 if(wiad.odswiez) //żądanie zrestartowania połączenia
                 {
-                    odswiezGre();
                     joinToGame();
                 }
 
             } 
-            else if (wiad.typ === 'gameover') {
+            else if (wiad.typ === 'gameover' && gameover == false) {
                 //Wiadomośc specjalna, informacja o przegranej
                 gameover = true;
                 wynik = wiad.wynik;
@@ -397,6 +550,8 @@ function joinToGame()
                 document.getElementById('wynik').style.top = "30%";
                 document.getElementById('wynik').style.color = "sandybrown";
                 document.getElementById("restart").style.display = "block";
+                document.getElementById("restart").innerHTML = "RESTART";
+                document.getElementById("restart").fontSize = "30px";
                 //console.log("gameover");
             }
         });
@@ -422,18 +577,6 @@ function wyslijWiadomosc()
         haslo = t;
     }
 
-    
-    if(wpisywanieHasla)
-    {
-        wpisywanieHasla = false;
-        document.getElementById('msg').type = 'text';
-    }
-
-    if(t.split(" ")[0] == '/adm')
-    {
-        document.getElementById('msg').type = 'password';
-        wpisywanieHasla = true;
-    }
     document.getElementById('msg').value = "";
     //sendMsg.blur();
 }
@@ -443,6 +586,7 @@ function NacisniecieEnter(e)
      if(e.code == 'Enter')
     {
         window.removeEventListener('keydown', NacisniecieEnter);
+        init();
         joinToGame();
         console.log("remove listener");
     }
@@ -460,9 +604,14 @@ document.getElementById('connect').addEventListener('click', () => {
 
 document.getElementById('restart').addEventListener('click', () => {
 
-    odswiezGre();
-    joinToGame();
-    //location.reload();
+    if(document.getElementById('restart').innerHTML == "RESTART")
+    {
+        joinToGame();
+    }
+    else
+    {
+        location.reload();
+    }
 });
 
 
@@ -476,6 +625,36 @@ document.getElementById('zmienTryb').addEventListener('click', () => {
     {
         document.getElementById('ntryb').innerHTML =  'Battle Royal';
     }
+});
+
+
+/*let tlength = true;
+
+document.getElementById('btoplength').addEventListener('click', () => {
+    if(!tlength)
+    {
+        document.getElementById('toplength').style.display = "inline";
+        document.getElementById('btoplength').style.backgroundColor = "grey";
+        document.getElementById('topwins').style.display = "none";
+        document.getElementById('btopwins').style.backgroundColor = "black";
+        tlength = true;
+    }
+});
+
+document.getElementById('btopwins').addEventListener('click', () => {
+    if(tlength)
+    {
+        document.getElementById('topwins').style.display = "inline";
+        document.getElementById('btopwins').style.backgroundColor = "grey";
+        document.getElementById('toplength').style.display = "none";
+        document.getElementById('btoplength').style.backgroundColor = "black";
+        tlength = false;
+    }
+});*/
+
+
+document.getElementById('wyjdz').addEventListener('click', () => {
+    location.reload();
 });
 
 
@@ -533,6 +712,14 @@ document.getElementById('ppomoc').addEventListener('click', (event) => {
 });
 
 
+document.getElementById('pomoc').addEventListener('click', (event) => {
+    event.stopPropagation();
+});
+
+document.getElementById('trwaleWyniki').addEventListener('click', (event) => {
+    event.stopPropagation();
+});
+
 document.addEventListener('click', () => {
     document.getElementById('trwaleWyniki').style.display = 'none';
     document.getElementById('pomoc').style.display = 'none';
@@ -563,6 +750,10 @@ let dodatkoweInfo = false;
 let lastTransition = '';
 let animationFrame;
 let isAnimating = false;
+
+
+
+
 function loop() {
     const targetX = -snakeX * grid;
     const targetY = -snakeY * grid;
@@ -620,141 +811,6 @@ function loop() {
     {
         cooldown2--;
     }
-
-
-    window.addEventListener('keydown', (e) => {
-        //Obłsuga klawiszy
-        odcisniety = false;
-        let klawisz = e.code;
-        let nruch;
-        let akcja = false;
-
-        if(document.activeElement != msg)
-        {
-            if (klawisz == 'KeyD' || klawisz == "ArrowRight")
-            {
-                nruch = "p";
-            } 
-            else if (klawisz == 'KeyA' || klawisz == "ArrowLeft")
-            {
-                nruch = "l";
-            } 
-            else if (klawisz == 'KeyW' || klawisz == "ArrowUp") 
-            {
-                nruch = "g";
-            }
-            else if (klawisz == 'KeyS' || klawisz == "ArrowDown") 
-            {
-                nruch = "d";
-            }
-    
-            else if (klawisz == 'ShiftLeft' || klawisz == 'ShiftRight')
-            {
-                nruch = 'tarcza';
-                akcja = true;
-            }
-    
-            else if (klawisz == 'KeyQ')
-            {
-                nruch = 'przysp';
-                akcja = true;
-            }
-            else if (klawisz == 'Space')
-            {
-                nruch = 'strzal';
-                akcja = true;
-            }
-
-
-            else if(klawisz == 'KeyE' && cooldown2 == 0)
-            {
-                if(dodatkoweInfo == false)
-                {
-                    dodatkoweInfo = true;
-                    dfps.style.display = 'block';
-                    dtps.style.display = 'block';
-                    dnick.style.display = 'block';
-                    //dtryb.style.display = 'block';
-                }
-                else
-                {
-                    dodatkoweInfo = false;
-                    dfps.style.display = 'none';
-                    dtps.style.display = 'none';
-                    dnick.style.display = 'none';
-                    //dtryb.style.display = 'none';
-                }
-                cooldown2 = 1;
-            }           
-
-            else if(klawisz == 'KeyT' && cooldown2 == 0)
-            {
-                let c = document.getElementById("wiadomosci");
-                if(c.style.display == 'block')
-                {
-                    c.style.display = 'none';
-                }
-                else
-                {
-                    c.style.display = 'block';
-                }
-                cooldown2 = 1;
-            }           
-            
-        } 
-        
-        else if (klawisz == 'Enter' && cooldown2 == 0)
-        {
-            wyslijWiadomosc();
-            cooldown2 = 1;
-        }    
-
-
-        
-
-        /*else if (klawisz == 'KeyO')
-        {
-            document.getElementById("wynik").style.display = 'none';
-            document.getElementById("ranking").style.display = 'none';
-            document.getElementById("tranking").style.display = 'none';
-            document.getElementById("wiadomosci").style.display = 'none';
-            document.getElementById('restart').style.display = 'none';
-
-            document.getElementById("dtarcze").style.display = 'none';
-            document.getElementById("dprzyspieszenia").style.display = 'none';
-            document.getElementById("dnaboje").style.display = 'none';
-
-            document.getElementById("nick").style.display = 'none';
-            document.getElementById("fps").style.display = 'none';
-            document.getElementById("tps").style.display = 'none';
-            document.getElementById('gracze2').style.display = 'none';
-
-            document.getElementById("gracze").style.display = 'none';
-            document.getElementById("minimapa").style.display = 'none';
-            document.getElementById("tryb").style.display = 'none';
-        }*/
-    
-
-        //console.log(klawisz); //uwaga na to - laguje gre
-
-        if(nruch != ruch || (akcja == true && cooldown == 0))
-        {   
-            cooldown = 25;
-            socket.send(
-                JSON.stringify({
-                    ruch: nruch,
-                }),
-            );
-        }
-
-        ruch = nruch;
-
-        if (wiadomosc)
-        {
-            wiadomosc = undefined;
-        }
-    });
-
         
 
     plansza.forEach(function (kwadrat) {

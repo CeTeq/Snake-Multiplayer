@@ -2,15 +2,15 @@
 <html lang="pl">
     <head>
         <meta charset="UTF-8" />
-        <title>Snake multiplayer</title>
-        <link rel="stylesheet" media="screen and (min-height: 500px)" href="style.css" />
-        <link rel="stylesheet" media="screen and (max-height: 500px)" href="styleSmall.css" /> 
+        <title>MultiSnake</title>
+        <link rel="stylesheet" media="screen and (min-height: 600px)" href="style.css" />
+        <link rel="stylesheet" media="screen and (max-height: 600px)" href="styleSmall.css" /> 
         <link rel="icon" type="image/png" href="grafika/ikonka.png">
     </head>
     <body onload="Ustaw()">
         <div id="joinLobby">
             <img src="grafika/tlo.png" id="tlo">
-            <div id="tytul">SnakeMulti</div>
+            <div id="tytul">MultiSnake</div>
             <div id="nnick">Nickname:</div>
             <div id="ppomoc">?</div>
             <div id="pomoc">Snake control:<br> WASD or arrow keys<br><br>Actions:<br>Shield - Shift<br>Speed - Q<br>Shot - Spacebar<br><br>Hide/Show chat - T<br>Additional information - E</div>
@@ -19,6 +19,8 @@
 
             <div id="ntryb">Sandbox</div>
             <button id="zmienTryb">Game Mode</button>
+            <div id="wiadomosc"></div>
+
             <img id="ptrwaleWyniki" src="grafika/wyniki.png">
             <div id="trwaleWyniki"><span style="font-size: 20px; color: yellow;">Top length</span><br></div>
         </div>
@@ -31,12 +33,12 @@
             <div id="wynik">Wynik: </div>
             <button id="start">START</button>
             <button id="restart">RESTART</button>
+            <img src="grafika/quit.png" id="wyjdz">
         </div>
         <div id="tranking">Ranking</div>
         <div id="ranking"></div>
         <div id="wiadomosci">
             <div id="chat"></div>
-            <br/>
             <input type="text" placeholder="" id="msg" /> <!--<button id="sendMsg">send</button>-->
         </div>
         

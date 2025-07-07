@@ -47,7 +47,7 @@ body {
 }
 
 #start {
-	top: 7%;
+	top: 9%;
 	width: auto;
 	height: auto;
 	font-size: 20px;
@@ -94,6 +94,15 @@ body {
 
 #zmienTryb {
 	top: 69%;
+	width: 176.64px;
+	height: 55.6px;
+	position: fixed;
+	font-size: 25px;
+}
+
+
+#wiadomosc {
+	top: 82%;
 	width: 176.64px;
 	height: 55.6px;
 	position: fixed;
@@ -186,7 +195,7 @@ body {
 
 #gracze {
 	right: 1%;
-	top: 13%;
+	top: 17%;
 	position: absolute;
 	font-size: 15px;
 	color: yellowgreen;
@@ -194,7 +203,7 @@ body {
 
 #gracze2 {
 	right: 1%;
-	top: 16.5%;
+	top: 20.5%;
 	position: absolute;
 	font-size: 15px;
 	color: grey;
@@ -202,7 +211,7 @@ body {
 
 #gracze3 {
 	right: 1%;
-	top: 20%;
+	top: 24%;
 	position: absolute;
 	font-size: 15px;
 	color: grey;
@@ -210,7 +219,7 @@ body {
 
 #fps {
 	right: 1%;
-	top: 8%;
+	top: 10%;
 	position: absolute;
 	font-size: 10px;
 	display: none;
@@ -218,7 +227,7 @@ body {
 
 #tps {
 	right: 1%;
-	top: 10%;
+	top: 13%;
 	position: absolute;
 	font-size: 10px;
 	display: none;
@@ -256,7 +265,7 @@ body {
 
 #wiadomosci {
 	right: 1.5%;
-	top: 68%;
+	top: 71.5%;
 	width: 14vw;
 	height: 25vh;
 	position: fixed;
@@ -294,6 +303,14 @@ body {
 	display: none;
 }
 
+#wyjdz {
+	width: 30px;
+	height: 30px;
+	right: 0.5%;
+	top: 1%;
+	position: fixed;
+	display: none;
+}
 
 
 #dtarcze {

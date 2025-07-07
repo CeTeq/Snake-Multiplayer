@@ -1,5 +1,6 @@
 import { WebSocketServer } from 'ws';
 import express, { json } from 'express';
+import https from 'https';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -16,17 +17,49 @@ import { aktualizujBoty, dodajBota, liczba_botow, zmiejszLiczbeBotow } from './b
 let portGry = 8080;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const argument = process.argv[2];
-
-if(argument == 'b')
-{
-    portGry = 8090;
-}
-
-const wss = new WebSocketServer({ port: portGry, host: '192.168.0.241' });
-
 const app = express();
 const port = 8000;
+let port2 = 8079;
+const ip = '0.0.0.0';
+
+
+const argument = process.argv[2];
+export let battle_royal = false;
+
+
+const serwer = https.createServer({
+    cert: fs.readFileSync(path.join(__dirname, 'cert.pem')),
+    key: fs.readFileSync(path.join(__dirname, 'key.pem'))
+}, app);
+
+
+if(argument == undefined)
+{
+    app.use(express.static(path.join(__dirname, 'public')));
+
+    app.get('/', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'snake.html'));
+    });
+
+
+    serwer.listen(port, ip, () => {
+    console.log(`Server is running on https://${ip}:${port}`);
+    });
+
+}
+else
+{
+    port2 += parseInt(argument);
+    serwer.listen(port2, ip, () => {
+    console.log(`Server is running on https://${ip}:${port2}`);
+    });
+    battle_royal = true;
+}
+
+
+
+
+const wss = new WebSocketServer({ server: serwer });
 
 export let grid = 16;
 export const gracze = new Map();
@@ -36,6 +69,7 @@ export let kolizje = [];
 export let plan = new Map();
 export let wysokosc_planszy = 200;
 export let szerokosc_planszy = 200;
+export let czasGrania = 0;
 
 export function zmienRozmiarPlanszy(x, y)
 {
@@ -59,12 +93,6 @@ export function zmienRozmiarPlanszy(x, y)
 }
 
 
-export let battle_royal = false;
-
-if(argument == 'b')
-{
-    battle_royal = true;
-}
 
 export let czy_lobby = battle_royal;
 export let zakonczenie_gry = false;
@@ -98,21 +126,9 @@ const predkosc_ruchu = 8;
 let czy_gra;
 const kolory = ['green', 'red', 'blue', 'orange', 'purple', 'yellow'];
 
-if(argument != 'b')
-{
-    app.use(express.static(path.join(__dirname, 'public')));
-
-    app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'snake.html'));
-    });
-
-    app.listen(port, () => {
-        console.log(`Server is running on http://localhost:${port}`);
-    });
-}
 
 export function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
+    return Math.floor(Math.random() * (max+1 - min)) + min;
 }
 
 apples(liczba_jablek);
@@ -182,10 +198,22 @@ export function zwiekszLiczbeGraczy()
 }
 
 
-wss.on('connection', (ws) => {
-    console.log('Nowe połączenie WebSocket');
+wss.on('connection', (ws, req) => {
+    console.log('Nowe połączenie WebSocket z adresu: ' + req.socket.remoteAddress);
+    let czyTrwa = false;
 
-    dodajWeza(ws);
+    if(battle_royal == true && czy_lobby == false)
+    {
+        czyTrwa = true;
+    }
+    
+    ws.send(                    //Pierwsza wiadomość do klienta
+        JSON.stringify({
+        typ: 'pierwsza',
+        czyTrwaGra: czyTrwa,
+    }),);
+
+    let snake = dodajWeza(ws);
 
     ws.on('message', (wia) => clientMessage(wia, ws)); // Obsługa wiadomości otrzymanych od klienta
 
@@ -202,7 +230,6 @@ wss.on('connection', (ws) => {
         if(snake.gameover == false)
         {
             let temp = [];
-            temp.push({tekst:'Player ', kolor:"red"});
             temp.push({tekst:snake.nick, kolor:snake.kolor});
             temp.push({tekst:'  left the game', kolor:"red"});
 
@@ -218,6 +245,9 @@ wss.on('connection', (ws) => {
                 plan.delete(el);
             });
         }
+
+        let czasTeraz = new Date();
+        czasGrania += czasTeraz - snake.czas;
 
         gracze.delete(ws);
         klienci.delete(ws);
@@ -264,7 +294,7 @@ function loop() {
         szerokosc_planszy /= 2;
         wysokosc_planszy /= 2;
 
-        if(szerokosc_planszy > 50)
+        if(szerokosc_planszy > 25)
         {
             odliczanie_zmniejszania = czasDoZmiejszaniaPlanszy * realneTps;
         }
@@ -320,6 +350,15 @@ function loop() {
         wysokosc_planszy = size;
         przesuniecie = 0;
         remis = false;
+
+        plan.forEach( el => {
+            if(el.typ == 'jablko')
+            {
+                plan.delete(el);
+            }
+        });
+
+        apples(liczba_jablek, false);
     }
 
     if(battle_royal && czy_lobby == false && zakonczenie_gry == false)
@@ -338,7 +377,6 @@ function loop() {
             });
 
             let temp = [];
-            temp.push({tekst:'Player ', kolor:"yellow"});
             temp.push({tekst:wygrany_gracz.nick, kolor:wygrany_gracz.kolor});
             temp.push({tekst:'  won the game', kolor:"yellow"});
 
@@ -354,7 +392,6 @@ function loop() {
             remis = true;
 
             let temp = [];
-            temp.push({tekst:'Players ', kolor:"yellow"});
             temp.push({tekst:czolowe_zderzenia.snake1.nick, kolor:czolowe_zderzenia.snake1.kolor});
             temp.push({tekst:' and ', kolor:'yellow'});
             temp.push({tekst:czolowe_zderzenia.snake2.nick, kolor:czolowe_zderzenia.snake2.kolor});
@@ -375,7 +412,7 @@ function loop() {
     kolizje = [];
 
 
-    if(liczba_graczy < maksGraczyBot && (battle_royal == false || czy_lobby == true))
+    if(liczba_graczy < maksGraczyBot && (battle_royal == false || liczba_graczy < maksGraczyBot-1 || liczba_graczy-liczba_botow >= 1) && (battle_royal == false || czy_lobby == true))
     {
         let czy = getRandomInt(1,opoznienieBot);
         if(czy == 1)
@@ -448,8 +485,9 @@ function loop() {
     plan.forEach(function (el) {
         if(i == predkosc_ruchu) // raz na predkosc_ruchu tickow, raz na 8 ticków
         {
-            if(el.typ == "elsnake" && el.snake.tprzysp == 0)
+            if(el.typ == "elsnake" && el.snake.tprzysp <= 4)
             {
+                //console.log("normalne")
                 let t = {x:el.x, y:el.y, kolor:el.snake.kolor};
                 plansz8.push(t);
                 if(el.snake.ochrona > 0) //dodanie białej otoczki wężowi jeśli ma efekt ochrony
@@ -493,6 +531,7 @@ function loop() {
         {
             if(el.typ == "elsnake" && el.snake.tprzysp > 0)
             {
+                //console.log("przyspieszone" + el.snake.tprzysp)
                 let t = {x:el.x, y:el.y, kolor:el.snake.kolor};
                 plansz4.push(t);
                 if(el.snake.ochrona > 0) //dodanie białej otoczki wężowi jeśli ma efekt ochrony

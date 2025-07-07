@@ -100,6 +100,14 @@ body {
 	font-size: 25px;
 }
 
+#wiadomosc {
+	top: 73%;
+	width: 176.64px;
+	height: 55.6px;
+	position: fixed;
+	font-size: 25px;
+}
+
 #trwaleWyniki {
 	top: 8%;
 	right: 1%;
@@ -130,6 +138,27 @@ body {
 	right: 3.2%;
 	top: 0.7%;
 }
+
+/*#btoplength {
+	font-size: 20px;
+	color: yellow;
+	border: 1px solid white;
+	background-color: grey;
+	width: 50%;
+}
+
+#btopwins {
+	font-size: 20px;
+	color: yellow;
+	border: 1px solid white;
+	background-color: black;
+	width: 50%;
+}
+
+#topwins {
+	display: none;
+}*/
+
 
 #ppomoc {
 	right: 0.5%;
@@ -186,7 +215,7 @@ body {
 
 #gracze {
 	right: 1%;
-	top: 13%;
+	top: 15%;
 	position: absolute;
 	font-size: 15px;
 	color: yellowgreen;
@@ -194,7 +223,7 @@ body {
 
 #gracze2 {
 	right: 1%;
-	top: 15.5%;
+	top: 17.5%;
 	position: absolute;
 	font-size: 15px;
 	color: grey;
@@ -202,7 +231,7 @@ body {
 
 #gracze3 {
 	right: 1%;
-	top: 18%;
+	top: 20%;
 	position: absolute;
 	font-size: 15px;
 	color: grey;
@@ -210,7 +239,7 @@ body {
 
 #fps {
 	right: 1%;
-	top: 8%;
+	top: 10%;
 	position: absolute;
 	font-size: 10px;
 	display: none;
@@ -218,7 +247,7 @@ body {
 
 #tps {
 	right: 1%;
-	top: 10%;
+	top: 12%;
 	position: absolute;
 	font-size: 10px;
 	display: none;
@@ -254,7 +283,7 @@ body {
 
 #wiadomosci {
 	right: 0.7%;
-	top: 70%;
+	top: 73%;
 	width: 12vw;
 	height: 25vh;
 	position: fixed;
@@ -287,6 +316,15 @@ body {
 #restart {
 	top: 46%;
 	font-size: 30px;
+	position: fixed;
+	display: none;
+}
+
+#wyjdz {
+	width: 40px;
+	height: 40px;
+	right: 0.5%;
+	top: 1%;
 	position: fixed;
 	display: none;
 }

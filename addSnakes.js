@@ -36,8 +36,10 @@ export function dodajWeza(ws)
             tprzysp: 0,
             naboje: 0,
             gameover: false,
+            widz: false,
             czy_pierwszy: true,
             bot: false,
+            czas: new Date(),
         };
     
         gracze.set(ws, snake);
@@ -57,6 +59,7 @@ export function dodajWeza(ws)
         {
             snake.gameover = true;
             snake.cells = [];
+            snake.widz = true;
         }
 
         return snake;

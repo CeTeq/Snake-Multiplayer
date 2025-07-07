@@ -22,7 +22,6 @@ export function colisions(obiekt, klient) {
             if(obiekt.snake == snake)
             {
                 let temp = [];
-                temp.push({tekst:'Player ', kolor:"red"});
                 temp.push({tekst:snake.nick, kolor:snake.kolor});
                 temp.push({tekst:' collided with his tall', kolor:"red"});
 
@@ -32,7 +31,6 @@ export function colisions(obiekt, klient) {
             else if(obiekt == obiekt.snake.cells[0]) //Czołowe zdarzenie - obaj gracze giną
             {
                 let temp = [];
-                temp.push({tekst:'Players ', kolor:"red"});
                 temp.push({tekst:snake.nick, kolor:snake.kolor});
                 temp.push({tekst:' and ', kolor:'red'});
                 temp.push({tekst:obiekt.snake.nick, kolor:obiekt.snake.kolor});
@@ -47,7 +45,6 @@ export function colisions(obiekt, klient) {
             else
             {
                 let temp = [];
-                temp.push({tekst:'Player ', kolor:"red"});
                 temp.push({tekst:snake.nick, kolor:snake.kolor});
                 temp.push({tekst:' collided with player: ', kolor:'red'});
                 temp.push({tekst:obiekt.snake.nick, kolor:obiekt.snake.kolor});
@@ -87,9 +84,8 @@ export function colisions(obiekt, klient) {
         else if(obiekt.typ == 'pocisk' && obiekt.snake != snake && snake.ochrona == 0)
         {
             let temp = [];
-            temp.push({tekst:'Player ', kolor:"red"});
             temp.push({tekst:obiekt.snake.nick, kolor:obiekt.snake.kolor});
-            temp.push({tekst:' shot player: ', kolor:'red'});
+            temp.push({tekst:' shot: ', kolor:'red'});
             temp.push({tekst:snake.nick, kolor:snake.kolor});
 
             chat.push(temp);
@@ -107,9 +103,8 @@ export function colisions(obiekt, klient) {
         if(obiekt.typ == 'pocisk' && obiekt.snake != snake && snake.ochrona == 0)
         {
             let temp = [];
-            temp.push({tekst:'Player ', kolor:"red"});
             temp.push({tekst:obiekt.snake.nick, kolor:obiekt.snake.kolor});
-            temp.push({tekst:' shot player: ', kolor:'red'});
+            temp.push({tekst:' shot: ', kolor:'red'});
             temp.push({tekst:snake.nick, kolor:snake.kolor});
 
             chat.push(temp);

@@ -1,5 +1,5 @@
 import { chat, privChat, realneTps, grid, gracze, odliczanie_zmniejszania, battle_royal, czy_lobby, zakonczenie_gry, remis, wygrany_gracz, zrespawnuj, odliczanie_rozpoczecia, czas_odli_rozp, tps, liczba_klientow, liczba_graczy, szerokosc_planszy, wysokosc_planszy, przesuniecie } from '../serwer-snake.js';
-import { kick, admins, host, title } from '../events/clientMessage.js';
+import { kick, admins, host, title, oczekujacyAdmini } from '../events/clientMessage.js';
 import { czolowe_zderzenia } from '../checks/colisions.js';
 import { liczba_botow } from '../bots.js';
 
@@ -21,11 +21,13 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, nickiAd
     let h = false;
     let a = false;
     let tr;
+    let wpisywanieHasla = false;
     let nickiDoWyslania = [];                  
 
     let planszaDoWyslania8 = [];
     let planszaDoWyslania4 = [];
     let planszaDoWyslania2 = [];
+
     let x1 = snake.x - zasiegWidoku.x;
     let y1 = snake.y - zasiegWidoku.y;
     let x2 = snake.x + zasiegWidoku.x;
@@ -63,11 +65,13 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, nickiAd
     });
 
 
-    /*planszaDoWyslania8.forEach(function (el) {
-            el.x = el.x - x1;
-            el.y = el.y - y1;
-    });*/
 
+     oczekujacyAdmini.forEach(ad => {
+            if(klient == ad)
+            {
+                wpisywanieHasla = true;
+            }
+    });
 
     let gr="", gr2="", gr3="";
     if(a)
@@ -93,10 +97,10 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, nickiAd
     }
 
 
-    if(host.h == klient)
+    /*if(host.h == klient)
     {
         h = true;
-    }
+    }*/
     
     if(czy_lobby)
     {
@@ -106,7 +110,11 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, nickiAd
     {
         t = 'Score: ' + snake.wynik;
     }
-    else if(snake.gameover == true)
+    else if(snake.widz)
+    {
+        t = 'You are spectator<br>the game is in progress';
+    }
+    else if(snake.gameover == true )
     {
         t = 'Game over!' + '<br>' + 'Score: ' + snake.wynik;
     }
@@ -144,7 +152,7 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, nickiAd
     }
     
 
-    if(jakieWyslanie == '8')
+    if(jakieWyslanie == '8') 
     {
         let mapa = [];
         let chatDo = structuredClone(chat);
@@ -156,21 +164,24 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, nickiAd
             }
         });
 
-        gracze.forEach( snake2 => {
-            let czy = false;
-            if(snake2 == snake)
+        gracze.forEach( snake2 => { // Gracze na minimapie
+            if(snake2.gameover == false)
             {
-                czy = true;
+                let czy = false;
+                if(snake2 == snake)
+                {
+                    czy = true;
+                }
+                mapa.push({x: snake2.x, y: snake2.y, kolor: snake2.kolor, czyJa: czy, rodzaj:"fillRect"});
             }
-            mapa.push({x: snake2.x, y: snake2.y, kolor: snake2.kolor, czyJa: czy, rodzaj:"fillRect"});
         })
 
-        if(odliczanie_zmniejszania < 200*realneTps && odliczanie_zmniejszania != 0) //czerwona linia na minimapie
+        if(odliczanie_zmniejszania < 40*realneTps && odliczanie_zmniejszania != 0) //czerwona linia na minimapie
         {
             mapa.push({x: szerokosc_planszy/4, y: wysokosc_planszy/4, kolor: "red", rodzaj:"strokeRect"});
         }
 
-        if(odliczanie_zmniejszania < 200*realneTps && odliczanie_zmniejszania != 0) //czerwona linia na planszy
+        if(odliczanie_zmniejszania < 40*realneTps && odliczanie_zmniejszania != 0) //czerwona linia na planszy
         {
             planszaDoWyslania8.push({x: szerokosc_planszy*grid/4, y: wysokosc_planszy*grid/4, kolor: "red", rodzaj:"strokeRect", roz:szerokosc_planszy/2*grid});
         }
@@ -202,6 +213,7 @@ export function gameUpdateMsg(klient, plansz8, plansz4, plansz2, napisy, nickiAd
                 size: szerokosc_planszy,
                 przesuniecie: przesuniecie,
                 admin: a,
+                wpisywanie: wpisywanieHasla,
                 host: h,
                 tryb: tr,
                 zakonczenie_gry: zakonczenie_gry,

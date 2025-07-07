@@ -1,5 +1,5 @@
 import { dodajWeza } from "./addSnakes.js";
-import { getRandomInt, gracze, klienci, grid, chat} from "./serwer-snake.js";
+import { getRandomInt, gracze, klienci, grid, chat, plan} from "./serwer-snake.js";
 
 export let liczba_botow = 0;
 let botId = 0; 
@@ -34,7 +34,7 @@ export function zmiejszLiczbeBotow()
 
 export function dodajBota()
 {
-    console.log('Nowy bot');
+    //console.log('Nowy bot');
     let snake = dodajWeza(botId);
     botId++;
     liczba_botow++;
@@ -44,7 +44,6 @@ export function dodajBota()
     snake.bot = true;
 
     let t = [];
-    t.push({tekst:'Player ', kolor:"green"});
     t.push({tekst:snake.nick, kolor:snake.kolor});
     t.push({tekst:' joined to the game', kolor:"green"});
 
@@ -83,6 +82,40 @@ export function aktualizujBoty()
                     snake.dy = grid;
                     snake.dx = 0;
                 }
+            }
+
+
+            let czyAkcja = getRandomInt(1,20);
+            if(czyAkcja == 1)
+            {
+                let akcja = getRandomInt(1,3);
+
+                if(akcja == '1' && snake.tarcze > 0)
+                {
+                    snake.tarcze--;
+                    snake.ochrona = 250;
+                }
+                else if(akcja == '2' && snake.przysp > 0)
+                {
+                    snake.przysp--;
+                    snake.tprzysp = 250;
+                }
+                else if(akcja == '3' && snake.naboje > 0)
+                {
+                    snake.naboje--;
+                    let pocisk = {
+                        typ: 'pocisk',
+                        kolor: 'grey',
+                        x: snake.x+snake.dx,
+                        y: snake.y+snake.dy,
+                        dx: snake.dx,
+                        dy: snake.dy,
+                        snake: snake,
+                        zasieg: 30,
+                    };
+                    plan.set(pocisk, pocisk);
+                }
+               // console.log(akcja);
             }
         }
         });

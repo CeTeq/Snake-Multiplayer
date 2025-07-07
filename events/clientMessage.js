@@ -2,16 +2,17 @@ import { Filter } from 'bad-words';
 import { apples, liczba_jablek } from '../items/apples.js';
 import { opoznienie, maks, liczba } from '../items/boosts.js';
 import { zasiegWidoku } from '../messages/gameUpdate.js';
-import { chat, gracze, grid, plan, liczba_klientow, wymus_start, privChat, liczba_graczy, zmienRozmiarPlanszy, realneTps } from '../serwer-snake.js';
-import { dodajBota } from '../bots.js';
+import { chat, gracze, grid, plan, liczba_klientow, wymus_start, privChat, liczba_graczy, zmienRozmiarPlanszy, realneTps, czasGrania } from '../serwer-snake.js';
+import { dodajBota, liczba_botow } from '../bots.js';
 
 export let kick = null;
 export let haslo = "k";
 export let admins = [];
 export let opoznienieBot = 500;
-export let maksGraczyBot = 15;
+export let maksGraczyBot = 16;
 export let oczekujacyAdmini = new Map;
-export let czasDoZmiejszaniaPlanszy = 500; // w sekundach
+export let czasDoZmiejszaniaPlanszy = 120; // w sekundach
+export let sumaGraczy = 0;
 export let host = {
     h:undefined,
 };
@@ -20,7 +21,7 @@ export let title = {
     zywotnosc:0
 };
 
-const komendy = ['broyal','kill','clear','effect','mapsize','cells','spawn','set','render','title','bot'];
+const komendy = ['broyal','kill','clear','effect','mapsize','cells','spawn','set','render','title','bot','stat'];
 
 export function clientMessage(wia, ws) {
     wia = JSON.parse(wia);
@@ -39,11 +40,12 @@ export function clientMessage(wia, ws) {
     
         gracze.set(ws, sn);
         let t = [];
-        t.push({tekst:'Player ', kolor:"green"});
         t.push({tekst:sn.nick, kolor:sn.kolor});
         t.push({tekst:' joined to the game', kolor:"green"});
 
         chat.push(t);
+
+        sumaGraczy++;
        // chat.push('<span style="color: green;">Gracz ', + sn.nick + ' dołączył do gry</span>');
     } 
     else 
@@ -101,7 +103,6 @@ export function clientMessage(wia, ws) {
                             if(gr.gameover == false && gr != sn)
                             {
                                 let temp = [];
-                                temp.push({tekst:'Player ', kolor:"red"});
                                 temp.push({tekst:gr.nick, kolor:gr.kolor});
                                 temp.push({tekst:' was slain', kolor:"red"});
 
@@ -118,7 +119,6 @@ export function clientMessage(wia, ws) {
                             if(gr.gameover == false && gr.bot)
                             {
                                 let temp = [];
-                                temp.push({tekst:'Player ', kolor:"red"});
                                 temp.push({tekst:gr.nick, kolor:gr.kolor});
                                 temp.push({tekst:' was slain', kolor:"red"});
 
@@ -135,7 +135,6 @@ export function clientMessage(wia, ws) {
                                 if(gr.nick == komenda[1])
                                 {
                                     let temp = [];
-                                    temp.push({tekst:'Player ', kolor:"red"});
                                     temp.push({tekst:gr.nick, kolor:gr.kolor});
                                     temp.push({tekst:' was slain', kolor:"red"});
 
@@ -159,6 +158,19 @@ export function clientMessage(wia, ws) {
         
                             privChat.push({gr:sn, wiad:temp});
                         })
+                    }
+                    else if(komenda[0] == "/stat")
+                    {
+                        let t = [];
+                        let t2 = [];
+                        let s = czasGrania/(sumaGraczy-(liczba_graczy-liczba_botow))/1000;
+                        let m = Math.floor(s/60,1);
+                        s = Math.floor(s%60,2);
+                        t.push({tekst:'Suma graczy: ' + sumaGraczy, kolor:'grey'});
+                        t2.push({tekst:'Średni czas gry: ' + m + "m " + s + "s", kolor:'grey'});
+    
+                        privChat.push({gr:sn, wiad:t});
+                        privChat.push({gr:sn, wiad:t2});
                     }
                     else if(komenda[0] == "/kick")
                     {
@@ -447,7 +459,7 @@ export function clientMessage(wia, ws) {
                 }
         } 
 
-        else if((czy_admin || ws == host.h) && ruch == undefined && wia.wymus_start && liczba_klientow > 1)
+        else if((czy_admin || ws == host.h) && ruch == undefined && wia.wymus_start)
         {
             wymus_start.st = true;
             //console.log("wystartowano ręcznie");
@@ -495,7 +507,6 @@ export function clientMessage(wia, ws) {
                 };
                 plan.set(pocisk, pocisk);
             }
-            gracze.set(ws, snake);
         }
     }
 }
