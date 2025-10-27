@@ -281,20 +281,19 @@ function joinToGame()
         socket.close();
     }
     
-    //let ip = "wss://89.73.44.51:80";
-    let ip = "wss://89.73.44.51:80";
+    //let ip = "wss://vps-ef6fd4d2.vps.ovh.net:80";
+    let ip = "0.0.0.0:80";
     if(document.getElementById("ntryb").innerHTML == 'Battle Royal')
     {
        let temp = 80 + ktoryPokojGry;
        ip = ip + temp.toString();
+       console.log(ip);
     }
     else
     {
         ip = ip + '00';
     }
-    console.log(ipAddr);
-    console.log(URL);
-    console.log(document.URL)
+
     socket = new WebSocket(ip);
 
 
@@ -619,11 +618,11 @@ document.getElementById('zmienTryb').addEventListener('click', () => {
     let tryb = document.getElementById('ntryb').innerHTML;
     if(tryb == 'Battle Royal')
     {
-        document.getElementById('ntryb').innerHTML = "Sandbox";
+        document.getElementById('ntryb').innerHTML = "FFA";
     }
     else
     {
-        document.getElementById('ntryb').innerHTML =  'Battle Royal';
+        document.getElementById('ntryb').innerHTML =  'Battle Royale';
     }
 });
 
@@ -907,7 +906,10 @@ function loop() {
     context.font = '12px serif';
 
     napisy.forEach((nap) => {
-        context.fillText(nap.n, nap.x+przesuniecie, nap.y+przesuniecie);
+        if(!nap.czyJa)
+        {
+            context.fillText(nap.n, nap.x+przesuniecie, nap.y+przesuniecie);
+        }
     });
 }
 

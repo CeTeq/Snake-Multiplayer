@@ -50,7 +50,7 @@ export function dodajBota()
     chat.push(t);
 }
 
-export function aktualizujBoty()
+export function aktualizujBoty() //AI botów
 {
      klienci.forEach((kl) => {
         if(Number.isInteger(kl)) //sprawdzanie czy to jest bot

@@ -40,6 +40,7 @@ export function dodajWeza(ws)
             czy_pierwszy: true,
             bot: false,
             czas: new Date(),
+            ip: '0.0.0.0',
         };
     
         gracze.set(ws, snake);

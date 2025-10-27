@@ -30,6 +30,8 @@ export let battle_royal = false;
 const serwer = https.createServer({
     cert: fs.readFileSync(path.join(__dirname, 'cert.pem')),
     key: fs.readFileSync(path.join(__dirname, 'key.pem'))
+    //cert: fs.readFileSync(path.join(__dirname, '../../../etc/letsencrypt/live/vps-ef6fd4d2.vps.ovh.net/fullchain.pem')),
+    //key: fs.readFileSync(path.join(__dirname, '../../../etc/letsencrypt/live/vps-ef6fd4d2.vps.ovh.net/privkey.pem'))
 }, app);
 
 
@@ -97,7 +99,7 @@ export function zmienRozmiarPlanszy(x, y)
 export let czy_lobby = battle_royal;
 export let zakonczenie_gry = false;
 export let wygrany_gracz = undefined;
-export let czas_odli_rozp = 250;
+export let czas_odli_rozp = 500;
 export let odliczanie_rozpoczecia = czas_odli_rozp;
 export let odliczanie_restartowania = 0;
 export let odliczanie_zmniejszania = 0;
@@ -107,7 +109,7 @@ st: false,
 export let liczba_graczy = 0;
 export let liczba_klientow = 0;
 export let remis = false;
-export const tps = 10;
+export const tps = 16.7;
 export let zrespawnuj = false;
 export let przesuniecie = 0;
 export let realneTps = 0;
@@ -214,6 +216,7 @@ wss.on('connection', (ws, req) => {
     }),);
 
     let snake = dodajWeza(ws);
+    snake.ip = req.socket.remoteAddress;
 
     ws.on('message', (wia) => clientMessage(wia, ws)); // Obsługa wiadomości otrzymanych od klienta
 
@@ -247,7 +250,10 @@ wss.on('connection', (ws, req) => {
         }
 
         let czasTeraz = new Date();
-        czasGrania += czasTeraz - snake.czas;
+        if(snake.ip != "89.73.44.51")
+        {
+            czasGrania += czasTeraz - snake.czas;
+        }
 
         gracze.delete(ws);
         klienci.delete(ws);
@@ -412,7 +418,7 @@ function loop() {
     kolizje = [];
 
 
-    if(liczba_graczy < maksGraczyBot && (battle_royal == false || liczba_graczy < maksGraczyBot-1 || liczba_graczy-liczba_botow >= 1) && (battle_royal == false || czy_lobby == true))
+    if(liczba_graczy < maksGraczyBot && (battle_royal == false || liczba_graczy-liczba_botow >= 1 || liczba_botow < 5) && (battle_royal == false || czy_lobby == true))
     {
         let czy = getRandomInt(1,opoznienieBot);
         if(czy == 1)

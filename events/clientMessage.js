@@ -6,10 +6,10 @@ import { chat, gracze, grid, plan, liczba_klientow, wymus_start, privChat, liczb
 import { dodajBota, liczba_botow } from '../bots.js';
 
 export let kick = null;
-export let haslo = "k";
+export let haslo = "kaptur9";
 export let admins = [];
-export let opoznienieBot = 500;
-export let maksGraczyBot = 16;
+export let opoznienieBot = 250;
+export let maksGraczyBot = 32;
 export let oczekujacyAdmini = new Map;
 export let czasDoZmiejszaniaPlanszy = 120; // w sekundach
 export let sumaGraczy = 0;
@@ -45,7 +45,10 @@ export function clientMessage(wia, ws) {
 
         chat.push(t);
 
-        sumaGraczy++;
+        if(sn.ip != "89.73.44.51")
+        {
+            sumaGraczy++;
+        }
        // chat.push('<span style="color: green;">Gracz ', + sn.nick + ' dołączył do gry</span>');
     } 
     else 
